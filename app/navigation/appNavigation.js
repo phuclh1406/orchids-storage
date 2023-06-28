@@ -14,7 +14,7 @@ const AppNavigation = () => {
 
   return (
     <Tab.Navigator
-      screenOptions={{
+      tabBarOptions={{
         showLabel: false,
         activeTintColor: colors.primary,
       }}>
@@ -56,7 +56,7 @@ const AppNavigation = () => {
         }}
       />
       <Tab.Screen
-        name="Favorite"
+        name="FavoriteScreen"
         component={FavoriteScreen}
         options={{
           unmountOnBlur: true,

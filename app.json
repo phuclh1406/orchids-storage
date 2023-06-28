@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "coffee-app",
-    "slug": "coffee-app",
+    "name": "orchids-storage",
+    "slug": "orchids-storage",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",

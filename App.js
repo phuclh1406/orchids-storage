@@ -20,7 +20,7 @@ const App = () => {
           }}
         >
           {/* <Stack.Screen name="Home" component={HomeScreen} /> */}
-          <Stack.Screen name="Favorite" component={AppNavigation}/>
+          <Stack.Screen name="FavoriteScreen" component={AppNavigation}/>
           <Stack.Screen name="Home" component={AppNavigation} />
           <Stack.Screen name="OrchidDetail" component={OrchidDetailsScreen} />
         </Stack.Navigator>
