@@ -10,8 +10,6 @@ import FavoriteScreen from '../screens/FavoriteScreen';
 const Tab = createBottomTabNavigator();
 
 const AppNavigation = () => {
-  
-
   return (
     <Tab.Navigator
       tabBarOptions={{
@@ -45,7 +43,7 @@ const AppNavigation = () => {
                 borderColor: colors.primary,
                 borderWidth: 2,
                 borderRadius: 30,
-                top: -25,
+                top: -15,
                 elevation: 5,
               }}>
               <Icon name="search" color={colors.primary} size={28} />

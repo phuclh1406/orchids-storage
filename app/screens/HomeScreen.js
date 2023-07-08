@@ -19,6 +19,7 @@ import orchids from "../config/orchids";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import categories from "../config/categories";
+import { StatusBar } from "expo-status-bar";
 
 const avatar = require("../../assets/avatar.jpg");
 
@@ -93,16 +94,20 @@ const HomeScreen = ({ navigation }) => {
   };
   return (
     <SafeAreaView style={{ backgroundColor: colors.dark, flex: 1 }}>
+      <StatusBar
+        backgroundColor="#61dafb"
+      />
       <ScrollView
         style={{
           padding: SPACING,
-          marginBottom: SPACING * 2
+          paddingTop: SPACING * 4
         }}
       >
         <View
           style={{
             flexDirection: "row",
             justifyContent: "space-between",
+            paddingBottom: SPACING * 2
           }}
         >
           <TouchableOpacity
@@ -129,7 +134,7 @@ const HomeScreen = ({ navigation }) => {
           </TouchableOpacity>
           <View
             style={{
-              width: SPACING * 12,
+              width: SPACING * 15,
               height: SPACING * 4,
               overflow: "hidden",
               marginTop: SPACING / 2,
@@ -167,7 +172,7 @@ const HomeScreen = ({ navigation }) => {
             </BlurView>
           </View>
         </View>
-        <View style={{ width: "80%", marginVertical: SPACING }}></View>
+        {/* <View style={{ width: "80%", marginVertical: SPACING }}></View> */}
         <SearchField />
         <Categories
           let
@@ -179,6 +184,7 @@ const HomeScreen = ({ navigation }) => {
             flexDirection: "row",
             flexWrap: "wrap",
             justifyContent: "space-between",
+            paddingBottom: SPACING * 4
           }}
         >
           {orchids

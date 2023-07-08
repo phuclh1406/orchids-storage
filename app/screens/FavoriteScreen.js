@@ -23,6 +23,7 @@ import {
   useIsFocused,
 } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { StatusBar } from "expo-status-bar";
 
 const avatar = require("../../assets/avatar.jpg");
 
@@ -120,10 +121,14 @@ const FavoriteScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={{ backgroundColor: colors.dark, flex: 1 }}>
+      <StatusBar
+        backgroundColor="#61dafb"
+      />
       <ScrollView
         style={{
           padding: SPACING,
-          marginBottom: SPACING * 2
+          paddingTop: SPACING * 4,
+          paddingBottom: SPACING * 4,
         }}
       >
         <View
@@ -152,7 +157,7 @@ const FavoriteScreen = ({ navigation }) => {
           </TouchableOpacity>
           <View
             style={{
-              width: SPACING * 14,
+              width: SPACING * 16,
               height: SPACING * 4,
               overflow: "hidden",
               marginTop: SPACING / 2,
@@ -235,6 +240,7 @@ const FavoriteScreen = ({ navigation }) => {
             flexDirection: "row",
             flexWrap: "wrap",
             justifyContent: "space-between",
+            paddingBottom: SPACING * 4
           }}
         >
           {console.log(favoriteOrchidsList)}
