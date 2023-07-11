@@ -95,7 +95,7 @@ const HomeScreen = ({ navigation }) => {
   return (
     <SafeAreaView style={{ backgroundColor: colors.dark, flex: 1 }}>
       <StatusBar
-        backgroundColor="#61dafb"
+        backgroundColor={colors.primary}
       />
       <ScrollView
         style={{

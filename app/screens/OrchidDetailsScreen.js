@@ -78,6 +78,7 @@ const OrchidDetailsScreen = ({ route }) => {
                 flexDirection: "row",
                 justifyContent: "space-between",
                 padding: SPACING * 2,
+                paddingTop: SPACING * 6,
               }}
             >
               <TouchableOpacity

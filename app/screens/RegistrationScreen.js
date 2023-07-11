@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import React from 'react';
+import React, { useContext, useEffect } from 'react';
 import {
   View,
   Text,
@@ -13,16 +13,20 @@ import COLORS from '../config/colors';
 import Button from '../components/Button';
 import Input from '../components/Input';
 import Loader from '../components/Loader';
+import axios from 'axios';
+import { BASE_URL } from '../config';
+import { AuthContext } from '../context/AuthContext';
 
 const RegistrationScreen = ({navigation}) => {
   const [inputs, setInputs] = React.useState({
     email: '',
-    fullname: '',
-    phone: '',
     password: '',
+    confirm_password: '',
   });
   const [errors, setErrors] = React.useState({});
-  const [loading, setLoading] = React.useState(false);
+  // const [loading, setLoading] = React.useState(false);
+  // const [userInfo, setUserInfo] = React.useState(null);
+  const {isLoading, isNavigate, register} = useContext(AuthContext);
 
   const validate = () => {
     Keyboard.dismiss();
@@ -36,16 +40,6 @@ const RegistrationScreen = ({navigation}) => {
       isValid = false;
     }
 
-    if (!inputs.fullname) {
-      handleError('Please input fullname', 'fullname');
-      isValid = false;
-    }
-
-    if (!inputs.phone) {
-      handleError('Please input phone number', 'phone');
-      isValid = false;
-    }
-
     if (!inputs.password) {
       handleError('Please input password', 'password');
       isValid = false;
@@ -53,24 +47,49 @@ const RegistrationScreen = ({navigation}) => {
       handleError('Min password length of 5', 'password');
       isValid = false;
     }
+    
+    if (!inputs.confirm_password) {
+      handleError('Please input confirm password', 'confirm_password');
+      isValid = false;
+    } else if (inputs.password !== inputs.confirm_password) {
+      handleError('Not match!', 'confirm_password');
+      isValid = false;
+    }
 
     if (isValid) {
-      register();
+      register(inputs.email, inputs.password, inputs.confirm_password);
+      if (isNavigate) {
+        navigation.navigate('LoginScreen');
+      }
     }
   };
 
-  const register = () => {
-    setLoading(true);
-    setTimeout(() => {
-      try {
-        setLoading(false);
-        AsyncStorage.setItem('userData', JSON.stringify(inputs));
-        navigation.navigate('LoginScreen');
-      } catch (error) {
-        Alert.alert('Error', 'Something went wrong');
-      }
-    }, 3000);
-  };
+  // const register = () => {
+  //   setLoading(true);
+  //   const email = inputs.email;
+  //   const password = inputs.password;
+  //   const confirm_pass = inputs.confirm_password;
+  //   axios.post(`${BASE_URL}/auth/register`, {
+  //     email,
+  //     password,
+  //     confirm_pass
+  //   }).then(res => {
+  //     console.log(res.data);
+  //     // const userInfo = res.data;
+  //     // setUserInfo(userInfo);
+  //   }).catch(e => {
+  //     console.log(`Register error ${e}`);
+  //   });
+  //   setTimeout(() => {
+  //     try {
+  //       setLoading(false);
+  //       // AsyncStorage.setItem('userData', JSON.stringify(inputs));
+  //       navigation.navigate('LoginScreen');
+  //     } catch (error) {
+  //       Alert.alert('Error', 'Something went wrong');
+  //     }
+  //   }, 3000);
+  // };
 
   const handleOnchange = (text, input) => {
     setInputs(prevState => ({...prevState, [input]: text}));
@@ -78,9 +97,16 @@ const RegistrationScreen = ({navigation}) => {
   const handleError = (error, input) => {
     setErrors(prevState => ({...prevState, [input]: error}));
   };
+
+  useEffect(() => {
+    if (isNavigate) {
+      navigation.navigate('LoginScreen');
+    }
+  }, [isNavigate, navigation]);
+
   return (
     <SafeAreaView style={{backgroundColor: COLORS.white, flex: 1}}>
-      <Loader visible={loading} />
+      <Loader visible={isLoading} />
       <ScrollView
         contentContainerStyle={{paddingTop: 50, paddingHorizontal: 20}}>
         <Text style={{color: COLORS.black, fontSize: 40, fontWeight: 'bold'}}>
@@ -100,24 +126,6 @@ const RegistrationScreen = ({navigation}) => {
           />
 
           <Input
-            onChangeText={text => handleOnchange(text, 'fullname')}
-            onFocus={() => handleError(null, 'fullname')}
-            iconName="account-outline"
-            label="Full Name"
-            placeholder="Enter your full name"
-            error={errors.fullname}
-          />
-
-          <Input
-            keyboardType="numeric"
-            onChangeText={text => handleOnchange(text, 'phone')}
-            onFocus={() => handleError(null, 'phone')}
-            iconName="phone-outline"
-            label="Phone Number"
-            placeholder="Enter your phone no"
-            error={errors.phone}
-          />
-          <Input
             onChangeText={text => handleOnchange(text, 'password')}
             onFocus={() => handleError(null, 'password')}
             iconName="lock-outline"
@@ -126,6 +134,17 @@ const RegistrationScreen = ({navigation}) => {
             error={errors.password}
             password
           />
+
+          <Input
+            onChangeText={text => handleOnchange(text, 'confirm_password')}
+            onFocus={() => handleError(null, 'confirm_password')}
+            iconName="lock-outline"
+            label="Confirm password"
+            placeholder="Enter your confirm password"
+            error={errors.confirm_password}
+            password
+          />
+
           <Button title="Register" onPress={validate} />
           <Text
             onPress={() => navigation.navigate('LoginScreen')}

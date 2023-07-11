@@ -40,7 +40,7 @@ const FavoriteScreen = ({ navigation }) => {
         // Reset the navigation state to the initial route of the stack
         navigation.reset({
           index: 0,
-          routes: [{ name: "Favorite" }],
+          routes: [{ name: "FavoriteScreen" }],
         });
       });
 
@@ -122,7 +122,7 @@ const FavoriteScreen = ({ navigation }) => {
   return (
     <SafeAreaView style={{ backgroundColor: colors.dark, flex: 1 }}>
       <StatusBar
-        backgroundColor="#61dafb"
+        backgroundColor={colors.primary}
       />
       <ScrollView
         style={{
@@ -243,7 +243,7 @@ const FavoriteScreen = ({ navigation }) => {
             paddingBottom: SPACING * 4
           }}
         >
-          {console.log(favoriteOrchidsList)}
+          {/* {console.log(favoriteOrchidsList)} */}
           {favoriteOrchidsList.length !== 0 ? (
             favoriteOrchidsList
               .filter((orchid) => {

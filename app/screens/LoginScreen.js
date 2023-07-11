@@ -1,15 +1,18 @@
-import React from 'react';
-import {View, Text, SafeAreaView, Keyboard, Alert} from 'react-native';
+import React, { useContext, useEffect } from 'react';
+import { View, Text, SafeAreaView, Keyboard, Alert } from 'react-native';
 import COLORS from '../config/colors';
 import Button from '../components/Button';
 import Input from '../components/Input';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Loader from '../components/Loader';
+import { AuthContext } from '../context/AuthContext';
 
-const LoginScreen = ({navigation}) => {
-  const [inputs, setInputs] = React.useState({email: '', password: ''});
+const LoginScreen = ({ navigation }) => {
+  const [inputs, setInputs] = React.useState({ email: '', password: '' });
   const [errors, setErrors] = React.useState({});
-  const [loading, setLoading] = React.useState(false);
+  // const [loading, setLoading] = React.useState(false);
+  // const [userInfo, setUserInfo] = React.useState(null);
+  const {isLoading, isNavigate, login} = useContext(AuthContext);
 
   const validate = async () => {
     Keyboard.dismiss();
@@ -23,53 +26,68 @@ const LoginScreen = ({navigation}) => {
       isValid = false;
     }
     if (isValid) {
-      login();
+      login(inputs.email, inputs.password);
     }
   };
 
-  const login = () => {
-    setLoading(true);
-    setTimeout(async () => {
-      setLoading(false);
-      let userData = await AsyncStorage.getItem('userData');
-      if (userData) {
-        userData = JSON.parse(userData);
-        if (
-          inputs.email == userData.email &&
-          inputs.password == userData.password
-        ) {
-          navigation.navigate('Home');
-          AsyncStorage.setItem(
-            'userData',
-            JSON.stringify({...userData, loggedIn: true}),
-          );
-        } else {
-          Alert.alert('Error', 'Invalid Details');
-        }
-      } else {
-        Alert.alert('Error', 'User does not exist');
-      }
-    }, 3000);
-  };
+  // const login = () => {
+  //   setLoading(true);
+  //   const email = inputs.email;
+  //   const password = inputs.password;
+  //   console.log(email);
+  //   console.log(password);
+  //   axios.post(`${BASE_URL}/auth/login`, {
+  //     email,
+  //     password,
+  //   }).then(res => {
+  //     console.log(res.data);
+  //     const userLogin = res.data;
+  //     setUserInfo(userLogin);
+  //   }).catch(e => {
+  //     console.log(`Login error ${e}`);
+  //   });
+
+  //   setTimeout(async () => {
+  //     setLoading(false);
+  //     // let userData = await AsyncStorage.getItem('userData');
+  //     console.log(userInfo);
+  //     if (userInfo) {
+  //       navigation.navigate('Home');
+  //       AsyncStorage.setItem(
+  //         'userData',
+  //         JSON.stringify({ ...userInfo, loggedIn: true }),
+  //       );
+  //     } else {
+  //       Alert.alert('Error', 'User does not exist');
+  //     }
+  //   }, 3000);
+  // };
 
   const handleOnchange = (text, input) => {
-    setInputs(prevState => ({...prevState, [input]: text}));
+    setInputs(prevState => ({ ...prevState, [input]: text }));
   };
 
   const handleError = (error, input) => {
-    setErrors(prevState => ({...prevState, [input]: error}));
+    setErrors(prevState => ({ ...prevState, [input]: error }));
   };
+
+  useEffect(() => {
+    if (isNavigate) {
+      navigation.navigate('Home');
+    }
+  }, [isNavigate, navigation]);
+
   return (
-    <SafeAreaView style={{backgroundColor: COLORS.white, flex: 1}}>
-      <Loader visible={loading} />
-      <View style={{paddingTop: 50, paddingHorizontal: 20}}>
-        <Text style={{color: COLORS.black, fontSize: 40, fontWeight: 'bold'}}>
+    <SafeAreaView style={{ backgroundColor: COLORS.white, flex: 1 }}>
+      <Loader visible={isLoading} />
+      <View style={{ paddingTop: 50, paddingHorizontal: 20 }}>
+        <Text style={{ color: COLORS.black, fontSize: 40, fontWeight: 'bold' }}>
           Log In
         </Text>
-        <Text style={{color: COLORS.grey, fontSize: 18, marginVertical: 10}}>
+        <Text style={{ color: COLORS.grey, fontSize: 18, marginVertical: 10 }}>
           Enter Your Details to Login
         </Text>
-        <View style={{marginVertical: 20}}>
+        <View style={{ marginVertical: 20 }}>
           <Input
             onChangeText={text => handleOnchange(text, 'email')}
             onFocus={() => handleError(null, 'email')}
