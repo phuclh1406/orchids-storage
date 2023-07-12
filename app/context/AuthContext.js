@@ -7,6 +7,7 @@ export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const [userInfo, setUserInfo] = useState({});
+    const [foodData, setFoodData] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [isNavigate, setIsNavigate] = useState(false);
     //   const [splashLoading, setSplashLoading] = useState(false);
@@ -107,14 +108,39 @@ export const AuthProvider = ({ children }) => {
     //     isLoggedIn();
     //   }, []);
 
+    const getFood = async () => {
+        setIsLoading(true);
+        try {
+          const userInfo = await AsyncStorage.getItem('userData');
+          const parsedUserInfo = JSON.parse(userInfo);
+      
+          const response = await axios.get(`${BASE_URL}/foods`, {
+            headers: {
+              'Authorization': `Bearer ${parsedUserInfo.access_token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+      
+            const foods = response.data;
+            setFoodData(foods); // Update the foodData state
+            AsyncStorage.setItem('foodData', JSON.stringify(foods));
+        } catch (error) {
+          console.log(`get food error ${error}`);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
     return (
         <AuthContext.Provider
             value={{
                 isLoading,
                 userInfo,
                 isNavigate,
+                foodData,
                 register,
                 login,
+                getFood,
             }}>
             {children}
         </AuthContext.Provider>

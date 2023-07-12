@@ -11,6 +11,7 @@ import RegistrationScreen from './app/screens/RegistrationScreen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Loader from './app/components/Loader';
 import { AuthProvider } from "./app/context/AuthContext";
+AsyncStorage.removeItem("userData");
 
 const Stack = createStackNavigator();
 const App = () => {

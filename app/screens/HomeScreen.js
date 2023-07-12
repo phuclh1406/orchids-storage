@@ -8,7 +8,7 @@ import {
   Image,
   Dimensions,
 } from "react-native";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import SPACING from "../config/SPACING";
 import { BlurView } from "expo-blur";
 import { Ionicons } from "@expo/vector-icons";
@@ -20,6 +20,7 @@ import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import categories from "../config/categories";
 import { StatusBar } from "expo-status-bar";
+import { AuthContext } from "../context/AuthContext";
 
 const avatar = require("../../assets/avatar.jpg");
 
@@ -43,16 +44,19 @@ const HomeScreen = ({ navigation }) => {
   );
   const [activeCategoryId, setActiveCategoryId] = useState(null);
   const [dataFav, setDataFav] = useState([]);
+  const {foodData, getFood} = useContext(AuthContext);
 
   useEffect(() => {
     getFromStorage();
   }, []);
 
-  // Get data from storage
+  // // Get data from storage
   const getFromStorage = async () => {
     try {
-      const data = await AsyncStorage.getItem("favorite");
-      setDataFav(data ? JSON.parse(data) : []);
+      // const data = await AsyncStorage.getItem("favorite");
+      // setDataFav(data ? JSON.parse(data) : []);
+      getFood();
+      console.log('aaaaaaaaaaaaaaaaaaa',foodData);
     } catch (error) {
       console.error("Error getting data from storage:", error);
     }
@@ -87,6 +91,8 @@ const HomeScreen = ({ navigation }) => {
       getFromStorage();
     }, [])
   );
+
+
 
   const getCategoryName = (categoryId) => {
     const category = categories.find((category) => category.id === categoryId);
@@ -187,7 +193,7 @@ const HomeScreen = ({ navigation }) => {
             paddingBottom: SPACING * 4
           }}
         >
-          {orchids
+          {foodData
             .filter((orchid) => {
               if (activeCategoryId === null) {
                 return true;
