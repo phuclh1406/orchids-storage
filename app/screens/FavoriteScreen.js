@@ -8,122 +8,120 @@ import {
   Image,
   Dimensions,
   Alert,
-} from "react-native";
-import React, { useState, useEffect } from "react";
-import SPACING from "../config/SPACING";
-import { BlurView } from "expo-blur";
-import { Ionicons } from "@expo/vector-icons";
-import colors from "../config/colors";
-import SearchField from "../components/SearchField";
-import Categories from "../components/Categories";
-import orchids from "../config/orchids";
+} from 'react-native'
+import React, { useState, useEffect } from 'react'
+import SPACING from '../config/SPACING'
+import { BlurView } from 'expo-blur'
+import { Ionicons } from '@expo/vector-icons'
+import colors from '../config/colors'
+import SearchField from '../components/SearchField'
+import Categories from '../components/Categories'
+import orchids from '../config/orchids'
 import {
   useNavigation,
   useFocusEffect,
   useIsFocused,
-} from "@react-navigation/native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { StatusBar } from "expo-status-bar";
+} from '@react-navigation/native'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { StatusBar } from 'expo-status-bar'
 
-const avatar = require("../../assets/avatar.jpg");
+const avatar = require('../../assets/avatar.jpg')
 
-const { width } = Dimensions.get("window");
+const { width } = Dimensions.get('window')
 
 const FavoriteScreen = ({ navigation }) => {
   useFocusEffect(
     React.useCallback(() => {
       // Add listener for tab press
-      const unsubscribe = navigation.addListener("tabPress", (e) => {
+      const unsubscribe = navigation.addListener('tabPress', (e) => {
         // Prevent default behavior of tab press
-        e.preventDefault();
+        e.preventDefault()
 
         // Reset the navigation state to the initial route of the stack
         navigation.reset({
           index: 0,
-          routes: [{ name: "FavoriteScreen" }],
-        });
-      });
+          routes: [{ name: 'FavoriteScreen' }],
+        })
+      })
 
       // Cleanup the listener when the screen loses focus or unmounts
-      return unsubscribe;
+      return unsubscribe
     }, [])
-  );
-  const [activeCategoryId, setActiveCategoryId] = useState(null);
-  const [favoriteOrchidsList, setFavoriteOrchidsList] = useState([]);
-  const isFocused = useIsFocused();
+  )
+  const [activeCategoryId, setActiveCategoryId] = useState(null)
+  const [favoriteOrchidsList, setFavoriteOrchidsList] = useState([])
+  const isFocused = useIsFocused()
   const getFromStorage = async () => {
     if (isFocused) {
       const fetchData = async () => {
         try {
-          const data = await AsyncStorage.getItem("favorite");
+          const data = await AsyncStorage.getItem('favorite')
           if (data != undefined) {
-            const parsedData = JSON.parse(data);
+            const parsedData = JSON.parse(data)
             const filterOrchids = orchids.filter((orchid) => {
-              const check = parsedData.find((item) => item.id === orchid.id);
+              const check = parsedData.find((item) => item.id === orchid.id)
               if (check) {
-                return orchid;
+                return orchid
               }
-            });
-            setFavoriteOrchidsList(filterOrchids);
+            })
+            setFavoriteOrchidsList(filterOrchids)
           }
         } catch (error) {
-          console.log(error);
+          console.log(error)
         }
-      };
-      fetchData();
+      }
+      fetchData()
     }
-  };
+  }
 
   function handleDeleteItem(id) {
     Alert.alert(
-      "Confirm removing this favorite orchid",
-      "You can not recover your favorite orchid after removing it!",
+      'Confirm removing this favorite orchid',
+      'You can not recover your favorite orchid after removing it!',
       [
         {
-          text: "Cancel",
+          text: 'Cancel',
           onPress: () => {},
         },
         {
-          text: "Yes, I confirm",
+          text: 'Yes, I confirm',
           onPress: async () => {
-            const list = favoriteOrchidsList.filter((item) => item.id !== id);
-            await AsyncStorage.setItem("favorite", JSON.stringify(list));
-            setFavoriteOrchidsList(list);
+            const list = favoriteOrchidsList.filter((item) => item.id !== id)
+            await AsyncStorage.setItem('favorite', JSON.stringify(list))
+            setFavoriteOrchidsList(list)
           },
         },
       ]
-    );
+    )
   }
   function handleDeleteAllItem() {
     Alert.alert(
-      "Confirm removing all of your favorite orchids",
-      "You can not recover your favorites orchid after removing them!",
+      'Confirm removing all of your favorite orchids',
+      'You can not recover your favorites orchid after removing them!',
       [
         {
-          text: "Cancel",
+          text: 'Cancel',
           onPress: () => {},
         },
         {
-          text: "Yes, I confirm",
+          text: 'Yes, I confirm',
           onPress: async () => {
-            const list = [];
-            await AsyncStorage.setItem("favorite", JSON.stringify(list));
-            setFavoriteOrchidsList(list);
+            const list = []
+            await AsyncStorage.setItem('favorite', JSON.stringify(list))
+            setFavoriteOrchidsList(list)
           },
         },
       ]
-    );
+    )
   }
 
   useEffect(() => {
-    getFromStorage();
-  }, [isFocused]);
+    getFromStorage()
+  }, [isFocused])
 
   return (
     <SafeAreaView style={{ backgroundColor: colors.dark, flex: 1 }}>
-      <StatusBar
-        backgroundColor={colors.primary}
-      />
+      <StatusBar backgroundColor={colors.primary} />
       <ScrollView
         style={{
           padding: SPACING,
@@ -133,23 +131,23 @@ const FavoriteScreen = ({ navigation }) => {
       >
         <View
           style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
+            flexDirection: 'row',
+            justifyContent: 'space-between',
           }}
         >
           <TouchableOpacity
             style={{
               borderRadius: SPACING,
-              overflow: "hidden",
+              overflow: 'hidden',
               width: SPACING * 4,
               height: SPACING * 4,
             }}
           >
             <BlurView
               style={{
-                height: "100%",
-                justifyContent: "center",
-                alignItems: "center",
+                height: '100%',
+                justifyContent: 'center',
+                alignItems: 'center',
               }}
             >
               <Ionicons name="menu" size={SPACING * 2.5} color={colors.light} />
@@ -159,7 +157,7 @@ const FavoriteScreen = ({ navigation }) => {
             style={{
               width: SPACING * 16,
               height: SPACING * 4,
-              overflow: "hidden",
+              overflow: 'hidden',
               marginTop: SPACING / 2,
               borderRadius: SPACING,
             }}
@@ -172,21 +170,21 @@ const FavoriteScreen = ({ navigation }) => {
             style={{
               width: SPACING * 4,
               height: SPACING * 4,
-              overflow: "hidden",
+              overflow: 'hidden',
               borderRadius: SPACING,
             }}
           >
             <BlurView
               style={{
-                height: "100%",
+                height: '100%',
                 padding: SPACING / 2,
               }}
             >
               <TouchableOpacity>
                 <Image
                   style={{
-                    height: "100%",
-                    width: "100%",
+                    height: '100%',
+                    width: '100%',
                     borderRadius: SPACING,
                   }}
                   source={avatar}
@@ -195,10 +193,10 @@ const FavoriteScreen = ({ navigation }) => {
             </BlurView>
           </View>
         </View>
-        <View style={{ width: "80%", marginVertical: SPACING }}></View>
+        <View style={{ width: '80%', marginVertical: SPACING }}></View>
         <SearchField />
         <Categories onChange={(id) => setActiveCategoryId(id)} />
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <TouchableOpacity
             onPress={() => handleDeleteAllItem()}
             style={{
@@ -206,8 +204,8 @@ const FavoriteScreen = ({ navigation }) => {
               backgroundColor: colors.primary,
               width: width / 2 - SPACING * 2.5,
               height: SPACING * 5,
-              justifyContent: "center",
-              alignItems: "center",
+              justifyContent: 'center',
+              alignItems: 'center',
               borderRadius: SPACING / 2,
               marginBottom: SPACING * 2,
               marginTop: SPACING,
@@ -217,30 +215,30 @@ const FavoriteScreen = ({ navigation }) => {
               style={{
                 color: colors.white,
                 fontSize: SPACING * 2,
-                fontWeight: "500",
+                fontWeight: '500',
               }}
             >
               Clear all
             </Text>
           </TouchableOpacity>
           <Text
-              style={{
-                color: colors["white-smoke"],
-                fontSize: SPACING * 2,
-                fontWeight: "300",
-                marginBottom: SPACING,
-                marginLeft: SPACING * 4
-              }}
-            >
-              Count items: {favoriteOrchidsList.length}
-            </Text>
+            style={{
+              color: colors['white-smoke'],
+              fontSize: SPACING * 2,
+              fontWeight: '300',
+              marginBottom: SPACING,
+              marginLeft: SPACING * 4,
+            }}
+          >
+            Count items: {favoriteOrchidsList.length}
+          </Text>
         </View>
         <View
           style={{
-            flexDirection: "row",
-            flexWrap: "wrap",
-            justifyContent: "space-between",
-            paddingBottom: SPACING * 4
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            justifyContent: 'space-between',
+            paddingBottom: SPACING * 4,
           }}
         >
           {/* {console.log(favoriteOrchidsList)} */}
@@ -248,21 +246,21 @@ const FavoriteScreen = ({ navigation }) => {
             favoriteOrchidsList
               .filter((orchid) => {
                 if (activeCategoryId === null) {
-                  return true;
+                  return true
                 } else if (activeCategoryId === 0) {
-                  return orchid;
+                  return orchid
                 }
-                return orchid.categoryId === activeCategoryId;
+                return orchid.categoryId === activeCategoryId
               })
               .map((orchid) => (
                 <View
                   key={orchid.id}
                   style={{
-                    flexDirection: "column",
+                    flexDirection: 'column',
                     width: width / 2 - SPACING * 2,
                     marginBottom: SPACING,
                     borderRadius: SPACING * 2,
-                    overflow: "hidden",
+                    overflow: 'hidden',
                   }}
                 >
                   <BlurView
@@ -274,37 +272,37 @@ const FavoriteScreen = ({ navigation }) => {
                   >
                     <TouchableOpacity
                       onPress={() =>
-                        navigation.navigate("OrchidDetail", {
+                        navigation.navigate('OrchidDetail', {
                           orchidId: orchid.id,
                         })
                       }
                       style={{
                         height: 150,
-                        width: "100%",
+                        width: '100%',
                       }}
                     >
                       <Image
                         source={orchid.image}
                         style={{
-                          width: "100%",
-                          height: "100%",
+                          width: '100%',
+                          height: '100%',
                           borderRadius: SPACING * 2,
                         }}
                       />
                       <View
                         style={{
-                          position: "absolute",
+                          position: 'absolute',
                           right: 0,
                           borderBottomStartRadius: SPACING * 3,
                           borderTopEndRadius: SPACING * 2,
-                          overflow: "hidden",
+                          overflow: 'hidden',
                         }}
                       >
                         <BlurView
                           tint="dark"
                           intensity={70}
                           style={{
-                            flexDirection: "row",
+                            flexDirection: 'row',
                             padding: SPACING - 2,
                           }}
                         >
@@ -331,7 +329,7 @@ const FavoriteScreen = ({ navigation }) => {
                       numberOfLines={2}
                       style={{
                         color: colors.white,
-                        fontWeight: "600",
+                        fontWeight: '600',
                         fontSize: SPACING * 1.7,
                         marginTop: SPACING,
                         marginBottom: SPACING / 2,
@@ -351,12 +349,12 @@ const FavoriteScreen = ({ navigation }) => {
                     <View
                       style={{
                         marginVertical: SPACING / 2,
-                        flexDirection: "row",
-                        justifyContent: "space-between",
-                        alignItems: "center",
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
                       }}
                     >
-                      <View style={{ flexDirection: "row" }}>
+                      <View style={{ flexDirection: 'row' }}>
                         <Text
                           style={{
                             color: colors.primary,
@@ -403,9 +401,9 @@ const FavoriteScreen = ({ navigation }) => {
         </View>
       </ScrollView>
     </SafeAreaView>
-  );
-};
+  )
+}
 
-export default FavoriteScreen;
+export default FavoriteScreen
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({})

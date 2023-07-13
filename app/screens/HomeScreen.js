@@ -7,128 +7,140 @@ import {
   TouchableOpacity,
   Image,
   Dimensions,
-} from "react-native";
-import React, { useState, useEffect, useContext } from "react";
-import SPACING from "../config/SPACING";
-import { BlurView } from "expo-blur";
-import { Ionicons } from "@expo/vector-icons";
-import colors from "../config/colors";
-import SearchField from "../components/SearchField";
-import Categories from "../components/Categories";
-import orchids from "../config/orchids";
-import { useNavigation, useFocusEffect } from "@react-navigation/native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import categories from "../config/categories";
-import { StatusBar } from "expo-status-bar";
-import { AuthContext } from "../context/AuthContext";
+} from 'react-native'
+import React, { useState, useEffect, useContext } from 'react'
+import SPACING from '../config/SPACING'
+import { BlurView } from 'expo-blur'
+import { Ionicons } from '@expo/vector-icons'
+import colors from '../config/colors'
+import SearchField from '../components/SearchField'
+import Categories from '../components/Categories'
+import orchids from '../config/orchids'
+import { useNavigation, useFocusEffect } from '@react-navigation/native'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import categories from '../config/categories'
+import { StatusBar } from 'expo-status-bar'
+import { AuthContext } from '../context/AuthContext'
+import axiosInstance from '../../util/axiosWrapper'
 
-const avatar = require("../../assets/avatar.jpg");
+const avatar = require('../../assets/avatar.jpg')
 
-const { width } = Dimensions.get("window");
+const { width } = Dimensions.get('window')
 
 const HomeScreen = ({ navigation }) => {
+  const [foodData, setFoodData] = useState([])
   useFocusEffect(
     React.useCallback(() => {
       // Add listener for tab press
-      const unsubscribe = navigation.addListener("tabPress", (e) => {
+      const unsubscribe = navigation.addListener('tabPress', () => {
         // Reset the navigation state to the initial route of the stack
         navigation.reset({
           index: 0,
-          routes: [{ name: "HomeScreen" }],
-        });
-      });
+          routes: [{ name: 'HomeScreen' }],
+        })
+      })
 
       // Cleanup the listener when the screen loses focus or unmounts
-      return unsubscribe;
+      return unsubscribe
     }, [])
-  );
-  const [activeCategoryId, setActiveCategoryId] = useState(null);
-  const [dataFav, setDataFav] = useState([]);
-  const {foodData, getFood} = useContext(AuthContext);
+  )
+  const [activeCategoryId, setActiveCategoryId] = useState(null)
+  const [dataFav, setDataFav] = useState([])
 
-  useEffect(() => {
-    getFromStorage();
-  }, []);
+  // const { foodData } = useContext(AuthContext);
+
+  // useEffect(() => {
+  //   getFromStorage()
+  // }, [])
 
   // // Get data from storage
   const getFromStorage = async () => {
     try {
       // const data = await AsyncStorage.getItem("favorite");
       // setDataFav(data ? JSON.parse(data) : []);
-      getFood();
-      console.log('aaaaaaaaaaaaaaaaaaa',foodData);
+      // getFood();
+      console.log('aaaaaaaaaaaaaaaaaaa', foodData)
     } catch (error) {
-      console.error("Error getting data from storage:", error);
+      console.error('Error getting data from storage:', error)
     }
-  };
+  }
 
   // Set data to storage
   const setDataToStorage = async (orchid) => {
     try {
-      console.log(orchid);
-      const updatedData = [...dataFav, orchid];
-      console.log(updatedData);
-      await AsyncStorage.setItem("favorite", JSON.stringify(updatedData));
-      setDataFav(updatedData);
+      console.log(orchid)
+      const updatedData = [...dataFav, orchid]
+      console.log(updatedData)
+      await AsyncStorage.setItem('favorite', JSON.stringify(updatedData))
+      setDataFav(updatedData)
     } catch (error) {
-      console.error("Error setting data to storage:", error);
+      console.error('Error setting data to storage:', error)
     }
-  };
+  }
 
   // Remove data from storage
   const removeDataFromStorage = async (itemId) => {
     try {
-      const list = dataFav.filter((item) => item.id !== itemId);
-      await AsyncStorage.setItem("favorite", JSON.stringify(list));
-      setDataFav(list);
+      const list = dataFav.filter((item) => item.id !== itemId)
+      await AsyncStorage.setItem('favorite', JSON.stringify(list))
+      setDataFav(list)
     } catch (error) {
-      console.error("Error removing data from storage:", error);
+      console.error('Error removing data from storage:', error)
     }
-  };
+  }
 
-  useFocusEffect(
-    React.useCallback(() => {
-      getFromStorage();
-    }, [])
-  );
-
-
+  // useFocusEffect(
+  //   React.useCallback(() => {
+  //     getFromStorage()
+  //   }, [])
+  // )
 
   const getCategoryName = (categoryId) => {
-    const category = categories.find((category) => category.id === categoryId);
-    return category ? category.name : "";
-  };
+    const category = categories.find((category) => category.id === categoryId)
+    return category ? category.name : ''
+  }
+  const getFoodData = async () => {
+    try {
+      const res = await axiosInstance.get(`/foods`)
+      console.log(res?.data)
+      setFoodData(res?.data?.foods)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+  useEffect(() => {
+    getFoodData()
+  }, [])
+
   return (
     <SafeAreaView style={{ backgroundColor: colors.dark, flex: 1 }}>
-      <StatusBar
-        backgroundColor={colors.primary}
-      />
+      <StatusBar backgroundColor={colors.primary} />
       <ScrollView
         style={{
           padding: SPACING,
-          paddingTop: SPACING * 4
+          paddingTop: SPACING * 4,
         }}
       >
         <View
           style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            paddingBottom: SPACING * 2
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            paddingBottom: SPACING * 2,
           }}
         >
           <TouchableOpacity
             style={{
               borderRadius: SPACING,
-              overflow: "hidden",
+              overflow: 'hidden',
               width: SPACING * 4,
               height: SPACING * 4,
             }}
           >
             <BlurView
               style={{
-                height: "100%",
-                justifyContent: "center",
-                alignItems: "center",
+                height: '100%',
+                justifyContent: 'center',
+                alignItems: 'center',
               }}
             >
               <Ionicons
@@ -142,7 +154,7 @@ const HomeScreen = ({ navigation }) => {
             style={{
               width: SPACING * 15,
               height: SPACING * 4,
-              overflow: "hidden",
+              overflow: 'hidden',
               marginTop: SPACING / 2,
               borderRadius: SPACING,
             }}
@@ -155,21 +167,21 @@ const HomeScreen = ({ navigation }) => {
             style={{
               width: SPACING * 4,
               height: SPACING * 4,
-              overflow: "hidden",
+              overflow: 'hidden',
               borderRadius: SPACING,
             }}
           >
             <BlurView
               style={{
-                height: "100%",
+                height: '100%',
                 padding: SPACING / 2,
               }}
             >
               <TouchableOpacity>
                 <Image
                   style={{
-                    height: "100%",
-                    width: "100%",
+                    height: '100%',
+                    width: '100%',
                     borderRadius: SPACING,
                   }}
                   source={avatar}
@@ -187,20 +199,20 @@ const HomeScreen = ({ navigation }) => {
         />
         <View
           style={{
-            flexDirection: "row",
-            flexWrap: "wrap",
-            justifyContent: "space-between",
-            paddingBottom: SPACING * 4
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            justifyContent: 'space-between',
+            paddingBottom: SPACING * 4,
           }}
         >
           {foodData
-            .filter((orchid) => {
+            ?.filter((orchid) => {
               if (activeCategoryId === null) {
-                return true;
+                return true
               } else if (activeCategoryId === 0) {
-                return orchid;
+                return orchid
               }
-              return orchid.categoryId === activeCategoryId;
+              return orchid.categoryId === activeCategoryId
             })
             .map((orchid) => (
               <View
@@ -209,7 +221,7 @@ const HomeScreen = ({ navigation }) => {
                   width: width / 2 - SPACING * 2,
                   marginBottom: SPACING,
                   borderRadius: SPACING * 2,
-                  overflow: "hidden",
+                  overflow: 'hidden',
                 }}
               >
                 <BlurView
@@ -221,37 +233,37 @@ const HomeScreen = ({ navigation }) => {
                 >
                   <TouchableOpacity
                     onPress={() =>
-                      navigation.navigate("OrchidDetail", {
+                      navigation.navigate('OrchidDetail', {
                         orchidId: orchid.id,
                       })
                     }
                     style={{
                       height: 150,
-                      width: "100%",
+                      width: '100%',
                     }}
                   >
                     <Image
                       source={orchid.image}
                       style={{
-                        width: "100%",
-                        height: "100%",
+                        width: '100%',
+                        height: '100%',
                         borderRadius: SPACING * 2,
                       }}
                     />
                     <View
                       style={{
-                        position: "absolute",
+                        position: 'absolute',
                         right: 0,
                         borderBottomStartRadius: SPACING * 3,
                         borderTopEndRadius: SPACING * 2,
-                        overflow: "hidden",
+                        overflow: 'hidden',
                       }}
                     >
                       <BlurView
                         tint="dark"
                         intensity={70}
                         style={{
-                          flexDirection: "row",
+                          flexDirection: 'row',
                           padding: SPACING - 2,
                         }}
                       >
@@ -278,7 +290,7 @@ const HomeScreen = ({ navigation }) => {
                     numberOfLines={2}
                     style={{
                       color: colors.white,
-                      fontWeight: "600",
+                      fontWeight: '600',
                       fontSize: SPACING * 1.7,
                       marginTop: SPACING,
                       marginBottom: SPACING / 2,
@@ -295,12 +307,12 @@ const HomeScreen = ({ navigation }) => {
                   <View
                     style={{
                       marginVertical: SPACING / 2,
-                      flexDirection: "row",
-                      justifyContent: "space-between",
-                      alignItems: "center",
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
                     }}
                   >
-                    <View style={{ flexDirection: "row" }}>
+                    <View style={{ flexDirection: 'row' }}>
                       <Text
                         style={{
                           color: colors.primary,
@@ -320,13 +332,13 @@ const HomeScreen = ({ navigation }) => {
                       onPress={() => {
                         const check = dataFav.find(
                           (item) => item.id === orchid.id
-                        );
-                        console.log(orchid.id);
-                        console.log("Check:", check);
+                        )
+                        console.log(orchid.id)
+                        console.log('Check:', check)
                         if (check) {
-                          removeDataFromStorage(orchid.id);
+                          removeDataFromStorage(orchid.id)
                         } else {
-                          setDataToStorage(orchid);
+                          setDataToStorage(orchid)
                         }
                       }}
                     >
@@ -351,9 +363,9 @@ const HomeScreen = ({ navigation }) => {
         </View>
       </ScrollView>
     </SafeAreaView>
-  );
-};
+  )
+}
 
-export default HomeScreen;
+export default HomeScreen
 
-const styles = StyleSheet.create({});
+// const styles = StyleSheet.create({})
