@@ -46,7 +46,7 @@ const HomeScreen = ({ navigation }) => {
   const [dataFav, setDataFav] = useState([]);
   const {foodData, getFood} = useContext(AuthContext);
 
-  useEffect(() => {
+  useEffect(() => { 
     getFromStorage();
   }, []);
 
@@ -91,8 +91,6 @@ const HomeScreen = ({ navigation }) => {
       getFromStorage();
     }, [])
   );
-
-
 
   const getCategoryName = (categoryId) => {
     const category = categories.find((category) => category.id === categoryId);
