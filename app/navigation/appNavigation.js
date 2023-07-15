@@ -6,6 +6,7 @@ import colors from '../config/colors';
 import {View, Dimensions} from 'react-native';
 import HomeScreen from '../screens/HomeScreen';
 import FavoriteScreen from '../screens/FavoriteScreen';
+import IngredientsScreen from '../screens/IngredientsScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -29,30 +30,18 @@ const AppNavigation = () => {
         }}
       />
       <Tab.Screen
-        name="Search"
-        component={HomeScreen}
+        name="IngredientsScreen"
+        component={IngredientsScreen}
         options={{
+          unmountOnBlur: true,
           tabBarIcon: ({color}) => (
-            <View
-              style={{
-                height: 60,
-                width: 60,
-                justifyContent: 'center',
-                alignItems: 'center',
-                backgroundColor: colors.white,
-                borderColor: colors.primary,
-                borderWidth: 2,
-                borderRadius: 30,
-                top: -15,
-                elevation: 5,
-              }}>
-              <Icon name="search" color={colors.primary} size={28} />
-            </View>
+            <Icon name="web" color={color} size={28} />
           ),
           tabBarStyle: {backgroundColor: colors.dark, borderTopWidth: 0},
           headerShown: false
         }}
       />
+      
       <Tab.Screen
         name="FavoriteScreen"
         component={FavoriteScreen}
@@ -60,6 +49,18 @@ const AppNavigation = () => {
           unmountOnBlur: true,
           tabBarIcon: ({color}) => (
             <Icon name="favorite" color={color} size={28} />
+          ),
+          tabBarStyle: {backgroundColor: colors.dark, borderTopWidth: 0},
+          headerShown: false
+        }}
+      />
+      <Tab.Screen
+        name="Setting"
+        component={FavoriteScreen}
+        options={{
+          unmountOnBlur: true,
+          tabBarIcon: ({color}) => (
+            <Icon name="settings" color={color} size={28} />
           ),
           tabBarStyle: {backgroundColor: colors.dark, borderTopWidth: 0},
           headerShown: false

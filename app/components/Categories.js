@@ -11,7 +11,7 @@ import categories from "../config/categories";
 import colors from "../config/colors";
 import SPACING from "../config/SPACING";
 
-const Categories = ({ onChange }) => {
+const Categories = ({ onChange, inputData }) => {
   const [activeCategoryId, setActiveCategoryId] = useState(0);
 
   const handlePress = (id) => {
@@ -22,23 +22,23 @@ const Categories = ({ onChange }) => {
   return (
     <FlatList
       horizontal={true}
-      data={categories}
-      keyExtractor={(item) => item.id}
+      data={inputData}
+      keyExtractor={(item) => item.cate_detail_id}
       contentContainerStyle={{ marginVertical: SPACING }}
       renderItem={({ item }) => (
         <TouchableOpacity
-          onPress={() => handlePress(item.id)}
+          onPress={() => handlePress(item.cate_detail_id)}
           style={{ marginRight: SPACING * 2, alignItems: "center" }}
         >
           <Text
             style={[
               { color: colors.secondary, fontSize: SPACING * 2 },
-              activeCategoryId === item.id && { color: colors.primary },
+              activeCategoryId === item.cate_detail_id && { color: colors.primary },
             ]}
           >
-            {item.name}
+            {item.cate_detail_name}
           </Text>
-          {activeCategoryId === item.id && (
+          {activeCategoryId === item.cate_detail_id && (
             <View
               style={{
                 height: SPACING,
