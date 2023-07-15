@@ -53,12 +53,11 @@ export const AuthProvider = ({ children }) => {
           setIsNavigate(true)
           AsyncStorage.setItem('userData', JSON.stringify(userInfo))
           setIsLoading(false)
-        } else {
-          Alert.alert('Error', 'User does not exist')
         }
       })
       .catch((e) => {
         console.log(`login error ${e}`)
+        Alert.alert('Error', 'User does not exist')
         setIsLoading(false)
         setIsNavigate(false)
       })
