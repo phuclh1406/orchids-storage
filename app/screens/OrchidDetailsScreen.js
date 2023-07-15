@@ -63,7 +63,7 @@ const OrchidDetailsScreen = ({ route }) => {
       <ScrollView>
         <SafeAreaView>
           <ImageBackground
-            source={orchid.image}
+            source={{uri:orchid.food_image.image}}
             style={{
               height: height / 2 + SPACING * 2,
 
@@ -159,7 +159,7 @@ const OrchidDetailsScreen = ({ route }) => {
                       marginBottom: SPACING,
                     }}
                   >
-                    {orchid.name}
+                    {orchid.food.food_name}
                   </Text>
                 </View>
                 <View style={{ flexDirection: 'row', marginTop: SPACING }}>

@@ -28,7 +28,8 @@ const avatar = require('../../assets/avatar.jpg')
 const { width } = Dimensions.get('window')
 
 const HomeScreen = ({ navigation }) => {
-  const [foodData, setFoodData] = useState([])
+  const [foodData, setFoodData] = useState([]);
+  const [categoryData, setCategoryData] = useState([]);
   useFocusEffect(
     React.useCallback(() => {
       // Add listener for tab press
@@ -108,6 +109,20 @@ const HomeScreen = ({ navigation }) => {
       console.log(error)
     }
   }
+  const getCategoryData = async () => {
+    try {
+      const res = await axiosInstance.get(`/categories_detail?cate_id=6e3f5b3b-df19-4776-a7cc-92b0a0a3ce1d`)
+      console.log('aaaaaaa', res?.data)
+      setCategoryData(res?.data?.categories_detail?.rows)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  useEffect(() => {
+    getCategoryData()
+  }, [])
+
   useEffect(() => {
     getFoodData()
   }, [])
@@ -196,6 +211,7 @@ const HomeScreen = ({ navigation }) => {
           let
           titleColor="light"
           onChange={(id) => setActiveCategoryId(id)}
+          inputData={categoryData}
         />
         <View
           style={{
@@ -212,7 +228,7 @@ const HomeScreen = ({ navigation }) => {
               } else if (activeCategoryId === 0) {
                 return food
               }
-              return food.categoryId === activeCategoryId
+              return food.food_cate_detail.cate_detail_id === activeCategoryId
             })
             .map((food) => (
               <View
@@ -243,7 +259,7 @@ const HomeScreen = ({ navigation }) => {
                     }}
                   >
                     <Image
-                      source={{uri:food.food_image[0].image}}
+                      source={{ uri: food.food_image[0].image }}
                       style={{
                         width: '100%',
                         height: '100%',
@@ -286,18 +302,26 @@ const HomeScreen = ({ navigation }) => {
                       </BlurView>
                     </View>
                   </TouchableOpacity>
-                  <Text
-                    numberOfLines={2}
-                    style={{
-                      color: colors.white,
-                      fontWeight: '600',
-                      fontSize: SPACING * 1.7,
-                      marginTop: SPACING,
-                      marginBottom: SPACING / 2,
-                    }}
+                  <TouchableOpacity
+                    onPress={() =>
+                      navigation.navigate('OrchidDetail', {
+                        orchidId: food.food_id,
+                      })
+                    }
                   >
-                    {food.food_name}
-                  </Text>
+                    <Text
+                      numberOfLines={1}
+                      style={{
+                        color: colors.white,
+                        fontWeight: '600',
+                        fontSize: SPACING * 1.7,
+                        marginTop: SPACING,
+                        marginBottom: SPACING / 2,
+                      }}
+                    >
+                      {food.food_name}
+                    </Text>
+                  </TouchableOpacity>
                   <Text
                     numberOfLines={1}
                     style={{ color: colors.secondary, fontSize: SPACING * 1.2 }}
@@ -313,19 +337,18 @@ const HomeScreen = ({ navigation }) => {
                     }}
                   >
                     <View style={{ flexDirection: 'row' }}>
-                      <Text
+                      {/* <Text
                         style={{
                           color: colors.primary,
                           marginRight: SPACING / 2,
                           fontSize: SPACING * 1.6,
                         }}
                       >
-                        $
-                      </Text>
+                      </Text> */}
                       <Text
                         style={{ color: colors.white, fontSize: SPACING * 1.6 }}
                       >
-                        {food.price}
+                        {food.price}đ
                       </Text>
                     </View>
                     <TouchableOpacity
