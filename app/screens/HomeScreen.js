@@ -54,16 +54,16 @@ const HomeScreen = ({ navigation }) => {
   // }, [])
 
   // // Get data from storage
-  const getFromStorage = async () => {
-    try {
-      // const data = await AsyncStorage.getItem("favorite");
-      // setDataFav(data ? JSON.parse(data) : []);
-      // getFood();
-      console.log('aaaaaaaaaaaaaaaaaaa', foodData)
-    } catch (error) {
-      console.error('Error getting data from storage:', error)
-    }
-  }
+  // const getFromStorage = async () => {
+  //   try {
+  //     // const data = await AsyncStorage.getItem("favorite");
+  //     // setDataFav(data ? JSON.parse(data) : []);
+  //     // getFood();
+  //     console.log('aaaaaaaaaaaaaaaaaaa', foodData)
+  //   } catch (error) {
+  //     console.error('Error getting data from storage:', error)
+  //   }
+  // }
 
   // Set data to storage
   const setDataToStorage = async (orchid) => {
@@ -95,10 +95,10 @@ const HomeScreen = ({ navigation }) => {
   //   }, [])
   // )
 
-  const getCategoryName = (categoryId) => {
-    const category = categories.find((category) => category.id === categoryId)
-    return category ? category.name : ''
-  }
+  // const getCategoryName = (categoryId) => {
+  //   const category = categories.find((category) => category.id === categoryId)
+  //   return category ? category.name : ''
+  // }
   const getFoodData = async () => {
     try {
       const res = await axiosInstance.get(`/foods`)
@@ -206,17 +206,17 @@ const HomeScreen = ({ navigation }) => {
           }}
         >
           {foodData
-            ?.filter((orchid) => {
+            ?.filter((food) => {
               if (activeCategoryId === null) {
                 return true
               } else if (activeCategoryId === 0) {
-                return orchid
+                return food
               }
-              return orchid.categoryId === activeCategoryId
+              return food.categoryId === activeCategoryId
             })
-            .map((orchid) => (
+            .map((food) => (
               <View
-                key={orchid.id}
+                key={food.food_id}
                 style={{
                   width: width / 2 - SPACING * 2,
                   marginBottom: SPACING,
@@ -234,7 +234,7 @@ const HomeScreen = ({ navigation }) => {
                   <TouchableOpacity
                     onPress={() =>
                       navigation.navigate('OrchidDetail', {
-                        orchidId: orchid.id,
+                        orchidId: food.food_id,
                       })
                     }
                     style={{
@@ -243,7 +243,7 @@ const HomeScreen = ({ navigation }) => {
                     }}
                   >
                     <Image
-                      source={orchid.image}
+                      source={{uri:food.food_image[0].image}}
                       style={{
                         width: '100%',
                         height: '100%',
@@ -281,7 +281,7 @@ const HomeScreen = ({ navigation }) => {
                             marginLeft: SPACING / 2,
                           }}
                         >
-                          {orchid.rating}
+                          {food.rating}
                         </Text>
                       </BlurView>
                     </View>
@@ -296,13 +296,13 @@ const HomeScreen = ({ navigation }) => {
                       marginBottom: SPACING / 2,
                     }}
                   >
-                    {orchid.name}
+                    {food.food_name}
                   </Text>
                   <Text
                     numberOfLines={1}
                     style={{ color: colors.secondary, fontSize: SPACING * 1.2 }}
                   >
-                    {getCategoryName(orchid.categoryId)}
+                    {food.food_cate_detail.cate_detail_name}
                   </Text>
                   <View
                     style={{
@@ -325,24 +325,24 @@ const HomeScreen = ({ navigation }) => {
                       <Text
                         style={{ color: colors.white, fontSize: SPACING * 1.6 }}
                       >
-                        {orchid.price}
+                        {food.price}
                       </Text>
                     </View>
                     <TouchableOpacity
                       onPress={() => {
                         const check = dataFav.find(
-                          (item) => item.id === orchid.id
+                          (item) => item.id === food.food_id
                         )
-                        console.log(orchid.id)
+                        console.log(food.food_id)
                         console.log('Check:', check)
                         if (check) {
-                          removeDataFromStorage(orchid.id)
+                          removeDataFromStorage(food.food_id)
                         } else {
-                          setDataToStorage(orchid)
+                          setDataToStorage(food)
                         }
                       }}
                     >
-                      {dataFav.find((item) => item.id === orchid.id) ? (
+                      {dataFav.find((item) => item.id === food.food_id) ? (
                         <Ionicons
                           name="heart"
                           size={SPACING * 3}

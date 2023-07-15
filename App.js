@@ -28,7 +28,7 @@ const App = () => {
       let userData = await AsyncStorage.getItem('userData')
       console.log(userData)
       userData = JSON.parse(userData)
-      if (userData.access_token) {
+      if (userData) {
         setInitialRouteName('Home')
       } else {
         setInitialRouteName('LoginScreen')
