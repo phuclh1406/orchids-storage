@@ -54,9 +54,9 @@ const AppNavigation = () => {
           headerShown: false
         }}
       />
-      <Tab.Screen
+      {/* <Tab.Screen
         name="Setting"
-        component={FavoriteScreen}
+        component={}
         options={{
           unmountOnBlur: true,
           tabBarIcon: ({color}) => (
@@ -65,7 +65,7 @@ const AppNavigation = () => {
           tabBarStyle: {backgroundColor: colors.dark, borderTopWidth: 0},
           headerShown: false
         }}
-      />
+      /> */}
     </Tab.Navigator>
   );
 };

@@ -7,6 +7,7 @@ import {
     TouchableOpacity,
     Image,
     Dimensions,
+    ActivityIndicator,
   } from 'react-native'
   import React, { useState, useEffect, useContext } from 'react'
   import SPACING from '../config/SPACING'
@@ -30,6 +31,7 @@ import {
   const IngredientsScreen = ({ navigation }) => {
     const [ingreData, setIngreData] = useState([])
     const [categoriesData, setCategoriesData] = useState([])
+    const [isLoading, setIsLoading] = useState(false);
     useFocusEffect(
       React.useCallback(() => {
         // Add listener for tab press
@@ -97,12 +99,16 @@ import {
     // )
 
     const getIngreData = async () => {
+      setIsLoading(true);
       try {
         const res = await axiosInstance.get(`/ingredients`)
         console.log(res?.data)
         setIngreData(res?.data?.ingredients)
+        setIsLoading(false);
       } catch (error) {
         console.log(error)
+      } finally {
+        setIsLoading(false);
       }
     }
     const getCategoriesData = async () => {
@@ -216,165 +222,176 @@ import {
               paddingBottom: SPACING * 4,
             }}
           >
-            {ingreData
-              ?.filter((orchid) => {
-                if (activeCategoryId === null) {
-                  return true
-                } else if (activeCategoryId === 0) {
-                  return orchid
-                }
-                return orchid.ingredient_cate_detail.cate_detail_id === activeCategoryId
-              })
-              .map((orchid) => (
-                <View
-                  key={orchid.ingredient_id}
+            {isLoading ? (
+            <View style={{
+              flex: 1,
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginTop: 20
+            }}>
+              <ActivityIndicator size='large' color='#FC6847' />
+            </View>
+          ) : (
+            ingreData
+            ?.filter((orchid) => {
+              if (activeCategoryId === null) {
+                return true
+              } else if (activeCategoryId === 0) {
+                return orchid
+              }
+              return orchid.ingredient_cate_detail.cate_detail_id === activeCategoryId
+            })
+            .map((orchid) => (
+              <View
+                key={orchid.ingredient_id}
+                style={{
+                  width: width / 2 - SPACING * 2,
+                  marginBottom: SPACING,
+                  borderRadius: SPACING * 2,
+                  overflow: 'hidden',
+                }}
+              >
+                <BlurView
+                  tint="dark"
+                  intensity={95}
                   style={{
-                    width: width / 2 - SPACING * 2,
-                    marginBottom: SPACING,
-                    borderRadius: SPACING * 2,
-                    overflow: 'hidden',
+                    padding: SPACING,
                   }}
                 >
-                  <BlurView
-                    tint="dark"
-                    intensity={95}
+                  <TouchableOpacity
+                    onPress={() =>
+                      navigation.navigate('IngredientDetail', {
+                        ingredientId: orchid.ingredient_id,
+                      })
+                      
+                    }
                     style={{
-                      padding: SPACING,
+                      height: 150,
+                      width: '100%',
                     }}
                   >
-                    <TouchableOpacity
-                      onPress={() =>
-                        navigation.navigate('IngredientDetail', {
-                          ingredientId: orchid.ingredient_id,
-                        })
-                        
-                      }
+                    <Image
+                      source={{uri: orchid.ingredient_image[0].image}}
                       style={{
-                        height: 150,
                         width: '100%',
+                        height: '100%',
+                        borderRadius: SPACING * 2,
                       }}
-                    >
-                      <Image
-                        source={{uri: orchid.ingredient_image[0].image}}
-                        style={{
-                          width: '100%',
-                          height: '100%',
-                          borderRadius: SPACING * 2,
-                        }}
-                      />
-                      <View
-                        style={{
-                          position: 'absolute',
-                          right: 0,
-                          borderBottomStartRadius: SPACING * 3,
-                          borderTopEndRadius: SPACING * 2,
-                          overflow: 'hidden',
-                        }}
-                      >
-                        <BlurView
-                          tint="dark"
-                          intensity={70}
-                          style={{
-                            flexDirection: 'row',
-                            padding: SPACING - 2,
-                          }}
-                        >
-                          <Ionicons
-                            style={{
-                              marginLeft: SPACING / 2,
-                            }}
-                            name="star"
-                            color={colors.primary}
-                            size={SPACING * 1.7}
-                          />
-                          <Text
-                            style={{
-                              color: colors.white,
-                              marginLeft: SPACING / 2,
-                            }}
-                          >
-                            {console.log(orchid.ingredient_id)}
-                            {orchid.rating}
-                          </Text>
-                        </BlurView>
-                      </View>
-                    </TouchableOpacity>
-                    <Text
-                      numberOfLines={2}
-                      style={{
-                        color: colors.white,
-                        fontWeight: '600',
-                        fontSize: SPACING * 1.7,
-                        marginTop: SPACING,
-                        marginBottom: SPACING / 2,
-                      }}
-                    >
-                      {orchid.ingredient_name}
-                    </Text>
-                    <Text
-                      numberOfLines={1}
-                      style={{ color: colors.secondary, fontSize: SPACING * 1.2 }}
-                    >
-                      {orchid.ingredient_cate_detail.cate_detail_name}
-                    </Text>
+                    />
                     <View
                       style={{
-                        marginVertical: SPACING / 2,
-                        flexDirection: 'row',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
+                        position: 'absolute',
+                        right: 0,
+                        borderBottomStartRadius: SPACING * 3,
+                        borderTopEndRadius: SPACING * 2,
+                        overflow: 'hidden',
                       }}
                     >
-                      <View style={{ flexDirection: 'row' }}>
-                        
-                        <Text
-                          style={{ color: colors.white, fontSize: SPACING * 1.6 }}
-                        >
-                          {orchid.price}
-                        </Text>
-                        <Text
-                          style={{
-                            color: colors.primary,
-                            marginRight: SPACING / 2,
-                            fontSize: SPACING * 1.6,
-                            marginLeft: SPACING / 2
-                          }}
-                        >
-                          vnđ
-                        </Text>
-                      </View>
-                      <TouchableOpacity
-                        onPress={() => {
-                          const check = dataFav.find(
-                            (item) => item.id === orchid.id
-                          )
-                          console.log(orchid.id)
-                          console.log('Check:', check)
-                          if (check) {
-                            removeDataFromStorage(orchid.id)
-                          } else {
-                            setDataToStorage(orchid)
-                          }
+                      <BlurView
+                        tint="dark"
+                        intensity={70}
+                        style={{
+                          flexDirection: 'row',
+                          padding: SPACING - 2,
                         }}
                       >
-                        {dataFav.find((item) => item.id === orchid.id) ? (
-                          <Ionicons
-                            name="heart"
-                            size={SPACING * 3}
-                            color={colors.primary}
-                          />
-                        ) : (
-                          <Ionicons
-                            name="heart"
-                            size={SPACING * 3}
-                            color={colors.white}
-                          />
-                        )}
-                      </TouchableOpacity>
+                        <Ionicons
+                          style={{
+                            marginLeft: SPACING / 2,
+                          }}
+                          name="star"
+                          color={colors.primary}
+                          size={SPACING * 1.7}
+                        />
+                        <Text
+                          style={{
+                            color: colors.white,
+                            marginLeft: SPACING / 2,
+                          }}
+                        >
+                          {console.log(orchid.ingredient_id)}
+                          {orchid.rating}
+                        </Text>
+                      </BlurView>
                     </View>
-                  </BlurView>
-                </View>
-              ))}
+                  </TouchableOpacity>
+                  <Text
+                    numberOfLines={2}
+                    style={{
+                      color: colors.white,
+                      fontWeight: '600',
+                      fontSize: SPACING * 1.7,
+                      marginTop: SPACING,
+                      marginBottom: SPACING / 2,
+                    }}
+                  >
+                    {orchid.ingredient_name}
+                  </Text>
+                  <Text
+                    numberOfLines={1}
+                    style={{ color: colors.secondary, fontSize: SPACING * 1.2 }}
+                  >
+                    {orchid.ingredient_cate_detail.cate_detail_name}
+                  </Text>
+                  <View
+                    style={{
+                      marginVertical: SPACING / 2,
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <View style={{ flexDirection: 'row' }}>
+                      
+                      <Text
+                        style={{ color: colors.white, fontSize: SPACING * 1.6 }}
+                      >
+                        {orchid.price}
+                      </Text>
+                      <Text
+                        style={{
+                          color: colors.primary,
+                          marginRight: SPACING / 2,
+                          fontSize: SPACING * 1.6,
+                          marginLeft: SPACING / 2
+                        }}
+                      >
+                        vnđ
+                      </Text>
+                    </View>
+                    <TouchableOpacity
+                      onPress={() => {
+                        const check = dataFav.find(
+                          (item) => item.id === orchid.id
+                        )
+                        console.log(orchid.id)
+                        console.log('Check:', check)
+                        if (check) {
+                          removeDataFromStorage(orchid.id)
+                        } else {
+                          setDataToStorage(orchid)
+                        }
+                      }}
+                    >
+                      {dataFav.find((item) => item.id === orchid.id) ? (
+                        <Ionicons
+                          name="heart"
+                          size={SPACING * 3}
+                          color={colors.primary}
+                        />
+                      ) : (
+                        <Ionicons
+                          name="heart"
+                          size={SPACING * 3}
+                          color={colors.white}
+                        />
+                      )}
+                    </TouchableOpacity>
+                  </View>
+                </BlurView>
+              </View>
+            ))
+          )}
           </View>
         </ScrollView>
       </SafeAreaView>

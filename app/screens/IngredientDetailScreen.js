@@ -104,7 +104,7 @@ const IngredientDetailScreen = ({ route }) => {
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => {
-                  const check = dataFav.find((item) => item.id === ingreData.id)
+                  const check = dataFav.find((item) => item.id === ingreData?.ingredient_id)
                   console.log('Check:', check)
                   if (check) {
                     removeDataFromStorage()
@@ -118,7 +118,7 @@ const IngredientDetailScreen = ({ route }) => {
                   borderRadius: SPACING * 1.5,
                 }}
               >
-                {dataFav.find((item) => item.id === ingreData.id) ? (
+                {dataFav.find((item) => item.id === ingreData?.ingredient_id) ? (
                   <Ionicons
                     name="heart"
                     size={SPACING * 2.5}

@@ -1,5 +1,5 @@
 import { StyleSheet, Text, TextInput, View } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 import { BlurView } from "expo-blur";
 import colors from "../config/colors";
 import SPACING from "../config/SPACING";
@@ -22,6 +22,8 @@ const SearchField = () => {
         }}
       >
         <TextInput
+          autoCapitalize="none"
+          autoCorrect={false}
           style={{
             width: "100%",
             color: colors.white,
@@ -29,9 +31,10 @@ const SearchField = () => {
             padding: SPACING,
             paddingLeft: SPACING * 3.5,
           }}
-          placeholder="Find Your Orchids..."
+          placeholder="Find Your Food..."
           placeholderTextColor={colors.light}
         />
+
         <Ionicons
           style={{
             position: "absolute",
