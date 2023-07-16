@@ -16,7 +16,7 @@ import colors from '../config/colors'
 import SearchField from '../components/SearchField'
 import Categories from '../components/Categories'
 import orchids from '../config/orchids'
-import { useNavigation, useFocusEffect } from '@react-navigation/native'
+import { useNavigation, useFocusEffect, useIsFocused } from '@react-navigation/native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import categories from '../config/categories'
 import { StatusBar } from 'expo-status-bar'
@@ -28,7 +28,8 @@ const avatar = require('../../assets/avatar.jpg')
 const { width } = Dimensions.get('window')
 
 const HomeScreen = ({ navigation }) => {
-  const [foodData, setFoodData] = useState([])
+  const isFocused = useIsFocused()
+
   useFocusEffect(
     React.useCallback(() => {
       // Add listener for tab press
@@ -38,14 +39,17 @@ const HomeScreen = ({ navigation }) => {
           index: 0,
           routes: [{ name: 'HomeScreen' }],
         })
-      })
+        getFromStorage();
+      }, [isFocused])
 
       // Cleanup the listener when the screen loses focus or unmounts
       return unsubscribe
     }, [])
   )
   const [activeCategoryId, setActiveCategoryId] = useState(null)
+  const [foodData, setFoodData] = useState([])
   const [dataFav, setDataFav] = useState([])
+
 
   // const { foodData } = useContext(AuthContext);
 
@@ -53,24 +57,21 @@ const HomeScreen = ({ navigation }) => {
   //   getFromStorage()
   // }, [])
 
-  // // Get data from storage
-  // const getFromStorage = async () => {
-  //   try {
-  //     // const data = await AsyncStorage.getItem("favorite");
-  //     // setDataFav(data ? JSON.parse(data) : []);
-  //     // getFood();
-  //     console.log('aaaaaaaaaaaaaaaaaaa', foodData)
-  //   } catch (error) {
-  //     console.error('Error getting data from storage:', error)
-  //   }
-  // }
+  // Get data from storage
+  const getFromStorage = async () => {
+    try {
+      const data = await AsyncStorage.getItem("favorite");
+      setDataFav(data ? JSON.parse(data) : []);
+
+    } catch (error) {
+      console.error('Error getting data from storage:', error)
+    }
+  }
 
   // Set data to storage
-  const setDataToStorage = async (orchid) => {
+  const setDataToStorage = async (food) => {
     try {
-      console.log(orchid)
-      const updatedData = [...dataFav, orchid]
-      console.log(updatedData)
+      const updatedData = [...dataFav, food]
       await AsyncStorage.setItem('favorite', JSON.stringify(updatedData))
       setDataFav(updatedData)
     } catch (error) {
@@ -81,7 +82,7 @@ const HomeScreen = ({ navigation }) => {
   // Remove data from storage
   const removeDataFromStorage = async (itemId) => {
     try {
-      const list = dataFav.filter((item) => item.id !== itemId)
+      const list = dataFav.filter((item) => item.food_id !== itemId)
       await AsyncStorage.setItem('favorite', JSON.stringify(list))
       setDataFav(list)
     } catch (error) {
@@ -102,13 +103,15 @@ const HomeScreen = ({ navigation }) => {
   const getFoodData = async () => {
     try {
       const res = await axiosInstance.get(`/foods`)
-      console.log(res?.data)
+      // console.log(res?.data)
       setFoodData(res?.data?.foods)
     } catch (error) {
       console.log(error)
     }
   }
+  
   useEffect(() => {
+    getFromStorage()
     getFoodData()
   }, [])
 
@@ -331,7 +334,7 @@ const HomeScreen = ({ navigation }) => {
                     <TouchableOpacity
                       onPress={() => {
                         const check = dataFav.find(
-                          (item) => item.id === food.food_id
+                          (item) => item.food_id === food.food_id
                         )
                         console.log(food.food_id)
                         console.log('Check:', check)
@@ -342,7 +345,8 @@ const HomeScreen = ({ navigation }) => {
                         }
                       }}
                     >
-                      {dataFav.find((item) => item.id === food.food_id) ? (
+                      {dataFav.find((item) => item.food_id  === food.food_id) ? (
+                        
                         <Ionicons
                           name="heart"
                           size={SPACING * 3}
