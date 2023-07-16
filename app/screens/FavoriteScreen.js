@@ -24,12 +24,14 @@ import {
 } from '@react-navigation/native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { StatusBar } from 'expo-status-bar'
+import axiosInstance from '../../util/axiosWrapper'
 
 const avatar = require('../../assets/avatar.jpg')
 
 const { width } = Dimensions.get('window')
 
-const FavoriteScreen = ({ navigation }) => {
+const FavoriteScreen = ({ navigation  }) => {
+
   useFocusEffect(
     React.useCallback(() => {
       // Add listener for tab press
@@ -50,73 +52,159 @@ const FavoriteScreen = ({ navigation }) => {
   )
   const [activeCategoryId, setActiveCategoryId] = useState(null)
   const [favoriteOrchidsList, setFavoriteOrchidsList] = useState([])
+  const [foodData, setFoodData] = useState([])
+  // const [favoriteFoods, setFavoriteFoods] = useState([]);
+  const [favoriteFoodIds, setFavoriteFoodIds] = useState([]);
+  
   const isFocused = useIsFocused()
+
+  // const getFromStorage = async () => {
+  //   if (isFocused) {
+  //     const fetchData = async () => {
+  //       try {
+  //         const data = await AsyncStorage.getItem('favorite')
+  //         if (data != undefined) {
+  //           const parsedData = JSON.parse(data)
+  //           const filterFoods = foodData.filter((food) =>{
+  //             const check = parsedData.find((item) => item.food_id === food.food_id)
+  //             if (check) {
+  //               return food
+  //             }
+  //           })
+  //           setFavoriteFoods(filterFoods)
+  //         }
+  //       } catch (error) {
+  //         console.log(error)
+  //       }
+  //     }
+  //     fetchData()
+  //   }
+  // }
   const getFromStorage = async () => {
     if (isFocused) {
-      const fetchData = async () => {
-        try {
-          const data = await AsyncStorage.getItem('favorite')
-          if (data != undefined) {
-            const parsedData = JSON.parse(data)
-            const filterOrchids = orchids.filter((orchid) => {
-              const check = parsedData.find((item) => item.id === orchid.id)
-              if (check) {
-                return orchid
-              }
-            })
-            setFavoriteOrchidsList(filterOrchids)
-          }
-        } catch (error) {
-          console.log(error)
+      try {
+        const data = await AsyncStorage.getItem('favorite');
+        if (data !== undefined) {
+          const parsedData = JSON.parse(data);
+          const foodIds = parsedData.map((item) => item.food_id);
+          setFavoriteFoodIds(foodIds);
         }
+      } catch (error) {
+        console.log(error);
       }
-      fetchData()
+    }
+  };
+
+  // function handleDeleteItem(id) {
+  //   Alert.alert(
+  //     'Confirm removing this favorite orchid',
+  //     'You can not recover your favorite orchid after removing it!',
+  //     [
+  //       {
+  //         text: 'Cancel',
+  //         onPress: () => {},
+  //       },
+  //       {
+  //         text: 'Yes, I confirm',
+  //         onPress: async () => {
+  //           const list = favoriteOrchidsList.filter((item) => item.id !== id)
+  //           await AsyncStorage.setItem('favorite', JSON.stringify(list))
+  //           setFavoriteOrchidsList(list)
+  //         },
+  //       },
+  //     ]
+  //   )
+  // }
+  // function handleDeleteAllItem() {
+  //   Alert.alert(
+  //     'Confirm removing all of your favorite orchids',
+  //     'You can not recover your favorites orchid after removing them!',
+  //     [
+  //       {
+  //         text: 'Cancel',
+  //         onPress: () => {},
+  //       },
+  //       {
+  //         text: 'Yes, I confirm',
+  //         onPress: async () => {
+  //           const list = []
+  //           await AsyncStorage.setItem('favorite', JSON.stringify(list))
+  //           setFavoriteOrchidsList(list)
+  //         },
+  //       },
+  //     ]
+  //   )
+  // }
+  function handleDeleteItem(id) {
+    Alert.alert(
+      'Confirm removing this favorite food',
+      'You cannot recover your favorite food after removing it!',
+      [
+        {
+          text: 'Cancel',
+          onPress: () => {},
+        },
+        {
+          text: 'Yes, I confirm',
+          onPress: async () => {
+            try {
+              const updatedList = favoriteFoodIds.filter((foodId) => foodId !== id);
+              console.log(id);
+              await AsyncStorage.setItem('favorite', JSON.stringify(updatedList));
+              setFavoriteFoodIds(updatedList);
+            } catch (error) {
+              console.log(error);
+            }
+          },
+        },
+      ]
+    );
+  }
+  
+  function handleDeleteAllItem() {
+    Alert.alert(
+      'Confirm removing all of your favorite foods',
+      'You cannot recover your favorite foods after removing them!',
+      [
+        {
+          text: 'Cancel',
+          onPress: () => {},
+        },
+        {
+          text: 'Yes, I confirm',
+          onPress: async () => {
+            try {
+              await AsyncStorage.removeItem('favorite');
+              setFavoriteFoodIds([]);
+            } catch (error) {
+              console.log(error);
+            }
+          },
+        },
+      ]
+    );
+  }
+
+
+  const getFoodData = async () => {
+    try {
+      const res = await axiosInstance.get(`/foods`)
+      setFoodData(res?.data?.foods)
+    } catch (error) {
+      console.log(error)
     }
   }
 
-  function handleDeleteItem(id) {
-    Alert.alert(
-      'Confirm removing this favorite orchid',
-      'You can not recover your favorite orchid after removing it!',
-      [
-        {
-          text: 'Cancel',
-          onPress: () => {},
-        },
-        {
-          text: 'Yes, I confirm',
-          onPress: async () => {
-            const list = favoriteOrchidsList.filter((item) => item.id !== id)
-            await AsyncStorage.setItem('favorite', JSON.stringify(list))
-            setFavoriteOrchidsList(list)
-          },
-        },
-      ]
-    )
-  }
-  function handleDeleteAllItem() {
-    Alert.alert(
-      'Confirm removing all of your favorite orchids',
-      'You can not recover your favorites orchid after removing them!',
-      [
-        {
-          text: 'Cancel',
-          onPress: () => {},
-        },
-        {
-          text: 'Yes, I confirm',
-          onPress: async () => {
-            const list = []
-            await AsyncStorage.setItem('favorite', JSON.stringify(list))
-            setFavoriteOrchidsList(list)
-          },
-        },
-      ]
-    )
-  }
-
   useEffect(() => {
-    getFromStorage()
+    const fetchData = async () => {
+      try {
+        await getFoodData();
+        await getFromStorage();
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchData();
   }, [isFocused])
 
   return (
@@ -230,7 +318,7 @@ const FavoriteScreen = ({ navigation }) => {
               marginLeft: SPACING * 4,
             }}
           >
-            Count items: {favoriteOrchidsList.length}
+            Count items: {favoriteFoodIds?.length}
           </Text>
         </View>
         <View
@@ -242,19 +330,20 @@ const FavoriteScreen = ({ navigation }) => {
           }}
         >
           {/* {console.log(favoriteOrchidsList)} */}
-          {favoriteOrchidsList.length !== 0 ? (
-            favoriteOrchidsList
-              .filter((orchid) => {
+          {favoriteFoodIds.length !== 0 ? (
+            foodData
+              ?.filter((food) => {
                 if (activeCategoryId === null) {
-                  return true
-                } else if (activeCategoryId === 0) {
-                  return orchid
-                }
-                return orchid.categoryId === activeCategoryId
-              })
-              .map((orchid) => (
+                    return true;
+                  } else if (activeCategoryId === 0) {
+                      return food;
+                  }
+                    return food.categoryId === activeCategoryId;
+                  })
+                .filter((food) => favoriteFoodIds.includes(food.food_id))
+                .map((food) => (
                 <View
-                  key={orchid.id}
+                  key={food.food_id}
                   style={{
                     flexDirection: 'column',
                     width: width / 2 - SPACING * 2,
@@ -273,7 +362,7 @@ const FavoriteScreen = ({ navigation }) => {
                     <TouchableOpacity
                       onPress={() =>
                         navigation.navigate('OrchidDetail', {
-                          orchidId: orchid.id,
+                          foodId: food.food_id,
                         })
                       }
                       style={{
@@ -282,7 +371,7 @@ const FavoriteScreen = ({ navigation }) => {
                       }}
                     >
                       <Image
-                        source={orchid.image}
+                        source={{ uri:food.food_image[0].image }}
                         style={{
                           width: '100%',
                           height: '100%',
@@ -320,7 +409,7 @@ const FavoriteScreen = ({ navigation }) => {
                               marginLeft: SPACING / 2,
                             }}
                           >
-                            {orchid.rating}
+                            {food.rating}
                           </Text>
                         </BlurView>
                       </View>
@@ -335,7 +424,7 @@ const FavoriteScreen = ({ navigation }) => {
                         marginBottom: SPACING / 2,
                       }}
                     >
-                      {orchid.name}
+                      {food.food_name}
                     </Text>
                     <Text
                       numberOfLines={1}
@@ -344,7 +433,7 @@ const FavoriteScreen = ({ navigation }) => {
                         fontSize: SPACING * 1.2,
                       }}
                     >
-                      {orchid.included}
+                      {food.included}
                     </Text>
                     <View
                       style={{
@@ -370,11 +459,11 @@ const FavoriteScreen = ({ navigation }) => {
                             fontSize: SPACING * 1.6,
                           }}
                         >
-                          {orchid.price}
+                          {food.price}
                         </Text>
                       </View>
                       <TouchableOpacity
-                        onPress={() => handleDeleteItem(orchid.id)}
+                        onPress={() => handleDeleteItem(food.food_id)}
                       >
                         <Ionicons
                           name="heart"

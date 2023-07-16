@@ -18,7 +18,7 @@ import colors from '../config/colors'
 import SearchField from '../components/SearchField'
 import Categories from '../components/Categories'
 import orchids from '../config/orchids'
-import { useNavigation, useFocusEffect } from '@react-navigation/native'
+import { useNavigation, useFocusEffect, useIsFocused } from '@react-navigation/native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import categories from '../config/categories'
 import { StatusBar } from 'expo-status-bar'
@@ -34,6 +34,8 @@ const HomeScreen = ({ navigation }) => {
   const [foodData, setFoodData] = useState([]);
   const [categoryData, setCategoryData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const isFocused = useIsFocused()
+
   useFocusEffect(
     React.useCallback(() => {
       // Add listener for tab press
@@ -43,7 +45,8 @@ const HomeScreen = ({ navigation }) => {
           index: 0,
           routes: [{ name: 'HomeScreen' }],
         })
-      })
+        getFromStorage();
+      }, [isFocused])
 
       // Cleanup the listener when the screen loses focus or unmounts
       return unsubscribe
@@ -52,7 +55,12 @@ const HomeScreen = ({ navigation }) => {
   const [activeCategoryId, setActiveCategoryId] = useState(null)
   const [dataFav, setDataFav] = useState([])
 
+
   // const { foodData } = useContext(AuthContext);
+
+  // useEffect(() => {
+  //   getFromStorage()
+  // }, [])
 
   // Get data from storage
   const getFromStorage = async () => {
@@ -91,6 +99,7 @@ const HomeScreen = ({ navigation }) => {
     setIsLoading(true);
     try {
       const res = await axiosInstance.get(`/foods`)
+      // console.log(res?.data)
       setFoodData(res?.data?.foods)
       setIsLoading(false);
     } catch (error) {
@@ -440,6 +449,45 @@ const HomeScreen = ({ navigation }) => {
                 </View>
               ))
           )}
+          {/* <Text
+                        style={{ color: colors.white, fontSize: SPACING * 1.6 }}
+                      >
+                        {food.price}
+                      </Text>
+                    </View>
+                    <TouchableOpacity
+                      onPress={() => {
+                        const check = dataFav.find(
+                          (item) => item.food_id === food.food_id
+                        )
+                        console.log(food.food_id)
+                        console.log('Check:', check)
+                        if (check) {
+                          removeDataFromStorage(food.food_id)
+                        } else {
+                          setDataToStorage(food)
+                        }
+                      }}
+                    >
+                      {dataFav.find((item) => item.food_id  === food.food_id) ? (
+                        
+                        <Ionicons
+                          name="heart"
+                          size={SPACING * 3}
+                          color={colors.primary}
+                        />
+                      ) : (
+                        <Ionicons
+                          name="heart"
+                          size={SPACING * 3}
+                          color={colors.white}
+                        />
+                      )}
+                    </TouchableOpacity>
+                  </View>
+                </BlurView>
+              </View>
+            ))} */}
         </View>
       </ScrollView>
     </SafeAreaView>
