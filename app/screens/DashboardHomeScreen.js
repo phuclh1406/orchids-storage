@@ -1,122 +1,95 @@
-import {
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-  Image,
-  Dimensions,
-} from 'react-native'
 import React, { useState, useEffect, useContext } from 'react'
+import { useNavigation, useFocusEffect, useIsFocused } from '@react-navigation/native'
+import { View, Text, Image, SafeAreaView, TouchableOpacity, TextInput, FlatList, ScrollView, Dimensions } from "react-native";
 import SPACING from '../config/SPACING'
-import { BlurView } from 'expo-blur'
-import { Ionicons } from '@expo/vector-icons'
-import colors from '../config/colors'
 import SearchField from '../components/SearchField'
 import Categories from '../components/Categories'
-import orchids from '../config/orchids'
-import { useNavigation, useFocusEffect, useIsFocused } from '@react-navigation/native'
-import AsyncStorage from '@react-native-async-storage/async-storage'
-import categories from '../config/categories'
+import { BlurView } from 'expo-blur'
+import { Ionicons } from '@expo/vector-icons'
 import { StatusBar } from 'expo-status-bar'
-import { AuthContext } from '../context/AuthContext'
+import colors from '../config/colors'
 import axiosInstance from '../../util/axiosWrapper'
 
-const avatar = require('../../assets/avatar.jpg')
+const DashboardHomeScreen =  ({ navigation }) => {
+    const isFocused = useIsFocused()
+    const avatar = require('../../assets/avatar.jpg')
 
-const { width } = Dimensions.get('window')
+    const { width } = Dimensions.get('window')
 
-const HomeScreen = ({ navigation }) => {
-  const isFocused = useIsFocused()
+    useFocusEffect(
+        React.useCallback(() => {
+          // Add listener for tab press
+          const unsubscribe = navigation.addListener('tabPress', () => {
 
-  useFocusEffect(
-    React.useCallback(() => {
-      // Add listener for tab press
-      const unsubscribe = navigation.addListener('tabPress', () => {
-        // Reset the navigation state to the initial route of the stack
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'HomeScreen' }],
-        })
-        getFromStorage();
-      }, [isFocused])
+            navigation.reset({
+              index: 0,
+              routes: [{ name: 'Dashboard' }],
+            })
 
-      // Cleanup the listener when the screen loses focus or unmounts
-      return unsubscribe
-    }, [])
-  )
-  const [activeCategoryId, setActiveCategoryId] = useState(null)
-  const [foodData, setFoodData] = useState([])
-  const [dataFav, setDataFav] = useState([])
+          }, [isFocused])
+
+          return unsubscribe
+        }, [navigation, isFocused])
+      );
+      const [foodData, setFoodData] = useState([])
+      const [activeCategoryId, setActiveCategoryId] = useState(null)
+      const [dataFav, setDataFav] = useState([])
 
 
-  // const { foodData } = useContext(AuthContext);
+      // const { foodData } = useContext(AuthContext);
+    
+      // useEffect(() => {
+      //   getFromStorage()
+      // }, [])
+    
+      // Get data from storage
+      const getFromStorage = async () => {
+        try {
+          const data = await AsyncStorage.getItem("favorite");
+          setDataFav(data ? JSON.parse(data) : []);
+    
+        } catch (error) {
+          console.error('Error getting data from storage:', error)
+        }
+      }
+    
+      // Set data to storage
+      const setDataToStorage = async (food) => {
+        try {
+          const updatedData = [...dataFav, food]
+          await AsyncStorage.setItem('favorite', JSON.stringify(updatedData))
+          setDataFav(updatedData)
+        } catch (error) {
+          console.error('Error setting data to storage:', error)
+        }
+      }
+    
+      // Remove data from storage
+      const removeDataFromStorage = async (itemId) => {
+        try {
+          const list = dataFav.filter((item) => item.food_id !== itemId)
+          await AsyncStorage.setItem('favorite', JSON.stringify(list))
+          setDataFav(list)
+        } catch (error) {
+          console.error('Error removing data from storage:', error)
+        }
+      }
+      const getFoodData = async () => {
+        try {
+          const res = await axiosInstance.get(`/foods`)
+          // console.log(res?.data)
+          setFoodData(res?.data?.foods)
+        } catch (error) {
+          console.log(error)
+        }
+      }
+      
+      useEffect(() => {
+        getFoodData()
+      }, [])
 
-  // useEffect(() => {
-  //   getFromStorage()
-  // }, [])
-
-  // Get data from storage
-  const getFromStorage = async () => {
-    try {
-      const data = await AsyncStorage.getItem("favorite");
-      setDataFav(data ? JSON.parse(data) : []);
-
-    } catch (error) {
-      console.error('Error getting data from storage:', error)
-    }
-  }
-
-  // Set data to storage
-  const setDataToStorage = async (food) => {
-    try {
-      const updatedData = [...dataFav, food]
-      await AsyncStorage.setItem('favorite', JSON.stringify(updatedData))
-      setDataFav(updatedData)
-    } catch (error) {
-      console.error('Error setting data to storage:', error)
-    }
-  }
-
-  // Remove data from storage
-  const removeDataFromStorage = async (itemId) => {
-    try {
-      const list = dataFav.filter((item) => item.food_id !== itemId)
-      await AsyncStorage.setItem('favorite', JSON.stringify(list))
-      setDataFav(list)
-    } catch (error) {
-      console.error('Error removing data from storage:', error)
-    }
-  }
-
-  // useFocusEffect(
-  //   React.useCallback(() => {
-  //     getFromStorage()
-  //   }, [])
-  // )
-
-  // const getCategoryName = (categoryId) => {
-  //   const category = categories.find((category) => category.id === categoryId)
-  //   return category ? category.name : ''
-  // }
-  const getFoodData = async () => {
-    try {
-      const res = await axiosInstance.get(`/foods`)
-      // console.log(res?.data)
-      setFoodData(res?.data?.foods)
-    } catch (error) {
-      console.log(error)
-    }
-  }
-  
-  useEffect(() => {
-    getFromStorage()
-    getFoodData()
-  }, [])
-
-  return (
-    <SafeAreaView style={{ backgroundColor: colors.dark, flex: 1 }}>
+      return (
+        <SafeAreaView style={{ backgroundColor: colors.dark, flex: 1 }}>
       <StatusBar backgroundColor={colors.primary} />
       <ScrollView
         style={{
@@ -162,8 +135,8 @@ const HomeScreen = ({ navigation }) => {
               borderRadius: SPACING,
             }}
           >
-            <Text style={{ color: colors.white, fontSize: SPACING * 2 }}>
-              Home Screen
+            <Text style={{ color: colors.white, fontSize: SPACING * 1.8 }}>
+              Dashboard Screen
             </Text>
           </View>
           <View
@@ -195,11 +168,109 @@ const HomeScreen = ({ navigation }) => {
         </View>
         {/* <View style={{ width: "80%", marginVertical: SPACING }}></View> */}
         <SearchField />
+        
         <Categories
           let
           titleColor="light"
           onChange={(id) => setActiveCategoryId(id)}
         />
+        <View style={{ 
+          flexDirection: "row",
+          justifyContent: "space-between",
+          paddingHorizontal: 40,
+          padding: 20
+          }}>
+          
+          <TouchableOpacity style={ {
+            alignItems: 'center',
+            borderRadius: SPACING,
+            paddingVertical: SPACING,
+            paddingHorizontal: SPACING * 2,
+            backgroundColor: colors.primary,
+            shadowColor: colors.black,
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.3,
+            shadowRadius: 4,
+            elevation: 5,
+            }}>
+            <BlurView intensity={90} tint="light" style={{
+              width: 40,
+              height: 40,
+              borderRadius: 20,
+              alignItems: 'center',
+              justifyContent: 'center',
+              }}>
+              <Ionicons name="md-restaurant" size={20} color={colors.primary} />
+            </BlurView>
+            <Text numberOfLines={1} ellipsizeMode="tail" style={{
+                color: colors.white,
+                fontSize: 11,
+                fontWeight: "bold",
+               }}>
+                Ingredient</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity style={ {
+            alignItems: 'center',
+            borderRadius: 10,
+            paddingVertical: 10,
+            paddingHorizontal: 20,
+            backgroundColor: colors.primary,
+            shadowColor: colors.black,
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.3,
+            shadowRadius: 4,
+            elevation: 5,
+          }}>
+            <BlurView intensity={90} tint="light" style={{
+            width: 40,
+            height: 40,
+            borderRadius: 20,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+              <Ionicons name="md-book" size={20} color={colors.primary} />
+            </BlurView>
+            <Text numberOfLines={1} ellipsizeMode="tail" style={{
+              color: colors.white,
+              fontSize: 12,
+              fontWeight: "bold",
+            }}>
+              Blogs</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity style={ {
+            alignItems: 'center',
+            borderRadius: 10,
+            paddingVertical: 10,
+            paddingHorizontal: 20,
+            backgroundColor: colors.primary,
+            shadowColor: colors.black,
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.3,
+            shadowRadius: 4,
+            elevation: 5,
+          }}>
+            <BlurView intensity={90} tint="light" style={{
+              width: 40,
+              height: 40,
+              borderRadius: 20,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+              <Ionicons name="md-calendar" size={20} color={colors.primary} />
+            </BlurView>
+            
+            <Text numberOfLines={1} ellipsizeMode="tail" style={{
+              color: colors.white,
+              fontSize: 11,
+              fontWeight: "bold",
+            }}>
+              Schedule</Text>
+
+          </TouchableOpacity>
+        </View>
+
         <View
           style={{
             flexDirection: 'row',
@@ -331,35 +402,6 @@ const HomeScreen = ({ navigation }) => {
                         {food.price}
                       </Text>
                     </View>
-                    <TouchableOpacity
-                      onPress={() => {
-                        const check = dataFav.find(
-                          (item) => item.food_id === food.food_id
-                        )
-                        console.log(food.food_id)
-                        console.log('Check:', check)
-                        if (check) {
-                          removeDataFromStorage(food.food_id)
-                        } else {
-                          setDataToStorage(food)
-                        }
-                      }}
-                    >
-                      {dataFav.find((item) => item.food_id  === food.food_id) ? (
-                        
-                        <Ionicons
-                          name="heart"
-                          size={SPACING * 3}
-                          color={colors.primary}
-                        />
-                      ) : (
-                        <Ionicons
-                          name="heart"
-                          size={SPACING * 3}
-                          color={colors.white}
-                        />
-                      )}
-                    </TouchableOpacity>
                   </View>
                 </BlurView>
               </View>
@@ -369,7 +411,6 @@ const HomeScreen = ({ navigation }) => {
     </SafeAreaView>
   )
 }
+  
 
-export default HomeScreen
-
-// const styles = StyleSheet.create({})
+export default DashboardHomeScreen

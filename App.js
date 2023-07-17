@@ -5,6 +5,7 @@ import HomeScreen from './app/screens/HomeScreen'
 import { NavigationContainer } from '@react-navigation/native'
 import { createStackNavigator } from '@react-navigation/stack'
 import AppNavigation from './app/navigation/appNavigation'
+import DashboardNavigation from './app/navigation/dashboardNavigation';
 import OrchidDetailsScreen from './app/screens/OrchidDetailsScreen'
 import LoginScreen from './app/screens/LoginScreen'
 import RegistrationScreen from './app/screens/RegistrationScreen'
@@ -69,7 +70,11 @@ const App = () => {
                 <Stack.Screen name="LoginScreen" component={LoginScreen} />
                 <Stack.Screen name="IngredientsScreen" component={AppNavigation} />
                 <Stack.Screen name="IngredientDetail" component={IngredientDetailScreen} />
+<<<<<<< HEAD
                 <Stack.Screen name="ShoppingList" component={ShoppingListScreen} />
+=======
+                <Stack.Screen name="Dashboard" component={DashboardNavigation} />
+>>>>>>> 48ccac8cdb616e6c072ac1bffe21df9314318114
               </Stack.Navigator>
             </>
           )}
