@@ -70,11 +70,8 @@ const App = () => {
                 <Stack.Screen name="LoginScreen" component={LoginScreen} />
                 <Stack.Screen name="IngredientsScreen" component={AppNavigation} />
                 <Stack.Screen name="IngredientDetail" component={IngredientDetailScreen} />
-<<<<<<< HEAD
-                <Stack.Screen name="ShoppingList" component={ShoppingListScreen} />
-=======
                 <Stack.Screen name="Dashboard" component={DashboardNavigation} />
->>>>>>> 48ccac8cdb616e6c072ac1bffe21df9314318114
+                <Stack.Screen name="ShoppingList" component={ShoppingListScreen} />
               </Stack.Navigator>
             </>
           )}
