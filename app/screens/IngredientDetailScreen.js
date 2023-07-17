@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
+  Image,
   View,
 } from 'react-native'
 import React, { useState, useEffect } from 'react'
@@ -21,32 +22,54 @@ import axiosInstance from '../../util/axiosWrapper'
 
 const IngredientDetailScreen = ({ route }) => {
   const [ingreData, setIngreData] = useState()
+  const [sameCateData, setSameCateData] = useState([])
   const navigation = useNavigation()
   const { ingredientId } = route.params
   console.log(ingredientId)
   const [activeSize, setActiveSize] = useState(null)
   const [dataFav, setDataFav] = useState([])
+  const sameCateId = ingreData?.ingredient_cate_detail.cate_detail_id
 
+  //Get data from storage
   const getFromStorage = async () => {
-    const data = await AsyncStorage.getItem('favorite')
+    const data = await AsyncStorage.getItem('shoppingList')
     setDataFav(data != null ? JSON.parse(data) : [])
   }
-
+  //Set data from storage
   const setDataToStorage = async () => {
     let list
     if (dataFav == []) {
-      list = [orchid]
-      await AsyncStorage.setItem('favorite', JSON.stringify(list))
+      list = [ingreData]
+      await AsyncStorage.setItem('shoppingList', JSON.stringify(list))
     } else {
-      list = [...dataFav, orchid]
-      await AsyncStorage.setItem('favorite', JSON.stringify(list))
+      list = [...dataFav, ingreData]
+      await AsyncStorage.setItem('shoppingList', JSON.stringify(list))
     }
     setDataFav(list)
   }
+  //Remove data from storage
   const removeDataFromStorage = async () => {
-    const list = dataFav.filter((item) => item.id !== orchid.id)
-    await AsyncStorage.setItem('favorite', JSON.stringify(list))
+    const list = dataFav.filter(
+      (item) => item.ingredient_id !== ingreData?.ingredient_id
+    )
+    await AsyncStorage.setItem('shoppingList', JSON.stringify(list))
     setDataFav(list)
+  }
+
+  const getSameCategoryIngredients = async (sameCateId) => {
+    try {
+      const res = await axiosInstance.get(
+        `/ingredients?cate_detail_id=${sameCateId}`
+      )
+      console.log(res?.data.ingredients)
+      setSameCateData(
+        res?.data?.ingredients?.filter(
+          (item) => item?.ingredient_id !== ingredientId
+        )
+      )
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   const getIngreData = async (ingredientId) => {
@@ -62,9 +85,11 @@ const IngredientDetailScreen = ({ route }) => {
 
   useEffect(() => {
     if (ingredientId) {
-      getIngreData(ingredientId), getFromStorage()
+      getIngreData(ingredientId),
+        getFromStorage(),
+        getSameCategoryIngredients(sameCateId)
     }
-  }, [ingredientId])
+  }, [ingredientId, sameCateId])
   return (
     <>
       <ScrollView>
@@ -104,13 +129,7 @@ const IngredientDetailScreen = ({ route }) => {
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => {
-                  const check = dataFav.find((item) => item.id === ingreData.id)
-                  console.log('Check:', check)
-                  if (check) {
-                    removeDataFromStorage()
-                  } else {
-                    setDataToStorage()
-                  }
+                  setDataToStorage()
                 }}
                 style={{
                   backgroundColor: colors.dark,
@@ -118,15 +137,17 @@ const IngredientDetailScreen = ({ route }) => {
                   borderRadius: SPACING * 1.5,
                 }}
               >
-                {dataFav.find((item) => item.id === ingreData.id) ? (
+                {dataFav.find(
+                  (item) => item.ingredient_id === ingreData?.ingredient_id
+                ) ? (
                   <Ionicons
-                    name="heart"
+                    name="add"
                     size={SPACING * 2.5}
                     color={colors.primary}
                   />
                 ) : (
                   <Ionicons
-                    name="heart"
+                    name="add"
                     size={SPACING * 2.5}
                     color={colors.white}
                   />
@@ -169,21 +190,6 @@ const IngredientDetailScreen = ({ route }) => {
                     {ingreData?.ingredient_name}
                   </Text>
                 </View>
-                <View style={{ flexDirection: 'row', marginTop: SPACING }}>
-                  <Ionicons
-                    name="star"
-                    size={SPACING * 1.5}
-                    color={colors.primary}
-                  />
-                  <Text
-                    style={{
-                      color: colors.white,
-                      marginLeft: SPACING,
-                    }}
-                  >
-                    {/* {ingreData.rating} */}
-                  </Text>
-                </View>
               </View>
             </View>
             <Text
@@ -219,6 +225,117 @@ const IngredientDetailScreen = ({ route }) => {
                 {ingreData?.ingredient_cate_detail.cate_detail_name}
               </Text>
             </View>
+            {sameCateData.length !== 0 ? (
+              <View style={{ flexDirection: 'row', marginTop: SPACING }}>
+                <Text
+                  style={{
+                    color: colors['white-smoke'],
+                    fontSize: SPACING * 1.7,
+                    marginBottom: SPACING,
+                  }}
+                >
+                  Recommend
+                </Text>
+                <Ionicons
+                  style={{
+                    marginLeft: SPACING / 2,
+                  }}
+                  name="star"
+                  color={colors.primary}
+                  size={SPACING * 1.7}
+                />
+              </View>
+            ) : (
+              <Text>''</Text>
+            )}
+
+            <ScrollView horizontal>
+              {sameCateData.map((orchid) => (
+                <View
+                  key={orchid.id}
+                  style={{
+                    width: width / 2 - SPACING * 2,
+                    marginBottom: SPACING,
+                    borderRadius: SPACING * 2,
+                    overflow: 'hidden',
+                    marginRight: SPACING,
+                  }}
+                >
+                  <BlurView
+                    tint="dark"
+                    intensity={95}
+                    style={{
+                      padding: SPACING,
+                    }}
+                  >
+                    <TouchableOpacity
+                      onPress={() =>
+                        navigation.navigate('IngredientDetail', {
+                          ingredientId: orchid.ingredient_id,
+                        })
+                      }
+                      style={{
+                        height: 150,
+                        width: '100%',
+                      }}
+                    >
+                      <Image
+                        source={{ uri: orchid.ingredient_image[0].image }}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          borderRadius: SPACING * 2,
+                        }}
+                      />
+                    </TouchableOpacity>
+                    <Text
+                      numberOfLines={2}
+                      style={{
+                        color: colors.white,
+                        fontWeight: '600',
+                        fontSize: SPACING * 1.7,
+                        marginTop: SPACING,
+                        marginBottom: SPACING / 2,
+                      }}
+                    >
+                      {orchid.ingredient_name}
+                    </Text>
+                    <Text
+                      numberOfLines={1}
+                      style={{
+                        color: colors.secondary,
+                        fontSize: SPACING * 1.2,
+                      }}
+                    >
+                      {orchid.ingredient_cate_detail.cate_detail_name}
+                    </Text>
+                    <View
+                      style={{
+                        marginVertical: SPACING / 2,
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <TouchableOpacity
+                        onPress={() => {
+                          const check = dataFav.find(
+                            (item) => item.id === orchid.id
+                          )
+                          console.log(orchid.id)
+                          console.log('Check:', check)
+                          if (check) {
+                            removeDataFromStorage(orchid.id)
+                          } else {
+                            setDataToStorage(orchid)
+                          }
+                        }}
+                      ></TouchableOpacity>
+                    </View>
+                  </BlurView>
+                </View>
+              ))}
+            </ScrollView>
           </View>
         </SafeAreaView>
       </ScrollView>
@@ -252,7 +369,10 @@ const IngredientDetailScreen = ({ route }) => {
           </View>
         </View>
         <TouchableOpacity
-          onPress={() => {}}
+          onPress={() => {
+            setDataToStorage()
+            navigation.navigate('ShoppingList')
+          }}
           style={{
             backgroundColor: colors.dark,
             padding: SPACING,
@@ -267,7 +387,7 @@ const IngredientDetailScreen = ({ route }) => {
               justifyContent: 'center',
               alignItems: 'center',
               borderRadius: SPACING * 2,
-              height: SPACING * 6
+              height: SPACING * 6,
             }}
           >
             <Text

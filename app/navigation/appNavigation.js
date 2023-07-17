@@ -7,6 +7,7 @@ import {View, Dimensions} from 'react-native';
 import HomeScreen from '../screens/HomeScreen';
 import FavoriteScreen from '../screens/FavoriteScreen';
 import IngredientsScreen from '../screens/IngredientsScreen';
+import ShoppingListScreen from '../screens/ShoppingListScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -55,8 +56,8 @@ const AppNavigation = () => {
         }}
       />
       <Tab.Screen
-        name="Setting"
-        component={FavoriteScreen}
+        name="ShoppingList"
+        component={ShoppingListScreen}
         options={{
           unmountOnBlur: true,
           tabBarIcon: ({color}) => (

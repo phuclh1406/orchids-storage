@@ -48,19 +48,15 @@ import {
     const [activeCategoryId, setActiveCategoryId] = useState(null)
     const [dataFav, setDataFav] = useState([])
   
-    // const { foodData } = useContext(AuthContext);
-  
-    // useEffect(() => {
-    //   getFromStorage()
-    // }, [])
+    useEffect(() => {
+      getFromStorage()
+    }, [])
   
     // // Get data from storage
     const getFromStorage = async () => {
       try {
-        // const data = await AsyncStorage.getItem("favorite");
-        // setDataFav(data ? JSON.parse(data) : []);
-        // getFood();
-        console.log('aaaaaaaaaaaaaaaaaaa', foodData)
+        const data = await AsyncStorage.getItem("shoppingList");
+        setDataFav(data ? JSON.parse(data) : []);
       } catch (error) {
         console.error('Error getting data from storage:', error)
       }
@@ -72,7 +68,7 @@ import {
         console.log(orchid)
         const updatedData = [...dataFav, orchid]
         console.log(updatedData)
-        await AsyncStorage.setItem('favorite', JSON.stringify(updatedData))
+        await AsyncStorage.setItem('shoppingList', JSON.stringify(updatedData))
         setDataFav(updatedData)
       } catch (error) {
         console.error('Error setting data to storage:', error)
@@ -83,18 +79,18 @@ import {
     const removeDataFromStorage = async (itemId) => {
       try {
         const list = dataFav.filter((item) => item.id !== itemId)
-        await AsyncStorage.setItem('favorite', JSON.stringify(list))
+        await AsyncStorage.setItem('shoppingList', JSON.stringify(list))
         setDataFav(list)
       } catch (error) {
         console.error('Error removing data from storage:', error)
       }
     }
   
-    // useFocusEffect(
-    //   React.useCallback(() => {
-    //     getFromStorage()
-    //   }, [])
-    // )
+    useFocusEffect(
+      React.useCallback(() => {
+        getFromStorage()
+      }, [])
+    )
 
     const getIngreData = async () => {
       try {
@@ -217,12 +213,11 @@ import {
             }}
           >
             {ingreData
+
               ?.filter((orchid) => {
                 if (activeCategoryId === null) {
                   return true
-                } else if (activeCategoryId === 0) {
-                  return orchid
-                }
+                } 
                 return orchid.ingredient_cate_detail.cate_detail_id === activeCategoryId
               })
               .map((orchid) => (
@@ -346,26 +341,26 @@ import {
                       <TouchableOpacity
                         onPress={() => {
                           const check = dataFav.find(
-                            (item) => item.id === orchid.id
+                            (item) => item.ingredient_id === orchid.ingredient_id
                           )
-                          console.log(orchid.id)
+                          console.log(orchid.ingredient_id)
                           console.log('Check:', check)
                           if (check) {
-                            removeDataFromStorage(orchid.id)
+                            removeDataFromStorage(orchid.ingredient_id)
                           } else {
                             setDataToStorage(orchid)
                           }
                         }}
                       >
-                        {dataFav.find((item) => item.id === orchid.id) ? (
+                        {dataFav.find((item) => item.ingredientId === orchid.ingredient_id) ? (
                           <Ionicons
-                            name="heart"
+                            name="add-circle"
                             size={SPACING * 3}
                             color={colors.primary}
                           />
                         ) : (
                           <Ionicons
-                            name="heart"
+                            name="add-circle"
                             size={SPACING * 3}
                             color={colors.white}
                           />
