@@ -5,7 +5,7 @@ import HomeScreen from './app/screens/HomeScreen'
 import { NavigationContainer } from '@react-navigation/native'
 import { createStackNavigator } from '@react-navigation/stack'
 import AppNavigation from './app/navigation/appNavigation'
-import DashboardNavigation from './app/navigation/dashboardNavigation';
+import DashboardNavigation from './app/navigation/dashboardNavigation'
 import OrchidDetailsScreen from './app/screens/OrchidDetailsScreen'
 import LoginScreen from './app/screens/LoginScreen'
 import RegistrationScreen from './app/screens/RegistrationScreen'
@@ -17,6 +17,8 @@ import EditProfile from './app/screens/EditProfile'
 import UserProfile from './app/screens/UserProfile'
 import ShoppingListScreen from './app/screens/ShoppingListScreen'
 import { SearchScreen } from './app/screens/SearchScreen'
+import Setting from './app/screens/Setting'
+
 AsyncStorage.removeItem('userData')
 
 const Stack = createStackNavigator()
@@ -71,12 +73,25 @@ const App = () => {
                 />
                 <Stack.Screen name="SearchHome" component={SearchScreen} />
                 <Stack.Screen name="LoginScreen" component={LoginScreen} />
-                <Stack.Screen name="IngredientsScreen" component={AppNavigation} />
-                <Stack.Screen name="IngredientDetail" component={IngredientDetailScreen} />
-                <Stack.Screen name="Dashboard" component={DashboardNavigation} />
+                <Stack.Screen
+                  name="IngredientsScreen"
+                  component={AppNavigation}
+                />
+                <Stack.Screen
+                  name="IngredientDetail"
+                  component={IngredientDetailScreen}
+                />
+                <Stack.Screen
+                  name="Dashboard"
+                  component={DashboardNavigation}
+                />
                 <Stack.Screen name="UserProfile" component={UserProfile} />
                 <Stack.Screen name="EditProfile" component={EditProfile} />
-                <Stack.Screen name="ShoppingList" component={ShoppingListScreen} />
+                <Stack.Screen
+                  name="ShoppingList"
+                  component={ShoppingListScreen}
+                />
+                <Stack.Screen name="Setting" component={Setting} />
               </Stack.Navigator>
             </>
           )}

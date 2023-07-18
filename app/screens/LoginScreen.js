@@ -24,7 +24,7 @@ const LoginScreen = ({ navigation }) => {
       handleError('Please input a valid email', 'email')
       isValid = false
     }
-    
+
     if (!inputs.password) {
       handleError('Please input password', 'password')
       isValid = false
@@ -77,9 +77,9 @@ const LoginScreen = ({ navigation }) => {
 
   useEffect(() => {
     if (isNavigate) {
-      navigation.navigate('Home')
+      navigation.navigate('Dashboard')
     }
-    console.log('Home');
+    console.log('Home')
   }, [isNavigate, navigation])
 
   return (
