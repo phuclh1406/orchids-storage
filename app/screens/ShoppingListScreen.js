@@ -22,6 +22,7 @@ import {
   useNavigation,
   useFocusEffect,
   useIsFocused,
+  useRoute,
 } from '@react-navigation/native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import categories from '../config/categories'
@@ -31,10 +32,12 @@ import axiosInstance from '../../util/axiosWrapper'
 const avatar = require('../../assets/avatar.jpg')
 
 const { width } = Dimensions.get('window')
+const { height } = Dimensions.get('window')
 
 const ShoppingListScreen = ({ navigation }) => {
   const [ingreData, setIngreData] = useState([])
   const [categoriesData, setCategoriesData] = useState([])
+  const [sort, setSort] = useState(null)
   console.log(favoriteOrchidsList, '123123123123123123123213123')
   useFocusEffect(
     React.useCallback(() => {
@@ -59,44 +62,55 @@ const ShoppingListScreen = ({ navigation }) => {
   const [activeCategoryId, setActiveCategoryId] = useState(null)
   const [favoriteOrchidsList, setFavoriteOrchidsList] = useState([])
   const [dataFav, setDataFav] = useState([])
+  const [dataBuy, setDataBuy] = useState([])
+  const [dataWaiting, setDataWaiting] = useState([])
   const [isLoading, setIsLoading] = useState(true)
 
   const getFromStorage = async () => {
     if (isFocused) {
-      setIsLoading(true) // Set isLoading to true before fetching the data
-      const fetchData = async () => {
-        try {
-          const data = await AsyncStorage.getItem('shoppingList')
-          console.log('12321312312312312312321', data)
-          if (data != undefined) {
-            const parsedData = JSON.parse(data)
-            const filterOrchids = ingreData.filter((orchid) => {
-              const check = parsedData.find(
-                (item) => item.ingredient_id === orchid.ingredient_id
-              )
-              if (check) {
-                return orchid
-              }
-            })
-            setFavoriteOrchidsList(filterOrchids)
-          }
-          setIsLoading(false) // Set isLoading to false after the data has been fetched
-        } catch (error) {
-          console.log(error)
+      setIsLoading(true)
+
+      try {
+        const res = await axiosInstance.get('/ingredients')
+        const data = await AsyncStorage.getItem('shoppingList')
+
+        console.log(res?.data)
+        setIngreData(res?.data?.ingredients)
+
+        if (data !== undefined) {
+          const parsedData = JSON.parse(data)
+          const filterOrchids = res.data.ingredients.filter((orchid) =>
+            parsedData.find(
+              (item) => item.ingredient_id === orchid.ingredient_id
+            )
+          )
+          setFavoriteOrchidsList(filterOrchids)
         }
+      } catch (error) {
+        console.log(error)
+      } finally {
+        setIsLoading(false)
       }
-      fetchData()
+    }
+  }
+
+  const getBuyFromStorage = async () => {
+    try {
+      const data = await AsyncStorage.getItem('buyList')
+      setDataBuy(data ? JSON.parse(data) : [])
+    } catch (error) {
+      console.error('Error getting data from storage:', error)
     }
   }
 
   // Set data to storage
-  const setDataToStorage = async (orchid) => {
+  const setBuyDataToStorage = async (orchid) => {
     try {
       console.log(orchid)
-      const updatedData = [...dataFav, orchid]
+      const updatedData = [...dataBuy, orchid]
       console.log(updatedData)
-      await AsyncStorage.setItem('shopingList', JSON.stringify(updatedData))
-      setDataFav(updatedData)
+      await AsyncStorage.setItem('buyList', JSON.stringify(updatedData))
+      setDataBuy(updatedData)
     } catch (error) {
       console.error('Error setting data to storage:', error)
     }
@@ -124,16 +138,6 @@ const ShoppingListScreen = ({ navigation }) => {
         },
       ]
     )
-  }
-
-  const getIngreData = async () => {
-    try {
-      const res = await axiosInstance.get(`/ingredients`)
-      console.log(res?.data)
-      setIngreData(res?.data?.ingredients)
-    } catch (error) {
-      console.log(error)
-    }
   }
 
   function handleDeleteAllItem() {
@@ -167,27 +171,67 @@ const ShoppingListScreen = ({ navigation }) => {
       console.log(error)
     }
   }
+
+  function handleDeleteBuyItemFromStorage(id) {
+    Alert.alert(
+      'Confirm removing this item?',
+      'You can not recover your item after removing it!',
+      [
+        {
+          text: 'Cancel',
+          onPress: () => {},
+        },
+        {
+          text: 'Yes, I confirm',
+          onPress: async () => {
+            const list = dataBuy.filter(
+              (item) => item.ingredient_id !== id
+            )
+            await AsyncStorage.setItem('buyList', JSON.stringify(list))
+            setDataBuy(list)
+          },
+        },
+      ]
+    )
+  }
+
+  const removeBuyDataFromStorage = async (itemId) => {
+    try {
+      const list = dataBuy.filter((item) => item.ingredient_id !== itemId)
+      await AsyncStorage.setItem('buyList', JSON.stringify(list))
+      setDataBuy(list)
+    } catch (error) {
+      console.error('Error removing data from storage:', error)
+    }
+  }
+
   useEffect(() => {
-    getFromStorage();
-    getIngreData();
-    getCategoriesData(); 
+    getFromStorage()
+    getBuyFromStorage()
+    getCategoriesData()
   }, [isFocused])
   console.log(categoriesData)
 
+  const waiting = favoriteOrchidsList.filter(
+    (shoppingItem) =>
+      !dataBuy.some(
+        (buyItem) => shoppingItem.ingredient_id === buyItem.ingredient_id
+      )
+  )
   return (
-    <SafeAreaView style={{ backgroundColor: colors.dark, flex: 1 }}>
+    <SafeAreaView style={{ backgroundColor: colors.dark, flex: 1}}>
       <StatusBar backgroundColor={colors.primary} />
       <ScrollView
         style={{
-          padding: SPACING,
-          paddingTop: SPACING * 4,
+          paddingHorizontal: SPACING,
+          overflow: 'visible'
         }}
       >
         <View
           style={{
             flexDirection: 'row',
             justifyContent: 'space-between',
-            paddingBottom: SPACING * 2,
+            paddingBottom: SPACING * 2,                   
           }}
         >
           <TouchableOpacity
@@ -262,20 +306,21 @@ const ShoppingListScreen = ({ navigation }) => {
           inputData={categoriesData}
         />
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <TouchableOpacity
+          
+          {favoriteOrchidsList.length > 1 ? (<TouchableOpacity
             onPress={() => handleDeleteAllItem()}
             style={{
-              marginRight: SPACING,
+              marginRight: SPACING * 5,
               backgroundColor: colors.primary,
               width: width / 2 - SPACING * 2.5,
               height: SPACING * 5,
               justifyContent: 'center',
               alignItems: 'center',
               borderRadius: SPACING / 2,
-              marginBottom: SPACING * 2,
               marginTop: SPACING,
             }}
           >
+         
             <Text
               style={{
                 color: colors.white,
@@ -285,14 +330,14 @@ const ShoppingListScreen = ({ navigation }) => {
             >
               Clear all
             </Text>
-          </TouchableOpacity>
+          </TouchableOpacity>) : (<Text>''</Text>)}
+          
           <Text
             style={{
               color: colors['white-smoke'],
               fontSize: SPACING * 2,
               fontWeight: '300',
-              marginBottom: SPACING,
-              marginLeft: SPACING * 4,
+              marginTop: SPACING,
             }}
           >
             Count items: {favoriteOrchidsList.length}
@@ -302,12 +347,211 @@ const ShoppingListScreen = ({ navigation }) => {
           style={{
             flexWrap: 'wrap',
             justifyContent: 'space-between',
-            paddingBottom: SPACING * 4,
           }}
         >
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              paddingVertical: SPACING * 2,
+            }}
+          >
+            {sort === null ? (
+              <TouchableOpacity
+                style={{
+                  alignItems: 'center',
+                  borderRadius: SPACING / 2,
+                  paddingVertical: SPACING,
+                  paddingHorizontal: SPACING * 2,
+                  width: SPACING * 11,
+                  backgroundColor: colors.white,
+                  shadowColor: colors.black,
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.3,
+                  shadowRadius: 4,
+                  elevation: 5,
+                }}
+                onPress={() => {
+                  setSort(null)
+                }}
+              >
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{
+                    color: colors['dark-light'],
+                    fontSize: 11,
+                    fontWeight: 'bold',
+                  }}
+                >
+                  All
+                </Text>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                style={{
+                  alignItems: 'center',
+                  borderRadius: SPACING / 2,
+                  paddingVertical: SPACING,
+                  paddingHorizontal: SPACING * 2,
+                  width: SPACING * 11,
+                  backgroundColor: colors['dark-light'],
+                  shadowColor: colors.black,
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.3,
+                  shadowRadius: 4,
+                  elevation: 5,
+                }}
+                onPress={() => {
+                  setSort(null)
+                }}
+              >
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{
+                    color: colors.white,
+                    fontSize: 11,
+                    fontWeight: 'bold',
+                  }}
+                >
+                  All
+                </Text>
+              </TouchableOpacity>
+            )}
+
+            {sort === 'Bought' ? (
+              <TouchableOpacity
+                style={{
+                  alignItems: 'center',
+                  borderRadius: SPACING / 2,
+                  paddingVertical: SPACING,
+                  paddingHorizontal: SPACING * 2,
+                  width: SPACING * 11,
+                  backgroundColor: colors.white,
+                  shadowColor: colors.black,
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.3,
+                  shadowRadius: 4,
+                  elevation: 5,
+                }}
+                onPress={() => {
+                  setSort('Bought')
+                }}
+              >
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{
+                    color: colors['dark-light'],
+                    fontSize: 11,
+                    fontWeight: 'bold',
+                  }}
+                >
+                  Bought
+                </Text>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                style={{
+                  alignItems: 'center',
+                  borderRadius: SPACING / 2,
+                  paddingVertical: SPACING,
+                  paddingHorizontal: SPACING * 2,
+                  width: SPACING * 11,
+                  backgroundColor: colors['dark-light'],
+                  shadowColor: colors.black,
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.3,
+                  shadowRadius: 4,
+                  elevation: 5,
+                }}
+                onPress={() => {
+                  setSort('Bought')
+                }}
+              >
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{
+                    color: colors.white,
+                    fontSize: 11,
+                    fontWeight: 'bold',
+                  }}
+                >
+                  Bought
+                </Text>
+              </TouchableOpacity>
+            )}
+
+            {sort === 'Waiting' ? (
+              <TouchableOpacity
+                style={{
+                  alignItems: 'center',
+                  borderRadius: SPACING / 2,
+                  paddingVertical: SPACING,
+                  paddingHorizontal: SPACING * 2,
+                  width: SPACING * 11,
+                  backgroundColor: colors.white,
+                  shadowColor: colors.black,
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.3,
+                  shadowRadius: 4,
+                  elevation: 5,
+                }}
+                onPress={() => {
+                  setSort('Waiting')
+                }}
+              >
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{
+                    color: colors['dark-light'],
+                    fontSize: 11,
+                    fontWeight: 'bold',
+                  }}
+                >
+                  Waiting
+                </Text>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                style={{
+                  alignItems: 'center',
+                  borderRadius: SPACING / 2,
+                  paddingVertical: SPACING,
+                  paddingHorizontal: SPACING * 2,
+                  width: SPACING * 11,
+                  backgroundColor: colors['dark-light'],
+                  shadowColor: colors.black,
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.3,
+                  shadowRadius: 4,
+                  elevation: 5,
+                }}
+                onPress={() => {
+                  setSort('Waiting')
+                }}
+              >
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{
+                    color: colors.white,
+                    fontSize: 11,
+                    fontWeight: 'bold',
+                  }}
+                >
+                  Waiting
+                </Text>
+              </TouchableOpacity>
+            )}
+          </View>
+
           {isLoading ? (
             <ActivityIndicator color={colors.green} size="large" />
-          ) : favoriteOrchidsList.length !== 0 ? (
+          ) : favoriteOrchidsList.length !== 0 && sort === null ? (
             favoriteOrchidsList
               .filter((orchid) => {
                 if (activeCategoryId === null) {
@@ -382,7 +626,7 @@ const ShoppingListScreen = ({ navigation }) => {
                       </Text>
                       <View
                         style={{
-                          marginVertical: SPACING / 2,
+                          marginBottom: SPACING,
                           flexDirection: 'row',
                           justifyContent: 'space-between',
                           alignItems: 'center',
@@ -419,7 +663,17 @@ const ShoppingListScreen = ({ navigation }) => {
                     >
                       <TouchableOpacity
                         onPress={() => {
-                          handleDeleteItem(orchid.ingredient_id)
+                          const check = dataBuy.find(
+                            (item) =>
+                              item.ingredient_id === orchid.ingredient_id
+                          )
+                          console.log(orchid.ingredient_id)
+                          console.log('Check:', check)
+                          if (check) {
+                            removeBuyDataFromStorage(orchid.ingredient_id)
+                          } else {
+                            setBuyDataToStorage(orchid)
+                          }
                         }}
                         style={{
                           position: 'absolute',
@@ -427,7 +681,343 @@ const ShoppingListScreen = ({ navigation }) => {
                           top: SPACING,
                         }}
                       >
-                        {dataFav.find(
+                        {dataBuy.find(
+                          (item) => item.ingredient_id === orchid.ingredient_id
+                        ) ? (
+                          <Ionicons
+                            name="pricetags"
+                            size={SPACING * 3}
+                            color={colors.green}
+                          />
+                        ) : (
+                          <Ionicons
+                            name="pricetag"
+                            size={SPACING * 3}
+                            color={colors.white}
+                          />
+                        )}
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        onPress={() => {
+                          handleDeleteItem(orchid.ingredient_id);
+                          handleDeleteBuyItemFromStorage(orchid.ingredient_id);
+                        }}
+                        style={{
+                          position: 'absolute',
+                          right: SPACING / 6,
+                          marginTop: SPACING * 8,
+                        }}
+                      >
+                        <Ionicons
+                          name="trash-outline"
+                          size={SPACING * 2.5}
+                          color={colors.red}
+                        />
+                      </TouchableOpacity>
+                    </View>
+                  </BlurView>
+                </View>
+              ))
+          ) : favoriteOrchidsList.length !== 0 && sort === 'Bought' ? (
+            dataBuy
+              .filter((orchid) => {
+                if (activeCategoryId === null) {
+                  return true
+                }
+                return (
+                  orchid.ingredient_cate_detail.cate_detail_id ===
+                  activeCategoryId
+                )
+              })
+              .map((orchid) => (
+                <View
+                  key={orchid.ingredient_id}
+                  style={{
+                    width: width - SPACING * 2,
+                    height: width - SPACING * 26,
+                    marginBottom: SPACING,
+                    marginBottom: SPACING,
+                    borderRadius: SPACING,
+                    overflow: 'hidden',
+                  }}
+                >
+                  <BlurView
+                    tint="dark"
+                    intensity={95}
+                    style={{
+                      padding: SPACING,
+                      paddingBottom: SPACING,
+                      flexDirection: 'row',
+                    }}
+                  >
+                    <TouchableOpacity
+                      onPress={() =>
+                        navigation.navigate('IngredientDetail', {
+                          ingredientId: orchid.ingredient_id,
+                        })
+                      }
+                      style={{
+                        height: 150,
+                        width: '40%',
+                      }}
+                    >
+                      <Image
+                        source={{ uri: orchid.ingredient_image[0].image }}
+                        style={{
+                          width: '80%',
+                          height: '65%',
+                          borderRadius: SPACING,
+                        }}
+                      />
+                    </TouchableOpacity>
+                    <View>
+                      <Text
+                        numberOfLines={2}
+                        style={{
+                          color: colors.white,
+                          fontWeight: '600',
+                          fontSize: SPACING * 1.7,
+                          marginTop: SPACING,
+                          marginBottom: SPACING / 2,
+                        }}
+                      >
+                        {orchid.ingredient_name}
+                      </Text>
+                      <Text
+                        numberOfLines={1}
+                        style={{
+                          color: colors.secondary,
+                          fontSize: SPACING * 1.2,
+                        }}
+                      >
+                        {orchid.ingredient_cate_detail.cate_detail_name}
+                      </Text>
+                      <View
+                        style={{
+                          marginBottom: SPACING,
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                        }}
+                      >
+                        <View style={{ flexDirection: 'row' }}>
+                          <Text
+                            style={{
+                              color: colors.white,
+                              fontSize: SPACING * 1.6,
+                            }}
+                          >
+                            {orchid.price}
+                          </Text>
+                          <Text
+                            style={{
+                              color: colors.primary,
+                              marginRight: SPACING / 2,
+                              fontSize: SPACING * 1.6,
+                              marginLeft: SPACING / 2,
+                            }}
+                          >
+                            vnđ
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        position: 'absolute',
+                        right: SPACING,
+                      }}
+                    >
+                      <TouchableOpacity
+                        onPress={() => {
+                          const check = dataBuy.find(
+                            (item) =>
+                              item.ingredient_id === orchid.ingredient_id
+                          )
+                          console.log(orchid.ingredient_id)
+                          console.log('Check:', check)
+                          if (check) {
+                            removeBuyDataFromStorage(orchid.ingredient_id)
+                          } else {
+                            setBuyDataToStorage(orchid)
+                          }
+                        }}
+                        style={{
+                          position: 'absolute',
+                          right: SPACING / 6,
+                          top: SPACING,
+                        }}
+                      >
+                        {dataBuy.find(
+                          (item) => item.ingredient_id === orchid.ingredient_id
+                        ) ? (
+                          <Ionicons
+                            name="pricetags"
+                            size={SPACING * 3}
+                            color={colors.green}
+                          />
+                        ) : (
+                          <Ionicons
+                            name="pricetag"
+                            size={SPACING * 3}
+                            color={colors.white}
+                          />
+                        )}
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        onPress={() => {
+                          removeBuyDataFromStorage(orchid.ingredient_id)
+                          handleDeleteItem(orchid.ingredient_id)
+                        }}
+                        style={{
+                          position: 'absolute',
+                          right: SPACING / 6,
+                          marginTop: SPACING * 8,
+                        }}
+                      >
+                        <Ionicons
+                          name="trash-outline"
+                          size={SPACING * 2.5}
+                          color={colors.red}
+                        />
+                      </TouchableOpacity>
+                    </View>
+                  </BlurView>
+                </View>
+              ))
+          ) : favoriteOrchidsList.length !== 0 && sort === 'Waiting' ? (
+            waiting
+              .filter((orchid) => {
+                if (activeCategoryId === null) {
+                  return true
+                }
+                return (
+                  orchid.ingredient_cate_detail.cate_detail_id ===
+                  activeCategoryId
+                )
+              })
+              .map((orchid) => (
+                <View
+                  key={orchid.ingredient_id}
+                  style={{
+                    width: width - SPACING * 2,
+                    height: width - SPACING * 26,
+                    marginBottom: SPACING,
+                    marginBottom: SPACING,
+                    borderRadius: SPACING,
+                    overflow: 'hidden',
+                  }}
+                >
+                  <BlurView
+                    tint="dark"
+                    intensity={95}
+                    style={{
+                      padding: SPACING,
+                      paddingBottom: SPACING,
+                      flexDirection: 'row',
+                    }}
+                  >
+                    <TouchableOpacity
+                      onPress={() =>
+                        navigation.navigate('IngredientDetail', {
+                          ingredientId: orchid.ingredient_id,
+                        })
+                      }
+                      style={{
+                        height: 150,
+                        width: '40%',
+                      }}
+                    >
+                      <Image
+                        source={{ uri: orchid.ingredient_image[0].image }}
+                        style={{
+                          width: '80%',
+                          height: '65%',
+                          borderRadius: SPACING,
+                        }}
+                      />
+                    </TouchableOpacity>
+                    <View>
+                      <Text
+                        numberOfLines={2}
+                        style={{
+                          color: colors.white,
+                          fontWeight: '600',
+                          fontSize: SPACING * 1.7,
+                          marginTop: SPACING,
+                          marginBottom: SPACING / 2,
+                        }}
+                      >
+                        {orchid.ingredient_name}
+                      </Text>
+                      <Text
+                        numberOfLines={1}
+                        style={{
+                          color: colors.secondary,
+                          fontSize: SPACING * 1.2,
+                        }}
+                      >
+                        {orchid.ingredient_cate_detail.cate_detail_name}
+                      </Text>
+                      <View
+                        style={{
+                          marginBottom: SPACING,
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                        }}
+                      >
+                        <View style={{ flexDirection: 'row' }}>
+                          <Text
+                            style={{
+                              color: colors.white,
+                              fontSize: SPACING * 1.6,
+                            }}
+                          >
+                            {orchid.price}
+                          </Text>
+                          <Text
+                            style={{
+                              color: colors.primary,
+                              marginRight: SPACING / 2,
+                              fontSize: SPACING * 1.6,
+                              marginLeft: SPACING / 2,
+                            }}
+                          >
+                            vnđ
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        position: 'absolute',
+                        right: SPACING,
+                      }}
+                    >
+                      <TouchableOpacity
+                        onPress={() => {
+                          const check = dataBuy.find(
+                            (item) =>
+                              item.ingredient_id === orchid.ingredient_id
+                          )
+                          console.log(orchid.ingredient_id)
+                          console.log('Check:', check)
+                          if (check) {
+                            removeBuyDataFromStorage(orchid.ingredient_id)
+                          } else {
+                            setBuyDataToStorage(orchid)
+                          }
+                        }}
+                        style={{
+                          position: 'absolute',
+                          right: SPACING / 6,
+                          top: SPACING,
+                        }}
+                      >
+                        {dataBuy.find(
                           (item) => item.ingredient_id === orchid.ingredient_id
                         ) ? (
                           <Ionicons
@@ -462,6 +1052,7 @@ const ShoppingListScreen = ({ navigation }) => {
                     </View>
                   </BlurView>
                 </View>
+                
               ))
           ) : (
             <Text style={{ color: colors.green }}>Not Found</Text>

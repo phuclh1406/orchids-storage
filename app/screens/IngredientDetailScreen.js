@@ -83,6 +83,7 @@ const IngredientDetailScreen = ({ route }) => {
     }
   }
 
+
   useEffect(() => {
     if (ingredientId) {
       getIngreData(ingredientId),
@@ -129,7 +130,13 @@ const IngredientDetailScreen = ({ route }) => {
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => {
-                  setDataToStorage()
+                  const check = dataFav.find((item) => item.ingredient_id === ingreData?.ingredient_id)
+                  console.log('Check:', check)
+                  if (check) {
+                    removeDataFromStorage()
+                  } else {
+                    setDataToStorage()
+                  }
                 }}
                 style={{
                   backgroundColor: colors.dark,
@@ -141,7 +148,7 @@ const IngredientDetailScreen = ({ route }) => {
                   (item) => item.ingredient_id === ingreData?.ingredient_id
                 ) ? (
                   <Ionicons
-                    name="add"
+                    name="cart"
                     size={SPACING * 2.5}
                     color={colors.primary}
                   />
@@ -252,7 +259,7 @@ const IngredientDetailScreen = ({ route }) => {
             <ScrollView horizontal>
               {sameCateData.map((orchid) => (
                 <View
-                  key={orchid.id}
+                  key={orchid.ingredient_id}
                   style={{
                     width: width / 2 - SPACING * 2,
                     marginBottom: SPACING,
