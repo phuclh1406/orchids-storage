@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Image,
   Dimensions,
+  Button,
 } from 'react-native'
 import React, { useState, useEffect, useContext } from 'react'
 import SPACING from '../config/SPACING'
@@ -16,12 +17,17 @@ import colors from '../config/colors'
 import SearchField from '../components/SearchField'
 import Categories from '../components/Categories'
 import orchids from '../config/orchids'
-import { useNavigation, useFocusEffect, useIsFocused } from '@react-navigation/native'
+import {
+  useNavigation,
+  useFocusEffect,
+  useIsFocused,
+} from '@react-navigation/native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import categories from '../config/categories'
 import { StatusBar } from 'expo-status-bar'
 import { AuthContext } from '../context/AuthContext'
 import axiosInstance from '../../util/axiosWrapper'
+import UploadImage from '../components/UploadImage'
 
 const avatar = require('../../assets/avatar.jpg')
 
@@ -33,14 +39,18 @@ const HomeScreen = ({ navigation }) => {
   useFocusEffect(
     React.useCallback(() => {
       // Add listener for tab press
-      const unsubscribe = navigation.addListener('tabPress', () => {
-        // Reset the navigation state to the initial route of the stack
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'HomeScreen' }],
-        })
-        getFromStorage();
-      }, [isFocused])
+      const unsubscribe = navigation.addListener(
+        'tabPress',
+        () => {
+          // Reset the navigation state to the initial route of the stack
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'HomeScreen' }],
+          })
+          getFromStorage()
+        },
+        [isFocused]
+      )
 
       // Cleanup the listener when the screen loses focus or unmounts
       return unsubscribe
@@ -49,7 +59,6 @@ const HomeScreen = ({ navigation }) => {
   const [activeCategoryId, setActiveCategoryId] = useState(null)
   const [foodData, setFoodData] = useState([])
   const [dataFav, setDataFav] = useState([])
-
 
   // const { foodData } = useContext(AuthContext);
 
@@ -60,9 +69,8 @@ const HomeScreen = ({ navigation }) => {
   // Get data from storage
   const getFromStorage = async () => {
     try {
-      const data = await AsyncStorage.getItem("favorite");
-      setDataFav(data ? JSON.parse(data) : []);
-
+      const data = await AsyncStorage.getItem('favorite')
+      setDataFav(data ? JSON.parse(data) : [])
     } catch (error) {
       console.error('Error getting data from storage:', error)
     }
@@ -109,7 +117,7 @@ const HomeScreen = ({ navigation }) => {
       console.log(error)
     }
   }
-  
+
   useEffect(() => {
     getFromStorage()
     getFoodData()
@@ -195,6 +203,10 @@ const HomeScreen = ({ navigation }) => {
         </View>
         {/* <View style={{ width: "80%", marginVertical: SPACING }}></View> */}
         <SearchField />
+        <Button
+          title="Create Food"
+          onPress={() => navigation.navigate('CreateFoodScreen')}
+        />
         <Categories
           let
           titleColor="light"
@@ -246,7 +258,7 @@ const HomeScreen = ({ navigation }) => {
                     }}
                   >
                     <Image
-                      source={{uri:food.food_image[0].image}}
+                      source={{ uri: food.food_image[0].image }}
                       style={{
                         width: '100%',
                         height: '100%',
@@ -345,8 +357,7 @@ const HomeScreen = ({ navigation }) => {
                         }
                       }}
                     >
-                      {dataFav.find((item) => item.food_id  === food.food_id) ? (
-                        
+                      {dataFav.find((item) => item.food_id === food.food_id) ? (
                         <Ionicons
                           name="heart"
                           size={SPACING * 3}

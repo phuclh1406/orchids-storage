@@ -16,7 +16,6 @@ const axiosInstance = axios.create(defaultOptions)
 axiosInstance.interceptors.request.use(async (config) => {
   const userInfo = await AsyncStorage.getItem('userData')
   const parsedUserInfo = JSON.parse(userInfo)
-  console.log(parsedUserInfo)
   config.headers.Authorization = `Bearer ${parsedUserInfo.access_token}`
 
   return config

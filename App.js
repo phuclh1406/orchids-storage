@@ -12,6 +12,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import Loader from './app/components/Loader'
 import { AuthProvider } from './app/context/AuthContext'
 import IngredientDetailScreen from './app/screens/IngredientDetailScreen'
+import CreateFood from './app/screens/CreateFood'
 AsyncStorage.removeItem('userData')
 
 const Stack = createStackNavigator()
@@ -66,8 +67,15 @@ const App = () => {
                   component={RegistrationScreen}
                 />
                 <Stack.Screen name="LoginScreen" component={LoginScreen} />
-                <Stack.Screen name="IngredientsScreen" component={AppNavigation} />
-                <Stack.Screen name="IngredientDetail" component={IngredientDetailScreen} />
+                <Stack.Screen
+                  name="IngredientsScreen"
+                  component={AppNavigation}
+                />
+                <Stack.Screen
+                  name="IngredientDetail"
+                  component={IngredientDetailScreen}
+                />
+                <Stack.Screen name="CreateFoodScreen" component={CreateFood} />
               </Stack.Navigator>
             </>
           )}
