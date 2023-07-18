@@ -17,15 +17,11 @@ import EditProfile from './app/screens/EditProfile'
 import UserProfile from './app/screens/UserProfile'
 import ShoppingListScreen from './app/screens/ShoppingListScreen'
 import { SearchScreen } from './app/screens/SearchScreen'
-<<<<<<< HEAD
-import BlogScreen from './app/screens/BlogScreen'
 import BlogDetailScreen from './app/screens/BlogDetailScreen'
 import { SearchIngredientsScreen } from './app/screens/SearchIngredientsScreen'
 import { SearchBlogsScreen } from './app/screens/SearchBlogsScreen'
-=======
 import Setting from './app/screens/Setting'
 
->>>>>>> 066aa876856a0a1705b519c8f13efc7fef2b34ce
 AsyncStorage.removeItem('userData')
 
 const Stack = createStackNavigator()
@@ -96,17 +92,10 @@ const App = () => {
                 />
                 <Stack.Screen name="UserProfile" component={UserProfile} />
                 <Stack.Screen name="EditProfile" component={EditProfile} />
-<<<<<<< HEAD
                 <Stack.Screen name="ShoppingList" component={ShoppingListScreen} />
                 <Stack.Screen name="BlogScreen" component={AppNavigation} />
                 <Stack.Screen name="BlogDetail" component={BlogDetailScreen} />
-=======
-                <Stack.Screen
-                  name="ShoppingList"
-                  component={ShoppingListScreen}
-                />
                 <Stack.Screen name="Setting" component={Setting} />
->>>>>>> 066aa876856a0a1705b519c8f13efc7fef2b34ce
               </Stack.Navigator>
             </>
           )}

@@ -187,31 +187,6 @@ const ShoppingListScreen = ({ navigation }) => {
       console.log(error)
     }
   }
-
-<<<<<<< HEAD
-=======
-  function handleDeleteBuyItemFromStorage(id) {
-    Alert.alert(
-      'Confirm removing this item?',
-      'You can not recover your item after removing it!',
-      [
-        {
-          text: 'Cancel',
-          onPress: () => {},
-        },
-        {
-          text: 'Yes, I confirm',
-          onPress: async () => {
-            const list = dataBuy.filter((item) => item.ingredient_id !== id)
-            await AsyncStorage.setItem('buyList', JSON.stringify(list))
-            setDataBuy(list)
-          },
-        },
-      ]
-    )
-  }
-
->>>>>>> 066aa876856a0a1705b519c8f13efc7fef2b34ce
   const removeBuyDataFromStorage = async (itemId) => {
     try {
       const list = dataBuy.filter((item) => item.ingredient_id !== itemId)
@@ -720,13 +695,8 @@ const ShoppingListScreen = ({ navigation }) => {
                       </TouchableOpacity>
                       <TouchableOpacity
                         onPress={() => {
-<<<<<<< HEAD
                           handleDeleteItem(orchid.ingredient_id);
                           
-=======
-                          handleDeleteItem(orchid.ingredient_id)
-                          handleDeleteBuyItemFromStorage(orchid.ingredient_id)
->>>>>>> 066aa876856a0a1705b519c8f13efc7fef2b34ce
                         }}
                         style={{
                           position: 'absolute',

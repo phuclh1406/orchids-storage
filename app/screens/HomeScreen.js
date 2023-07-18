@@ -232,12 +232,8 @@ const HomeScreen = ({ navigation }) => {
         <View
           style={{
             borderRadius: SPACING,
-<<<<<<< HEAD
             overflow: "hidden",
             marginBottom: SPACING * 2
-=======
-            overflow: 'hidden',
->>>>>>> 066aa876856a0a1705b519c8f13efc7fef2b34ce
           }}
         >
           <BlurView
