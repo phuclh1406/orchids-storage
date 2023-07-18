@@ -39,7 +39,7 @@ const UserProfile = ({ navigation }) => {
     >
       <View
         style={{
-          marginTop: 10,
+          marginTop: 30,
           marginHorizontal: 12,
           flexDirection: 'row',
           justifyContent: 'center',

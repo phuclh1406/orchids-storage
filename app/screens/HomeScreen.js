@@ -18,7 +18,11 @@ import colors from '../config/colors'
 import SearchField from '../components/SearchField'
 import Categories from '../components/Categories'
 import orchids from '../config/orchids'
-import { useNavigation, useFocusEffect, useIsFocused } from '@react-navigation/native'
+import {
+  useNavigation,
+  useFocusEffect,
+  useIsFocused,
+} from '@react-navigation/native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import categories from '../config/categories'
 import { StatusBar } from 'expo-status-bar'
@@ -29,31 +33,34 @@ import Carousels from '../components/Carousel'
 const { width } = Dimensions.get('window')
 
 const HomeScreen = ({ navigation }) => {
-  const [foodData, setFoodData] = useState([]);
-  const [categoryData, setCategoryData] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [userInfo, setUserInfo] = useState({});
+  const [foodData, setFoodData] = useState([])
+  const [categoryData, setCategoryData] = useState([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [userInfo, setUserInfo] = useState({})
   const isFocused = useIsFocused()
 
   useFocusEffect(
     React.useCallback(() => {
       // Add listener for tab press
-      const unsubscribe = navigation.addListener('tabPress', () => {
-        // Reset the navigation state to the initial route of the stack
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'HomeScreen' }],
-        })
-        getFromStorage();
-      }, [isFocused])
+      const unsubscribe = navigation.addListener(
+        'tabPress',
+        () => {
+          // Reset the navigation state to the initial route of the stack
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'HomeScreen' }],
+          })
+          getFromStorage()
+        },
+        [isFocused]
+      )
 
       // Cleanup the listener when the screen loses focus or unmounts
       return unsubscribe
     }, [])
   )
-  const [activeCategoryId, setActiveCategoryId] = useState(null);
-  const [dataFav, setDataFav] = useState([]);
-
+  const [activeCategoryId, setActiveCategoryId] = useState(null)
+  const [dataFav, setDataFav] = useState([])
 
   // const { foodData } = useContext(AuthContext);
 
@@ -64,8 +71,8 @@ const HomeScreen = ({ navigation }) => {
   // Get data from storage
   const getFromStorage = async () => {
     try {
-      const data = await AsyncStorage.getItem("favorite");
-      setDataFav(data ? JSON.parse(data) : []);
+      const data = await AsyncStorage.getItem('favorite')
+      setDataFav(data ? JSON.parse(data) : [])
     } catch (error) {
       console.error('Error getting data from storage:', error)
     }
@@ -73,8 +80,8 @@ const HomeScreen = ({ navigation }) => {
 
   const getUserFromStorage = async () => {
     try {
-      const user = await AsyncStorage.getItem("userData");
-      setUserInfo(JSON.parse(user));
+      const user = await AsyncStorage.getItem('userData')
+      setUserInfo(JSON.parse(user))
     } catch (error) {
       console.error('Error getting user data from storage:', error)
     }
@@ -104,23 +111,25 @@ const HomeScreen = ({ navigation }) => {
   }
 
   const getFoodData = async () => {
-    setIsLoading(true);
+    setIsLoading(true)
     try {
-      const res = await axiosInstance.get("/foods")
+      const res = await axiosInstance.get('/foods')
       // console.log(res?.data)
       setFoodData(res?.data?.foods)
       await AsyncStorage.setItem('foodData', JSON.stringify(res?.data?.foods))
-      setIsLoading(false);
+      setIsLoading(false)
     } catch (error) {
       console.log(error)
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
   }
 
   const getCategoryData = async () => {
     try {
-      const res = await axiosInstance.get("/categories_detail?cate_id=6e3f5b3b-df19-4776-a7cc-92b0a0a3ce1d")
+      const res = await axiosInstance.get(
+        '/categories_detail?cate_id=6e3f5b3b-df19-4776-a7cc-92b0a0a3ce1d'
+      )
       setCategoryData(res?.data?.categories_detail?.rows)
     } catch (error) {
       console.log(error)
@@ -128,15 +137,16 @@ const HomeScreen = ({ navigation }) => {
   }
 
   useEffect(() => {
-    getCategoryData(),
-      getFoodData(),
-      getFromStorage(),
-      getUserFromStorage()
+    getCategoryData(), getFoodData(), getFromStorage(), getUserFromStorage()
   }, [isFocused])
 
   const handleTextInputFocus = () => {
-    navigation.navigate('SearchHome', {categoryDataList: categoryData});
-  };
+    navigation.navigate('SearchHome', { categoryDataList: categoryData })
+  }
+
+  const navigationToSetting = () => {
+    navigation.navigate('Setting')
+  }
 
   return (
     <SafeAreaView style={{ backgroundColor: colors.dark, flex: 1 }}>
@@ -203,7 +213,7 @@ const HomeScreen = ({ navigation }) => {
                 padding: SPACING / 2,
               }}
             >
-              <TouchableOpacity>
+              <TouchableOpacity onPress={navigationToSetting}>
                 <Image
                   style={{
                     height: '100%',
@@ -222,20 +232,24 @@ const HomeScreen = ({ navigation }) => {
         <View
           style={{
             borderRadius: SPACING,
+<<<<<<< HEAD
             overflow: "hidden",
             marginBottom: SPACING * 2
+=======
+            overflow: 'hidden',
+>>>>>>> 066aa876856a0a1705b519c8f13efc7fef2b34ce
           }}
         >
           <BlurView
             intensity={30}
             style={{
-              alignItems: "center",
-              justifyContent: "center",
+              alignItems: 'center',
+              justifyContent: 'center',
             }}
           >
             <TextInput
               style={{
-                width: "100%",
+                width: '100%',
                 color: colors.white,
                 fontSize: SPACING * 1.7,
                 padding: SPACING,
@@ -247,7 +261,7 @@ const HomeScreen = ({ navigation }) => {
             />
             <Ionicons
               style={{
-                position: "absolute",
+                position: 'absolute',
                 left: SPACING,
               }}
               name="search"
@@ -277,13 +291,15 @@ const HomeScreen = ({ navigation }) => {
           }}
         >
           {isLoading ? (
-            <View style={{
-              flex: 1,
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginTop: 20
-            }}>
-              <ActivityIndicator size='large' color='#FC6847' />
+            <View
+              style={{
+                flex: 1,
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginTop: 20,
+              }}
+            >
+              <ActivityIndicator size="large" color="#FC6847" />
             </View>
           ) : (
             foodData
@@ -317,7 +333,7 @@ const HomeScreen = ({ navigation }) => {
                         navigation.navigate('OrchidDetail', {
                           foodId: food.food_id,
                           categoryData: categoryData,
-                          foodData: foodData
+                          foodData: foodData,
                         })
                       }
                       style={{
@@ -359,7 +375,10 @@ const HomeScreen = ({ navigation }) => {
                     </TouchableOpacity>
                     <Text
                       numberOfLines={1}
-                      style={{ color: colors.secondary, fontSize: SPACING * 1.2 }}
+                      style={{
+                        color: colors.secondary,
+                        fontSize: SPACING * 1.2,
+                      }}
                     >
                       {food.food_cate_detail.cate_detail_name}
                     </Text>
@@ -381,7 +400,10 @@ const HomeScreen = ({ navigation }) => {
                     >
                     </Text> */}
                         <Text
-                          style={{ color: colors.white, fontSize: SPACING * 1.6 }}
+                          style={{
+                            color: colors.white,
+                            fontSize: SPACING * 1.6,
+                          }}
                         >
                           {food.price}
                         </Text>
@@ -390,7 +412,7 @@ const HomeScreen = ({ navigation }) => {
                             color: colors.primary,
                             marginRight: SPACING / 2,
                             fontSize: SPACING * 1.6,
-                            marginLeft: SPACING / 2
+                            marginLeft: SPACING / 2,
                           }}
                         >
                           vnđ
@@ -410,7 +432,9 @@ const HomeScreen = ({ navigation }) => {
                           }
                         }}
                       >
-                        {dataFav.find((item) => item.food_id === food.food_id) ? (
+                        {dataFav.find(
+                          (item) => item.food_id === food.food_id
+                        ) ? (
                           <Ionicons
                             name="heart"
                             size={SPACING * 3}

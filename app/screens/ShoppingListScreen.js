@@ -188,6 +188,30 @@ const ShoppingListScreen = ({ navigation }) => {
     }
   }
 
+<<<<<<< HEAD
+=======
+  function handleDeleteBuyItemFromStorage(id) {
+    Alert.alert(
+      'Confirm removing this item?',
+      'You can not recover your item after removing it!',
+      [
+        {
+          text: 'Cancel',
+          onPress: () => {},
+        },
+        {
+          text: 'Yes, I confirm',
+          onPress: async () => {
+            const list = dataBuy.filter((item) => item.ingredient_id !== id)
+            await AsyncStorage.setItem('buyList', JSON.stringify(list))
+            setDataBuy(list)
+          },
+        },
+      ]
+    )
+  }
+
+>>>>>>> 066aa876856a0a1705b519c8f13efc7fef2b34ce
   const removeBuyDataFromStorage = async (itemId) => {
     try {
       const list = dataBuy.filter((item) => item.ingredient_id !== itemId)
@@ -213,19 +237,19 @@ const ShoppingListScreen = ({ navigation }) => {
       )
   )
   return (
-    <SafeAreaView style={{ backgroundColor: colors.dark, flex: 1}}>
+    <SafeAreaView style={{ backgroundColor: colors.dark, flex: 1 }}>
       <StatusBar backgroundColor={colors.primary} />
       <ScrollView
         style={{
           paddingHorizontal: SPACING,
-          overflow: 'visible'
+          overflow: 'visible',
         }}
       >
         <View
           style={{
             flexDirection: 'row',
             justifyContent: 'space-between',
-            paddingBottom: SPACING * 2,                   
+            paddingBottom: SPACING * 2,
           }}
         >
           <TouchableOpacity
@@ -299,32 +323,34 @@ const ShoppingListScreen = ({ navigation }) => {
           inputData={categoriesData}
         />
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          
-          {favoriteOrchidsList.length > 1 ? (<TouchableOpacity
-            onPress={() => handleDeleteAllItem()}
-            style={{
-              marginRight: SPACING * 5,
-              backgroundColor: colors.primary,
-              width: width / 2 - SPACING * 2.5,
-              height: SPACING * 5,
-              justifyContent: 'center',
-              alignItems: 'center',
-              borderRadius: SPACING / 2,
-              marginTop: SPACING,
-            }}
-          >
-         
-            <Text
+          {favoriteOrchidsList.length > 1 ? (
+            <TouchableOpacity
+              onPress={() => handleDeleteAllItem()}
               style={{
-                color: colors.white,
-                fontSize: SPACING * 2,
-                fontWeight: '500',
+                marginRight: SPACING * 5,
+                backgroundColor: colors.primary,
+                width: width / 2 - SPACING * 2.5,
+                height: SPACING * 5,
+                justifyContent: 'center',
+                alignItems: 'center',
+                borderRadius: SPACING / 2,
+                marginTop: SPACING,
               }}
             >
-              Clear all
-            </Text>
-          </TouchableOpacity>) : (<Text>''</Text>)}
-          
+              <Text
+                style={{
+                  color: colors.white,
+                  fontSize: SPACING * 2,
+                  fontWeight: '500',
+                }}
+              >
+                Clear all
+              </Text>
+            </TouchableOpacity>
+          ) : (
+            <Text>''</Text>
+          )}
+
           <Text
             style={{
               color: colors['white-smoke'],
@@ -694,8 +720,13 @@ const ShoppingListScreen = ({ navigation }) => {
                       </TouchableOpacity>
                       <TouchableOpacity
                         onPress={() => {
+<<<<<<< HEAD
                           handleDeleteItem(orchid.ingredient_id);
                           
+=======
+                          handleDeleteItem(orchid.ingredient_id)
+                          handleDeleteBuyItemFromStorage(orchid.ingredient_id)
+>>>>>>> 066aa876856a0a1705b519c8f13efc7fef2b34ce
                         }}
                         style={{
                           position: 'absolute',
@@ -1046,7 +1077,6 @@ const ShoppingListScreen = ({ navigation }) => {
                     </View>
                   </BlurView>
                 </View>
-                
               ))
           ) : (
             <Text style={{ color: colors.green }}>Not Found</Text>
