@@ -56,6 +56,7 @@ const EditProfile = ({ navigation }) => {
           marginHorizontal: 12,
           flexDirection: 'row',
           justifyContent: 'center',
+          marginTop: 30,
         }}
       >
         <TouchableOpacity

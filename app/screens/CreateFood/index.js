@@ -8,6 +8,7 @@ import {
   Button,
   TouchableOpacity,
   ScrollView,
+  Image,
 } from 'react-native'
 import SPACING from '../../config/SPACING'
 import { Picker } from '@react-native-picker/picker'
@@ -20,25 +21,19 @@ import { AuthContext } from '../../context/AuthContext'
 import axiosInstance from '../../../util/axiosWrapper'
 import { Ionicons } from '@expo/vector-icons'
 import * as Yup from 'yup'
+import UploadImageStep from './UploadImageStep'
 
 const defaultValues = {
   food_name: '',
   description: '',
   quantitative: '3 người',
-  price: 3,
+  price: 0,
   calories: 2,
   proteins: 3,
   fats: 0,
   carbohydrate: 2,
   fibers: 2,
   cate_detail_id: '',
-  ingredient_description: 'sfas',
-  images: [
-    {
-      image:
-        'https://cdn.britannica.com/05/88205-050-9EEA563C/Bigmouth-buffalo-fish.jpg',
-    },
-  ],
 }
 const QUANTITATIVE_OPTIONS = [
   '2 người',
@@ -53,22 +48,29 @@ const validate = Yup.object().shape({
 const CreateFood = ({ navigation }) => {
   const { userInfo } = useContext(AuthContext)
   const [ingredientDescription, setIngredientDescription] = useState([''])
+  const [imageFood, setImageFood] = useState('')
+  const [steps, setSteps] = useState([{ title: '', image: '' }])
+  console.log(steps)
   const handleSubmit = async (values) => {
     try {
-      const payload = { ...values, user_id: userInfo?.user?.user_id }
+      const payload = {
+        ...values,
+        user_id: userInfo?.user?.user_id,
+        ingredient_description: ingredientDescription.join(` ${'\n'}`),
+        images: [
+          {
+            image: imageFood,
+          },
+        ],
+      }
       const res = await axiosInstance.post(`/foods`, payload)
       if (res?.data?.food) {
         const payloadStep = {
-          step: [1, 2].map((item) => ({
-            implementation_guide: item,
+          step: steps.map((item) => ({
+            implementation_guide: item.title || 'Empty',
             images: [
               {
-                image:
-                  'https://cdn.britannica.com/05/88205-050-9EEA563C/Bigmouth-buffalo-fish.jpg',
-              },
-              {
-                image:
-                  'https://cdn.britannica.com/05/88205-050-9EEA563C/Bigmouth-buffalo-fish.jpg',
+                image: item.image,
               },
             ],
             food_id: res?.data?.food?.food_id,
@@ -76,6 +78,7 @@ const CreateFood = ({ navigation }) => {
         }
         await axiosInstance.post(`/steps`, payloadStep)
       }
+      console.log(res.data)
     } catch (error) {
       console.log(error)
     }
@@ -109,10 +112,25 @@ const CreateFood = ({ navigation }) => {
           justifyContent: 'center',
         }}
       >
+        {console.log(imageFood)}
+        {/* <Image
+          source={{
+            uri:
+              imageFood ||
+              'https://cdn.britannica.com/05/88205-050-9EEA563C/Bigmouth-buffalo-fish.jpg',
+          }}
+          style={{
+            height: 150,
+            width: 150,
+            borderRadius: 85,
+            borderWidth: 2,
+            borderColor: colors.dark,
+          }}
+        /> */}
         <View
           style={{ width: 160, flexDirection: 'row', justifyContent: 'center' }}
         >
-          <UploadImage />
+          <UploadImage imageFood={imageFood} setImageFood={setImageFood} />
         </View>
       </View>
       <Formik
@@ -142,7 +160,7 @@ const CreateFood = ({ navigation }) => {
               <TextInput
                 onChangeText={handleChange('description')}
                 onBlur={handleBlur('description')}
-                value={values.description}
+                value={values.price}
                 style={styles.input}
                 placeholder="Mô tả chi tiết"
               />
@@ -163,6 +181,13 @@ const CreateFood = ({ navigation }) => {
                 values={values?.cate_detail_id}
                 handleChange={handleChange('cate_detail_id')}
                 handleBlur={handleBlur('cate_detail_id')}
+              />
+              <TextInput
+                onChangeText={handleChange('price')}
+                onBlur={handleBlur('price')}
+                value={values.price}
+                style={styles.input}
+                placeholder="Giá"
               />
               {ingredientDescription?.map((item, index) => (
                 <View
@@ -220,17 +245,7 @@ const CreateFood = ({ navigation }) => {
                 </View>
               ))}
               <TouchableOpacity
-                style={{
-                  backgroundColor: colors.primary,
-                  height: 44,
-                  width: 130,
-                  borderRadius: 6,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginVertical: 20,
-                  paddingLeft: 5,
-                  paddingRight: 5,
-                }}
+                style={styles.button}
                 onPress={() =>
                   setIngredientDescription([...ingredientDescription, ''])
                 }
@@ -242,6 +257,91 @@ const CreateFood = ({ navigation }) => {
                   }}
                 >
                   Thêm nguyên liệu
+                </Text>
+              </TouchableOpacity>
+              <Text
+                style={{
+                  fontSize: 20,
+                  color: colors.black,
+                }}
+              >
+                Công thức:
+              </Text>
+              {steps?.map((item, index) => {
+                return (
+                  <View>
+                    <View
+                      style={{
+                        width: '90%',
+                        flexDirection: 'row',
+                        marginVertical: 6,
+                      }}
+                    >
+                      <TextInput
+                        onChangeText={(value) => {
+                          const newData = steps?.map((ite, i) => {
+                            if (i === index) {
+                              return { ...ite, title: value }
+                            }
+                            return ite
+                          })
+                          setSteps(newData)
+                        }}
+                        value={item}
+                        style={styles.input}
+                        placeholder={`Bước ${index + 1}`}
+                      />
+                      {index !== 0 && (
+                        <TouchableOpacity
+                          style={{
+                            backgroundColor: colors.primary,
+                            height: 44,
+                            width: 50,
+                            borderRadius: 6,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            marginVertical: 5,
+                            marginLeft: 1,
+                            paddingLeft: 5,
+                            paddingRight: 5,
+                          }}
+                          onPress={() => {
+                            const newData = steps.filter(
+                              (ite, i) => i !== index
+                            )
+                            setSteps(newData)
+                          }}
+                        >
+                          <Text
+                            style={{
+                              size: 24,
+                              color: colors.white,
+                            }}
+                          >
+                            Xóa
+                          </Text>
+                        </TouchableOpacity>
+                      )}
+                    </View>
+                    <UploadImageStep
+                      steps={steps}
+                      setSteps={setSteps}
+                      index={index}
+                    />
+                  </View>
+                )
+              })}
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => setSteps([...steps, { image: '', title: '' }])}
+              >
+                <Text
+                  style={{
+                    size: 24,
+                    color: colors.white,
+                  }}
+                >
+                  Thêm Bước
                 </Text>
               </TouchableOpacity>
 
@@ -270,225 +370,15 @@ const styles = StyleSheet.create({
     fontStyle: 12,
     colors: 'red',
   },
+  button: {
+    backgroundColor: colors.primary,
+    height: 44,
+    width: 130,
+    borderRadius: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 20,
+    paddingLeft: 5,
+    paddingRight: 5,
+  },
 })
-
-{
-  /* <SafeAreaView style={{
-  flex: 1,
-  backgroundColor: colors.white
-}}>
-  <View style={{
-      marginHorizontal: 12,
-      flexDirection: 'row',
-      justifyContent: 'center'
-  }}>
-      <TouchableOpacity
-      onPress={() => navigation.goBack()}
-      style={{
-          position: "absolute",
-          left: 0
-      }}
-      >
-          <Ionicons 
-          name="arrow-back"
-          size={24}
-          color={colors.dark}
-          />
-      </TouchableOpacity>
-      <Text style={{fontSize:SPACING * 2, color: colors.dark}}>Edit Profile</Text>
-  </View>
-
-  <ScrollView>
-      <View style={{
-          alignItems: "center",
-          marginVertical: 22,
-
-      }}>
-          <TouchableOpacity
-          >
-              <Image source={{uri: dataUser?.user?.avatar}}
-              style={{
-                  height: 150,
-                  width: 150,
-                  borderRadius: 85,
-                  borderWidth: 2,
-                  borderColor: colors.dark
-              }}/>
-
-              <View
-              style={{
-                  position: "absolute",
-                  bottom: 0,
-                  right: 10,
-                  zIndex: 9999
-              }}>
-                  <Ionicons
-                  name='camera'
-                  size={32}
-                  color={colors.dark}/>
-              </View>
-          </TouchableOpacity>
-      </View>
-      <View>
-          <View style={{
-              flexDirection: 'column',
-              marginBottom: 6,
-              marginLeft: 30
-          }}>
-              <Text style={{fontSize: SPACING * 1.5}}>Name</Text>
-              <View style={{
-                  height: 43,
-                  width: "90%",
-                  borderColor: colors.grey,
-                  borderWidth: 1,
-                  borderRadius: 4,
-                  marginVertical: 6,
-                  justifyContent: 'center',
-                  paddingLeft: 8,
-              }}>
-                  <TextInput
-                      value={dataUser?.user?.user_name}
-                      onChangeText={text => {
-                          setDataUser(prevData => ({
-                          ...prevData,
-                          user: { ...prevData.user, user_name: text }
-                          }));
-                      }}
-                      />
-              </View>
-          </View>
-
-          <View style={{
-               flexDirection: 'column',
-               marginBottom: 6,
-               marginLeft: 30
-          }}>
-              <Text style={{fontSize: SPACING * 1.5}}>Email</Text>
-              <View style={{
-                  height: 44,
-                  width: "90%",
-                  borderColor: colors.grey,
-                  borderWidth: 1,
-                  borderRadius: 4,
-                  marginVertical: 6,
-                  justifyContent: 'center',
-                  paddingLeft: 8,
-              }}>
-                  <TextInput
-                  value={dataUser?.user?.email}
-                  onChangeText={text => {
-                      setDataUser(prevData => ({
-                      ...prevData,
-                      user: { ...prevData.user, email: text }
-                      }));
-                  }}
-                  />
-              </View>
-          </View>
-
-          <View style={{
-               flexDirection: 'column',
-               marginBottom: 6,
-               marginLeft: 30
-          }}>
-              <Text style={{fontSize: SPACING * 1.5}}>Date of Birth</Text>
-              <View style={{
-                  height: 44,
-                  width: "90%",
-                  borderColor: colors.grey,
-                  borderWidth: 1,
-                  borderRadius: 4,
-                  marginVertical: 6,
-                  justifyContent: 'center',
-                  paddingLeft: 8,
-              }}>
-                  <TextInput
-                  value={dataUser?.user?.birthday}
-                  onChangeText={text => {
-                      setDataUser(prevData => ({
-                      ...prevData,
-                      user: { ...prevData.user, birthday: text }
-                      }));
-                  }}
-                 />
-              </View>
-          </View>
-
-          <View style={{
-               flexDirection: 'column',
-               marginBottom: 6,
-               marginLeft: 30
-          }}>
-              <Text style={{fontSize: SPACING * 1.5}}>Phone Number</Text>
-              <View style={{
-                  height: 44,
-                  width: "90%",
-                  borderColor: colors.grey,
-                  borderWidth: 1,
-                  borderRadius: 4,
-                  marginVertical: 6,
-                  justifyContent: 'center',
-                  paddingLeft: 8,
-              }}>
-                  <TextInput
-                  value={dataUser?.user?.phone}
-                  onChangeText={text => {
-                      setDataUser(prevData => ({
-                      ...prevData,
-                      user: { ...prevData.user, phone: text }
-                      }));
-                  }}
-                  />
-              </View>
-          </View>
-
-          <View style={{
-               flexDirection: 'column',
-               marginBottom: 6,
-               marginLeft: 30
-          }}>
-              <Text style={{fontSize: SPACING * 1.5}}>Adress</Text>
-              <View style={{
-                  height: 44,
-                  width: "90%",
-                  borderColor: colors.grey,
-                  borderWidth: 1,
-                  borderRadius: 4,
-                  marginVertical: 6,
-                  justifyContent: 'center',
-                  paddingLeft: 8,
-              }}>
-                  <TextInput
-                  value={dataUser?.user?.address}
-                  onChangeText={text => {
-                      setDataUser(prevData => ({
-                      ...prevData,
-                      user: { ...prevData.user, address: text }
-                      }));
-                  }}
-                  />
-              </View>
-          </View>
-
-          <TouchableOpacity style={{
-              backgroundColor: colors.primary,
-              height: 44,
-              width: "80%",
-              borderRadius: 6,
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginLeft: 30,
-              marginVertical: 20
-          }}
-          onPress={handleSaveChanges}>
-              <Text style={{
-                  size: 24,
-                  color: colors.white
-              }}
-              >Save Changes
-              </Text>
-          </TouchableOpacity>
-      </View>
-  </ScrollView>
-</SafeAreaView> */
-}

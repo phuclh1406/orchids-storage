@@ -8,6 +8,7 @@ import {
   Image,
   Dimensions,
   Alert,
+  TextInput,
 } from 'react-native'
 import React, { useState, useEffect } from 'react'
 import SPACING from '../config/SPACING'
@@ -30,8 +31,7 @@ const avatar = require('../../assets/avatar.jpg')
 
 const { width } = Dimensions.get('window')
 
-const FavoriteScreen = ({ navigation  }) => {
-
+const FavoriteScreen = ({ navigation }) => {
   useFocusEffect(
     React.useCallback(() => {
       // Add listener for tab press
@@ -52,9 +52,10 @@ const FavoriteScreen = ({ navigation  }) => {
   )
   const [activeCategoryId, setActiveCategoryId] = useState(null)
   const [foodData, setFoodData] = useState([])
-  const [favoriteFoods, setFavoriteFoods] = useState([]);
-  // const [favoriteFoodIds, setFavoriteFoodIds] = useState([]);
-  
+  const [favoriteFoods, setFavoriteFoods] = useState([])
+  const [userInfo, setUserInfo] = useState({})
+  const [categoryData, setCategoryData] = useState([])
+
   const isFocused = useIsFocused()
 
   const getFromStorage = async () => {
@@ -66,9 +67,11 @@ const FavoriteScreen = ({ navigation  }) => {
           if (data != undefined) {
             const parsedData = JSON.parse(data)
             const parsedFoodData = JSON.parse(foodData)
-            setFoodData(parsedFoodData);
-            const filterFoods = parsedFoodData.filter((food) =>{
-              const check = parsedData.find((item) => item.food_id === food.food_id)
+            setFoodData(parsedFoodData)
+            const filterFoods = parsedFoodData.filter((food) => {
+              const check = parsedData.find(
+                (item) => item.food_id === food.food_id
+              )
               if (check) {
                 return food
               }
@@ -82,6 +85,7 @@ const FavoriteScreen = ({ navigation  }) => {
       fetchData()
     }
   }
+
   function handleDeleteItem(id) {
     Alert.alert(
       'Confirm removing this favorite food',
@@ -95,18 +99,23 @@ const FavoriteScreen = ({ navigation  }) => {
           text: 'Yes, I confirm',
           onPress: async () => {
             try {
-              const updatedList = favoriteFoods.filter((food) => food.food_id !== id);
-              await AsyncStorage.setItem('favorite', JSON.stringify(updatedList));
-              setFavoriteFoods(updatedList);
+              const updatedList = favoriteFoods.filter(
+                (food) => food.food_id !== id
+              )
+              await AsyncStorage.setItem(
+                'favorite',
+                JSON.stringify(updatedList)
+              )
+              setFavoriteFoods(updatedList)
             } catch (error) {
-              console.log(error);
+              console.log(error)
             }
           },
         },
       ]
-    );
+    )
   }
-  
+
   function handleDeleteAllItem() {
     Alert.alert(
       'Confirm removing all of your favorite foods',
@@ -120,17 +129,42 @@ const FavoriteScreen = ({ navigation  }) => {
           text: 'Yes, I confirm',
           onPress: async () => {
             try {
-              await AsyncStorage.removeItem('favorite');
-              setFavoriteFoods([]);
+              await AsyncStorage.removeItem('favorite')
+              setFavoriteFoods([])
             } catch (error) {
-              console.log(error);
+              console.log(error)
             }
           },
         },
       ]
-    );
+    )
+  }
+  const getUserFromStorage = async () => {
+    try {
+      const user = await AsyncStorage.getItem('userData')
+      setUserInfo(JSON.parse(user))
+    } catch (error) {
+      console.error('Error getting user data from storage:', error)
+    }
+  }
+  const getCategoryData = async () => {
+    try {
+      const res = await axiosInstance.get(
+        '/categories_detail?cate_id=6e3f5b3b-df19-4776-a7cc-92b0a0a3ce1d'
+      )
+      setCategoryData(res?.data?.categories_detail?.rows)
+    } catch (error) {
+      console.log(error)
+    }
   }
 
+  const navigationToSetting = () => {
+    navigation.navigate('Setting')
+  }
+
+  const handleTextInputFocus = () => {
+    navigation.navigate('SearchHome', { categoryDataList: categoryData })
+  }
 
   // const getFoodData = async () => {
   //   try {
@@ -143,8 +177,9 @@ const FavoriteScreen = ({ navigation  }) => {
   // }
 
   useEffect(() => {
-      getFromStorage();
-      getFromStorage();
+    getFromStorage()
+    getCategoryData()
+    getUserFromStorage()
   }, [isFocused])
 
   return (
@@ -208,59 +243,107 @@ const FavoriteScreen = ({ navigation  }) => {
                 padding: SPACING / 2,
               }}
             >
-              <TouchableOpacity>
+              <TouchableOpacity onPress={navigationToSetting}>
                 <Image
                   style={{
                     height: '100%',
                     width: '100%',
                     borderRadius: SPACING,
                   }}
-                  source={avatar}
+                  source={{ uri: userInfo?.user?.avatar }}
                 />
               </TouchableOpacity>
             </BlurView>
           </View>
         </View>
         <View style={{ width: '80%', marginVertical: SPACING }}></View>
-        <SearchField />
-        <Categories onChange={(id) => setActiveCategoryId(id)} />
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <TouchableOpacity
-            onPress={() => handleDeleteAllItem()}
+
+        {/* Search input */}
+        <View
+          style={{
+            borderRadius: SPACING,
+            overflow: 'hidden',
+          }}
+        >
+          <BlurView
+            intensity={30}
             style={{
-              marginRight: SPACING,
-              backgroundColor: colors.primary,
-              width: width / 2 - SPACING * 2.5,
-              height: SPACING * 5,
-              justifyContent: 'center',
               alignItems: 'center',
-              borderRadius: SPACING / 2,
-              marginBottom: SPACING * 2,
-              marginTop: SPACING,
+              justifyContent: 'center',
             }}
           >
-            <Text
+            <TextInput
               style={{
+                width: '100%',
                 color: colors.white,
-                fontSize: SPACING * 2,
-                fontWeight: '500',
+                fontSize: SPACING * 1.7,
+                padding: SPACING,
+                paddingLeft: SPACING * 3.5,
+              }}
+              placeholder="Find Your Food..."
+              placeholderTextColor={colors.light}
+              onFocus={handleTextInputFocus}
+            />
+            <Ionicons
+              style={{
+                position: 'absolute',
+                left: SPACING,
+              }}
+              name="search"
+              color={colors.light}
+              size={SPACING * 2}
+            />
+          </BlurView>
+        </View>
+
+        <Categories onChange={(id) => setActiveCategoryId(id)} />
+
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
+          {favoriteFoods.length >= 2 && (
+            <TouchableOpacity
+              onPress={() => handleDeleteAllItem()}
+              style={{
+                marginLeft: SPACING,
+                backgroundColor: colors.primary,
+                width: width / 2 - SPACING * 2.5,
+                height: SPACING * 5,
+                justifyContent: 'center',
+                alignItems: 'center',
+                borderRadius: SPACING / 2,
+                marginBottom: SPACING * 2,
+                marginTop: SPACING,
               }}
             >
-              Clear all
-            </Text>
-          </TouchableOpacity>
+              <Text
+                style={{
+                  color: colors.white,
+                  fontSize: SPACING * 2,
+                  fontWeight: '500',
+                }}
+              >
+                Clear all
+              </Text>
+            </TouchableOpacity>
+          )}
           <Text
             style={{
               color: colors['white-smoke'],
               fontSize: SPACING * 2,
               fontWeight: '300',
               marginBottom: SPACING,
-              marginLeft: SPACING * 4,
+              marginRight: SPACING * 4,
             }}
           >
             Count items: {favoriteFoods?.length}
           </Text>
         </View>
+
         <View
           style={{
             flexDirection: 'row',
@@ -280,145 +363,148 @@ const FavoriteScreen = ({ navigation  }) => {
                   }) */}
           {favoriteFoods.length !== 0 ? (
             favoriteFoods.map((food) => (
-                <View
-                  key={food.food_id}
+              <View
+                key={food.food_id}
+                style={{
+                  flexDirection: 'column',
+                  width: width / 2 - SPACING * 2,
+                  marginBottom: SPACING,
+                  borderRadius: SPACING * 2,
+                  overflow: 'hidden',
+                }}
+              >
+                <BlurView
+                  tint="dark"
+                  intensity={95}
                   style={{
-                    flexDirection: 'column',
-                    width: width / 2 - SPACING * 2,
-                    marginBottom: SPACING,
-                    borderRadius: SPACING * 2,
-                    overflow: 'hidden',
+                    padding: SPACING,
                   }}
                 >
-                  <BlurView
-                    tint="dark"
-                    intensity={95}
+                  <TouchableOpacity
+                    onPress={() =>
+                      navigation.navigate('OrchidDetail', {
+                        foodId: food.food_id,
+                        categoryData: categoryData,
+                        foodData: foodData,
+                      })
+                    }
                     style={{
-                      padding: SPACING,
+                      height: 150,
+                      width: '100%',
                     }}
                   >
-                    <TouchableOpacity
-                      onPress={() =>
-                        navigation.navigate('OrchidDetail', {
-                          foodId: food.food_id,
-                        })
-                      }
+                    <Image
+                      source={{ uri: food.food_image[0].image }}
                       style={{
-                        height: 150,
                         width: '100%',
+                        height: '100%',
+                        borderRadius: SPACING * 2,
                       }}
-                    >
-                      <Image
-                        source={{ uri:food.food_image[0].image }}
-                        style={{
-                          width: '100%',
-                          height: '100%',
-                          borderRadius: SPACING * 2,
-                        }}
-                      />
-                      <View
-                        style={{
-                          position: 'absolute',
-                          right: 0,
-                          borderBottomStartRadius: SPACING * 3,
-                          borderTopEndRadius: SPACING * 2,
-                          overflow: 'hidden',
-                        }}
-                      >
-                        <BlurView
-                          tint="dark"
-                          intensity={70}
-                          style={{
-                            flexDirection: 'row',
-                            padding: SPACING - 2,
-                          }}
-                        >
-                          <Ionicons
-                            style={{
-                              marginLeft: SPACING / 2,
-                            }}
-                            name="star"
-                            color={colors.primary}
-                            size={SPACING * 1.7}
-                          />
-                          <Text
-                            style={{
-                              color: colors.white,
-                              marginLeft: SPACING / 2,
-                            }}
-                          >
-                            {food.rating}
-                          </Text>
-                        </BlurView>
-                      </View>
-                    </TouchableOpacity>
-                    <Text
-                      numberOfLines={1}
-                      style={{
-                        color: colors.white,
-                        fontWeight: '600',
-                        fontSize: SPACING * 1.7,
-                        marginTop: SPACING,
-                        marginBottom: SPACING / 2,
-                      }}
-                    >
-                      {food.food_name}
-                    </Text>
-                    <Text
-                      numberOfLines={1}
-                      style={{
-                        color: colors.secondary,
-                        fontSize: SPACING * 1.2,
-                      }}
-                    >
-                      {food.included}
-                    </Text>
+                    />
                     <View
                       style={{
-                        marginVertical: SPACING / 2,
-                        flexDirection: 'row',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
+                        position: 'absolute',
+                        right: 0,
+                        borderBottomStartRadius: SPACING * 3,
+                        borderTopEndRadius: SPACING * 2,
+                        overflow: 'hidden',
                       }}
                     >
-                      <View style={{ flexDirection: 'row' }}>
+                      <BlurView
+                        tint="dark"
+                        intensity={70}
+                        style={{
+                          flexDirection: 'row',
+                          padding: SPACING - 2,
+                        }}
+                      >
+                        <Ionicons
+                          style={{
+                            marginLeft: SPACING / 2,
+                          }}
+                          name="star"
+                          color={colors.primary}
+                          size={SPACING * 1.7}
+                        />
                         <Text
                           style={{
                             color: colors.white,
-                            fontSize: SPACING * 1.6,
+                            marginLeft: SPACING / 2,
                           }}
                         >
-                          {food.price}
+                          {food.rating}
                         </Text>
-                        <Text
-                          style={{
-                            color: colors.primary,
-                            marginRight: SPACING / 2,
-                            fontSize: SPACING * 1.6,
-                          }}
-                        >
-                          vnđ
-                        </Text>
-                      </View>
-                      <TouchableOpacity
-                        onPress={() => handleDeleteItem(food.food_id)}
-                      >
-                        <Ionicons
-                          name="heart"
-                          size={SPACING * 3}
-                          color={colors.primary}
-                        />
-                      </TouchableOpacity>
+                      </BlurView>
                     </View>
-                  </BlurView>
-                </View>
-              ))
+                  </TouchableOpacity>
+                  <Text
+                    numberOfLines={1}
+                    style={{
+                      color: colors.white,
+                      fontWeight: '600',
+                      fontSize: SPACING * 1.7,
+                      marginTop: SPACING,
+                      marginBottom: SPACING / 2,
+                    }}
+                  >
+                    {food.food_name}
+                  </Text>
+                  <Text
+                    numberOfLines={1}
+                    style={{
+                      color: colors.secondary,
+                      fontSize: SPACING * 1.2,
+                    }}
+                  >
+                    {food.included}
+                  </Text>
+                  <View
+                    style={{
+                      marginVertical: SPACING / 2,
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <View style={{ flexDirection: 'row' }}>
+                      <Text
+                        style={{
+                          color: colors.white,
+                          fontSize: SPACING * 1.6,
+                        }}
+                      >
+                        {food.price}
+                      </Text>
+                      <Text
+                        style={{
+                          color: colors.primary,
+                          marginRight: SPACING / 2,
+                          fontSize: SPACING * 1.6,
+                        }}
+                      >
+                        vnđ
+                      </Text>
+                    </View>
+                    <TouchableOpacity
+                      onPress={() => handleDeleteItem(food.food_id)}
+                    >
+                      <Ionicons
+                        name="heart"
+                        size={SPACING * 3}
+                        color={colors.primary}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                </BlurView>
+              </View>
+            ))
           ) : (
             <View>
               <Text
                 style={{
                   color: colors.white,
                   fontSize: SPACING * 1.6,
+                  padding: 110,
                 }}
               >
                 Your Favorite is empty

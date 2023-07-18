@@ -1,24 +1,10 @@
-import React, { useContext, useEffect, useState } from 'react'
-import {
-  View,
-  Text,
-  Image,
-  SafeAreaView,
-  TouchableOpacity,
-  TextInput,
-  FlatList,
-  ScrollView,
-  Dimensions,
-} from 'react-native'
+import React from 'react'
+import { View, Text, SafeAreaView, TouchableOpacity } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import SPACING from '../config/SPACING'
 import colors from '../config/colors'
-import { AuthContext } from '../context/AuthContext'
-import AsyncStorage from '@react-native-async-storage/async-storage'
 
 const Setting = ({ navigation }) => {
-  const { userInfo, isLoading } = useContext(AuthContext)
-
   const navigateToUserProfile = () => {
     navigation.navigate('UserProfile')
   }
@@ -37,13 +23,13 @@ const Setting = ({ navigation }) => {
       action: () => navigateToUserProfile(),
     },
     {
-      icon: 'person-outline',
+      icon: 'md-pencil',
       text: 'Edit Profile',
       action: () => navigateToEditProfile(),
     },
     {
-      icon: 'person-outline',
-      text: 'Create Foods',
+      icon: 'md-pencil',
+      text: 'Create Food',
       action: () => navigateToCreateFood(),
     },
   ]
@@ -86,6 +72,7 @@ const Setting = ({ navigation }) => {
           marginHorizontal: 12,
           flexDirection: 'row',
           justifyContent: 'center',
+          marginTop: 30,
         }}
       >
         <TouchableOpacity
@@ -102,7 +89,7 @@ const Setting = ({ navigation }) => {
         </Text>
       </View>
 
-      <View style={{ marginBottom: 12 }}>
+      <View style={{ marginBottom: 12, marginLeft: 10 }}>
         <Text
           style={{
             fontSize: SPACING * 1.5,

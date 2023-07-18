@@ -18,6 +18,8 @@ import EditProfile from './app/screens/EditProfile'
 import UserProfile from './app/screens/UserProfile'
 import ShoppingListScreen from './app/screens/ShoppingListScreen'
 import { SearchScreen } from './app/screens/SearchScreen'
+import Setting from './app/screens/Setting'
+
 AsyncStorage.removeItem('userData')
 
 const Stack = createStackNavigator()
@@ -40,6 +42,7 @@ const App = () => {
         setInitialRouteName('LoginScreen')
       }
     } catch (error) {
+      console.log(error)
       setInitialRouteName('LoginScreen')
     }
   }
@@ -91,6 +94,7 @@ const App = () => {
                   name="ShoppingList"
                   component={ShoppingListScreen}
                 />
+                <Stack.Screen name="Setting" component={Setting} />
               </Stack.Navigator>
             </>
           )}

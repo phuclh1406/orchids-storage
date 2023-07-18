@@ -144,6 +144,10 @@ const HomeScreen = ({ navigation }) => {
     navigation.navigate('SearchHome', { categoryDataList: categoryData })
   }
 
+  const navigationToSetting = () => {
+    navigation.navigate('Setting')
+  }
+
   return (
     <SafeAreaView style={{ backgroundColor: colors.dark, flex: 1 }}>
       <StatusBar backgroundColor={colors.primary} />
@@ -209,7 +213,7 @@ const HomeScreen = ({ navigation }) => {
                 padding: SPACING / 2,
               }}
             >
-              <TouchableOpacity>
+              <TouchableOpacity onPress={navigationToSetting}>
                 <Image
                   style={{
                     height: '100%',

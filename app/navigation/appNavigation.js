@@ -69,7 +69,7 @@ const AppNavigation = () => {
           headerShown: false,
         }}
       />
-      <Tab.Screen
+      {/* <Tab.Screen
         name="Setting"
         component={Setting}
         options={{
@@ -80,7 +80,7 @@ const AppNavigation = () => {
           tabBarStyle: { backgroundColor: colors.dark, borderTopWidth: 0 },
           headerShown: false,
         }}
-      />
+      /> */}
     </Tab.Navigator>
   )
 }

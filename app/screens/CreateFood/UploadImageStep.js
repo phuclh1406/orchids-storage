@@ -7,10 +7,11 @@ import {
   TouchableOpacity,
   Text,
 } from 'react-native'
-import axiosInstance from '../../util/axiosWrapper'
 
 import * as ImagePicker from 'expo-image-picker'
-import colors from '../config/colors'
+
+import axiosInstance from '../../../util/axiosWrapper'
+import colors from '../../config/colors'
 // import axios from 'axios'
 // import { BASE_URL } from '../app/config'
 
@@ -21,7 +22,7 @@ import colors from '../config/colors'
 //   },
 // }
 
-function UploadImage({ imageFood, setImageFood }) {
+function UploadImageStep({ steps, setSteps, index }) {
   // The path of the picked image
   const [pickedImagePath, setPickedImagePath] = useState('')
   // This function is triggered when the "Select an image" button pressed
@@ -52,14 +53,20 @@ function UploadImage({ imageFood, setImageFood }) {
           name: result.assets[0].uri,
           type: 'image/jpg',
         })
-        console.log(formData)
         const config = {
           headers: { 'content-type': 'multipart/form-data' },
         }
         // console.log(1)
         const res = await axiosInstance.post('/upload-image', formData, config)
-        console.log(res?.data)
-        setImageFood(res?.data?.files[0])
+
+        setSteps(
+          steps.map((item, i) => {
+            if (i === index) {
+              return { ...item, image: res?.data?.files[0] }
+            }
+            return item
+          })
+        )
       }
     } catch (error) {
       // console.log(error?.message)
@@ -88,7 +95,7 @@ function UploadImage({ imageFood, setImageFood }) {
   // }
 
   return (
-    <View>
+    <View style={{ flexDirection: 'row' }}>
       <Image
         source={{
           uri:
@@ -96,9 +103,9 @@ function UploadImage({ imageFood, setImageFood }) {
             'https://cdn.britannica.com/05/88205-050-9EEA563C/Bigmouth-buffalo-fish.jpg',
         }}
         style={{
-          height: 150,
-          width: 150,
-          borderRadius: 85,
+          height: 100,
+          width: 100,
+
           borderWidth: 2,
           borderColor: colors.dark,
         }}
@@ -107,7 +114,7 @@ function UploadImage({ imageFood, setImageFood }) {
         style={{
           backgroundColor: colors.primary,
           height: 44,
-          width: 130,
+          width: 100,
           borderRadius: 6,
           alignItems: 'center',
           justifyContent: 'center',
@@ -143,10 +150,10 @@ const styles = StyleSheet.create({
     padding: 30,
   },
   image: {
-    width: 400,
-    height: 300,
+    width: 200,
+    height: 200,
     resizeMode: 'cover',
   },
 })
 
-export default UploadImage
+export default UploadImageStep
