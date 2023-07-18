@@ -13,7 +13,7 @@ import Loader from './app/components/Loader'
 import { AuthProvider } from './app/context/AuthContext'
 import IngredientDetailScreen from './app/screens/IngredientDetailScreen'
 import { SearchScreen } from './app/screens/SearchScreen'
-// AsyncStorage.removeItem('userData')
+AsyncStorage.removeItem('userData')
 
 const Stack = createStackNavigator()
 const App = () => {
@@ -28,9 +28,8 @@ const App = () => {
   const authUser = async () => {
     try {
       let userData = await AsyncStorage.getItem('userData')
-      console.log(userData)
-      userData = JSON.parse(userData)
-      if (userData) {
+      parseUserData = JSON.parse(userData)
+      if (parseUserData) {
         setInitialRouteName('Home')
       } else {
         setInitialRouteName('LoginScreen')

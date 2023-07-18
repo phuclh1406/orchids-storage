@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TextInput, View } from "react-native";
+import { StyleSheet, Text, TextInput, View, useWindowDimensions } from "react-native";
 import React, { useState } from "react";
 import { BlurView } from "expo-blur";
 import colors from "../config/colors";
@@ -6,12 +6,14 @@ import SPACING from "../config/SPACING";
 
 import { Ionicons } from "@expo/vector-icons";
 
-const SearchField = () => {
+
+const SearchField = ({onChangeText}) => {
   return (
     <View
       style={{
         borderRadius: SPACING,
         overflow: "hidden",
+        width: 300
       }}
     >
       <BlurView
@@ -33,6 +35,7 @@ const SearchField = () => {
           }}
           placeholder="Find Your Food..."
           placeholderTextColor={colors.light}
+          onChangeText={onChangeText}
         />
 
         <Ionicons

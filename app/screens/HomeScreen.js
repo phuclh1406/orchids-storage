@@ -26,14 +26,13 @@ import { AuthContext } from '../context/AuthContext'
 import axiosInstance from '../../util/axiosWrapper'
 import Carousels from '../components/Carousel'
 
-const avatar = require('../../assets/avatar.jpg')
-
 const { width } = Dimensions.get('window')
 
 const HomeScreen = ({ navigation }) => {
   const [foodData, setFoodData] = useState([]);
   const [categoryData, setCategoryData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [userInfo, setUserInfo] = useState({});
   const isFocused = useIsFocused()
 
   useFocusEffect(
@@ -52,8 +51,8 @@ const HomeScreen = ({ navigation }) => {
       return unsubscribe
     }, [])
   )
-  const [activeCategoryId, setActiveCategoryId] = useState(null)
-  const [dataFav, setDataFav] = useState([])
+  const [activeCategoryId, setActiveCategoryId] = useState(null);
+  const [dataFav, setDataFav] = useState([]);
 
 
   // const { foodData } = useContext(AuthContext);
@@ -69,6 +68,15 @@ const HomeScreen = ({ navigation }) => {
       setDataFav(data ? JSON.parse(data) : []);
     } catch (error) {
       console.error('Error getting data from storage:', error)
+    }
+  }
+
+  const getUserFromStorage = async () => {
+    try {
+      const user = await AsyncStorage.getItem("userData");
+      setUserInfo(JSON.parse(user));
+    } catch (error) {
+      console.error('Error getting user data from storage:', error)
     }
   }
 
@@ -101,6 +109,7 @@ const HomeScreen = ({ navigation }) => {
       const res = await axiosInstance.get(`/foods`)
       // console.log(res?.data)
       setFoodData(res?.data?.foods)
+      await AsyncStorage.setItem('foodData', JSON.stringify(res?.data?.foods))
       setIsLoading(false);
     } catch (error) {
       console.log(error)
@@ -121,11 +130,12 @@ const HomeScreen = ({ navigation }) => {
   useEffect(() => {
     getCategoryData(),
       getFoodData(),
-      getFromStorage()
-  }, [])
+      getFromStorage(),
+      getUserFromStorage()
+  }, [isFocused])
 
   const handleTextInputFocus = () => {
-    navigation.navigate('SearchHome');
+    navigation.navigate('SearchHome', {categoryDataList: categoryData});
   };
 
   return (
@@ -200,7 +210,7 @@ const HomeScreen = ({ navigation }) => {
                     width: '100%',
                     borderRadius: SPACING,
                   }}
-                  source={avatar}
+                  source={{ uri: userInfo?.user?.avatar }}
                 />
               </TouchableOpacity>
             </BlurView>
@@ -305,7 +315,6 @@ const HomeScreen = ({ navigation }) => {
                           foodId: food.food_id,
                           categoryData: categoryData,
                           foodData: foodData
-
                         })
                       }
                       style={{

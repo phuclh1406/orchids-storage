@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import React, { useContext, useEffect } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   Keyboard,
   ScrollView,
   Alert,
+  StyleSheet,
 } from 'react-native'
 
 import COLORS from '../config/colors'
@@ -16,8 +17,13 @@ import Loader from '../components/Loader'
 import axios from 'axios'
 import { BASE_URL } from '../config'
 import { AuthContext } from '../context/AuthContext'
+import axiosInstance from '../../util/axiosWrapper'
+import { Dropdown } from 'react-native-element-dropdown'
 
 const RegistrationScreen = ({ navigation }) => {
+  const [role, setRole] = useState(null);
+  const [isFocus, setIsFocus] = useState(false);
+  const [roleData, setRoleData] = useState([]);
   const [inputs, setInputs] = React.useState({
     email: '',
     password: '',
@@ -57,10 +63,8 @@ const RegistrationScreen = ({ navigation }) => {
     }
 
     if (isValid) {
-      register(inputs.email, inputs.password, inputs.confirm_password)
-      if (isNavigate) {
-        navigation.navigate('LoginScreen')
-      }
+      register(inputs.email, inputs.password, inputs.confirm_password, role);
+      
     }
   }
 
@@ -98,10 +102,34 @@ const RegistrationScreen = ({ navigation }) => {
     setErrors((prevState) => ({ ...prevState, [input]: error }))
   }
 
+  const getRoleData = async () => {
+    try {
+      const res = await axios.get(`${BASE_URL}/roles`)
+      var count = Object.keys(res?.data?.roles?.rows).length;
+      let roleArray = [];
+      for (var i = 0; i < count; i++) {
+        if (res.data.roles.rows[i].role_id === 'f63cd42e-4c7d-459f-a78b-fc8bd1b30695' || res.data.roles.rows[i].role_id === '58c10546-5d71-47a6-842e-84f5d2f72ec3') {
+          roleArray.push({
+            value: res.data.roles.rows[i].role_id,
+            label: res.data.roles.rows[i].role_name,
+          });
+        }
+      }
+      setRoleData(roleArray)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  useEffect(() => {
+    getRoleData()
+  }, [])
+
   useEffect(() => {
     if (isNavigate) {
       navigation.navigate('LoginScreen')
     }
+    console.log('Login');
   }, [isNavigate, navigation])
 
   return (
@@ -145,6 +173,29 @@ const RegistrationScreen = ({ navigation }) => {
             error={errors.confirm_password}
             password
           />
+          
+          <View style={{ marginBottom: 10 }}>
+          <Text style={styles.label}>Role</Text>
+            <Dropdown
+              style={[styles.dropdown, isFocus && { borderColor: 'blue' }]}
+              placeholderStyle={styles.placeholderStyle}
+              selectedTextStyle={styles.selectedTextStyle}
+              inputSearchStyle={styles.inputSearchStyle}
+              iconStyle={styles.iconStyle}
+              data={roleData}
+              maxHeight={300}
+              labelField="label"
+              valueField="value"
+              placeholder={!isFocus ? 'Select role' : '...'}
+              value={role}
+              onFocus={() => setIsFocus(true)}
+              onBlur={() => setIsFocus(false)}
+              onChange={item => {
+                setRole(item.value);
+                setIsFocus(false);
+              }}
+            />
+          </View>
 
           <Button title="Register" onPress={validate} />
           <Text
@@ -165,3 +216,53 @@ const RegistrationScreen = ({ navigation }) => {
 }
 
 export default RegistrationScreen
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#533483',
+    padding: 16,
+    justifyContent: 'center',
+    alignContent: 'center',
+  },
+  dropdown: {
+    height: 50,
+    borderColor: 'gray',
+    borderWidth: 0.6,
+    paddingHorizontal: 8,
+    marginBottom: 10,
+    backgroundColor: COLORS.light2
+  },
+  icon: {
+    marginRight: 5,
+  },
+  label: {
+    position: 'absolute',
+    backgroundColor: 'white',
+    left: 22,
+    top: 8,
+    zIndex: 999,
+    paddingHorizontal: 8,
+    fontSize: 14,
+  },
+  placeholderStyle: {
+    fontSize: 14,
+    color: COLORS.darkBlue,
+  },
+  selectedTextStyle: {
+    fontSize: 16,
+  },
+  iconStyle: {
+    width: 20,
+    height: 20,
+  },
+  inputSearchStyle: {
+    height: 40,
+    fontSize: 16,
+  },
+  label: {
+    marginVertical: 5,
+    fontSize: 14,
+    color: COLORS.grey,
+  },
+});
