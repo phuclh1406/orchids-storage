@@ -232,7 +232,8 @@ const HomeScreen = ({ navigation }) => {
         <View
           style={{
             borderRadius: SPACING,
-            overflow: 'hidden',
+            overflow: "hidden",
+            marginBottom: SPACING * 2
           }}
         >
           <BlurView
@@ -266,6 +267,8 @@ const HomeScreen = ({ navigation }) => {
           </BlurView>
         </View>
 
+        <Carousels />
+
         <Categories
           let
           titleColor="light"
@@ -273,7 +276,7 @@ const HomeScreen = ({ navigation }) => {
           inputData={categoryData}
         />
 
-        <Carousels />
+        
 
         <View
           style={{
@@ -299,8 +302,8 @@ const HomeScreen = ({ navigation }) => {
               ?.filter((food) => {
                 if (activeCategoryId === null) {
                   return true
-                } else if (activeCategoryId === 0) {
-                  return food
+                } else if (activeCategoryId === "8b113e48-d1d6-4397-a0aa-743be2df2ad1") {
+                  return true
                 }
                 return food.food_cate_detail.cate_detail_id === activeCategoryId
               })
@@ -342,46 +345,14 @@ const HomeScreen = ({ navigation }) => {
                           borderRadius: SPACING * 2,
                         }}
                       />
-                      <View
-                        style={{
-                          position: 'absolute',
-                          right: 0,
-                          borderBottomStartRadius: SPACING * 3,
-                          borderTopEndRadius: SPACING * 2,
-                          overflow: 'hidden',
-                        }}
-                      >
-                        <BlurView
-                          tint="dark"
-                          intensity={70}
-                          style={{
-                            flexDirection: 'row',
-                            padding: SPACING - 2,
-                          }}
-                        >
-                          <Ionicons
-                            style={{
-                              marginLeft: SPACING / 2,
-                            }}
-                            name="star"
-                            color={colors.primary}
-                            size={SPACING * 1.7}
-                          />
-                          <Text
-                            style={{
-                              color: colors.white,
-                              marginLeft: SPACING / 2,
-                            }}
-                          >
-                            {food.rating}
-                          </Text>
-                        </BlurView>
-                      </View>
+                      
                     </TouchableOpacity>
                     <TouchableOpacity
                       onPress={() =>
                         navigation.navigate('OrchidDetail', {
-                          orchidId: food.food_id,
+                          foodId: food.food_id,
+                          categoryData: categoryData,
+                          foodData: foodData
                         })
                       }
                     >

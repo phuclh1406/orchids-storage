@@ -65,6 +65,7 @@ const ShoppingListScreen = ({ navigation }) => {
   const [dataBuy, setDataBuy] = useState([])
   const [dataWaiting, setDataWaiting] = useState([])
   const [isLoading, setIsLoading] = useState(true)
+  const [userInfo, setUserInfo] = useState({})
 
   const getFromStorage = async () => {
     if (isFocused) {
@@ -91,6 +92,15 @@ const ShoppingListScreen = ({ navigation }) => {
       } finally {
         setIsLoading(false)
       }
+    }
+  }
+
+  const getUserFromStorage = async () => {
+    try {
+      const user = await AsyncStorage.getItem('userData')
+      setUserInfo(JSON.parse(user))
+    } catch (error) {
+      console.error('Error getting user data from storage:', error)
     }
   }
 
@@ -132,8 +142,14 @@ const ShoppingListScreen = ({ navigation }) => {
             const list = favoriteOrchidsList.filter(
               (item) => item.ingredient_id !== id
             )
+            const list1 = dataBuy.filter(
+              (item) => item.ingredient_id !== id
+            )
             await AsyncStorage.setItem('shoppingList', JSON.stringify(list))
+            await AsyncStorage.setItem('buyList', JSON.stringify(list1))
+            setDataBuy(list1)
             setFavoriteOrchidsList(list)
+            
           },
         },
       ]
@@ -142,8 +158,8 @@ const ShoppingListScreen = ({ navigation }) => {
 
   function handleDeleteAllItem() {
     Alert.alert(
-      'Confirm removing all of your favorite orchids',
-      'You can not recover your favorites orchid after removing them!',
+      'Confirm removing all of your shopping list',
+      'You can not recover your shopping list after removing it!',
       [
         {
           text: 'Cancel',
@@ -171,28 +187,6 @@ const ShoppingListScreen = ({ navigation }) => {
       console.log(error)
     }
   }
-
-  function handleDeleteBuyItemFromStorage(id) {
-    Alert.alert(
-      'Confirm removing this item?',
-      'You can not recover your item after removing it!',
-      [
-        {
-          text: 'Cancel',
-          onPress: () => {},
-        },
-        {
-          text: 'Yes, I confirm',
-          onPress: async () => {
-            const list = dataBuy.filter((item) => item.ingredient_id !== id)
-            await AsyncStorage.setItem('buyList', JSON.stringify(list))
-            setDataBuy(list)
-          },
-        },
-      ]
-    )
-  }
-
   const removeBuyDataFromStorage = async (itemId) => {
     try {
       const list = dataBuy.filter((item) => item.ingredient_id !== itemId)
@@ -207,6 +201,7 @@ const ShoppingListScreen = ({ navigation }) => {
     getFromStorage()
     getBuyFromStorage()
     getCategoriesData()
+    getUserFromStorage()
   }, [isFocused])
   console.log(categoriesData)
 
@@ -289,14 +284,13 @@ const ShoppingListScreen = ({ navigation }) => {
                     width: '100%',
                     borderRadius: SPACING,
                   }}
-                  source={avatar}
+                  source={{ uri: userInfo?.user?.avatar }}
                 />
               </TouchableOpacity>
             </BlurView>
           </View>
         </View>
         {/* <View style={{ width: "80%", marginVertical: SPACING }}></View> */}
-        <SearchField />
         <Categories
           let
           titleColor="light"
@@ -556,6 +550,8 @@ const ShoppingListScreen = ({ navigation }) => {
               .filter((orchid) => {
                 if (activeCategoryId === null) {
                   return true
+                } else if (activeCategoryId === '55f00386-b8f0-497f-9ed3-a41bae525de1') {
+                  return true
                 }
                 return (
                   orchid.ingredient_cate_detail.cate_detail_id ===
@@ -699,8 +695,8 @@ const ShoppingListScreen = ({ navigation }) => {
                       </TouchableOpacity>
                       <TouchableOpacity
                         onPress={() => {
-                          handleDeleteItem(orchid.ingredient_id)
-                          handleDeleteBuyItemFromStorage(orchid.ingredient_id)
+                          handleDeleteItem(orchid.ingredient_id);
+                          
                         }}
                         style={{
                           position: 'absolute',
@@ -867,7 +863,6 @@ const ShoppingListScreen = ({ navigation }) => {
                       </TouchableOpacity>
                       <TouchableOpacity
                         onPress={() => {
-                          removeBuyDataFromStorage(orchid.ingredient_id)
                           handleDeleteItem(orchid.ingredient_id)
                         }}
                         style={{
