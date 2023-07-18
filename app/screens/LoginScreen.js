@@ -79,7 +79,6 @@ const LoginScreen = ({ navigation }) => {
     if (isNavigate) {
       navigation.navigate('Home')
     }
-    console.log('Home')
   }, [isNavigate, navigation])
 
   return (

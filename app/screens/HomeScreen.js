@@ -469,8 +469,7 @@ const HomeScreen = ({ navigation }) => {
                         }
                       }}
                     >
-                      {dataFav.find((item) => item.food_id  === food.food_id) ? (
-                        
+                      {dataFav.find((item) => item.food_id === food.food_id) ? (
                         <Ionicons
                           name="heart"
                           size={SPACING * 3}

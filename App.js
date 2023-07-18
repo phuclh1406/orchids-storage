@@ -13,6 +13,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import Loader from './app/components/Loader'
 import { AuthProvider } from './app/context/AuthContext'
 import IngredientDetailScreen from './app/screens/IngredientDetailScreen'
+import CreateFood from './app/screens/CreateFood'
 import EditProfile from './app/screens/EditProfile'
 import UserProfile from './app/screens/UserProfile'
 import ShoppingListScreen from './app/screens/ShoppingListScreen'
@@ -37,13 +38,14 @@ const App = () => {
   const authUser = async () => {
     try {
       let userData = await AsyncStorage.getItem('userData')
-      parseUserData = JSON.parse(userData)
+      const parseUserData = JSON.parse(userData)
       if (parseUserData) {
         setInitialRouteName('Home')
       } else {
         setInitialRouteName('LoginScreen')
       }
     } catch (error) {
+      console.log(error)
       setInitialRouteName('LoginScreen')
     }
   }
@@ -78,6 +80,7 @@ const App = () => {
                 <Stack.Screen name="SearchIngredients" component={SearchIngredientsScreen} />
                 <Stack.Screen name="SearchBlogs" component={SearchBlogsScreen} />
                 <Stack.Screen name="LoginScreen" component={LoginScreen} />
+                <Stack.Screen name="CreateFoodScreen" component={CreateFood} />
                 <Stack.Screen
                   name="IngredientsScreen"
                   component={AppNavigation}

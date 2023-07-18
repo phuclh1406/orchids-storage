@@ -12,6 +12,9 @@ const Setting = ({ navigation }) => {
   const navigateToEditProfile = () => {
     navigation.navigate('EditProfile')
   }
+  const navigateToCreateFood = () => {
+    navigation.navigate('CreateFoodScreen')
+  }
 
   const accountItems = [
     {
@@ -23,6 +26,11 @@ const Setting = ({ navigation }) => {
       icon: 'md-pencil',
       text: 'Edit Profile',
       action: () => navigateToEditProfile(),
+    },
+    {
+      icon: 'md-pencil',
+      text: 'Create Food',
+      action: () => navigateToCreateFood(),
     },
   ]
 
