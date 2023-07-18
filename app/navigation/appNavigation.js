@@ -18,6 +18,7 @@ import {View, Dimensions} from 'react-native';
 import HomeScreen from '../screens/HomeScreen';
 import FavoriteScreen from '../screens/FavoriteScreen';
 import IngredientsScreen from '../screens/IngredientsScreen';
+import Setting from '../screens/Setting';
 
 const Tab = createBottomTabNavigator()
 
@@ -78,9 +79,9 @@ const AppNavigation = () => {
           headerShown: false,
         }}
       />
-      {/* <Tab.Screen
+      <Tab.Screen
         name="Setting"
-        component={}
+        component={Setting}
         options={{
           unmountOnBlur: true,
           tabBarIcon: ({ color }) => (
@@ -89,7 +90,7 @@ const AppNavigation = () => {
           tabBarStyle: { backgroundColor: colors.dark, borderTopWidth: 0 },
           headerShown: false,
         }}
-      /> */}
+      />
     </Tab.Navigator>
   )
 }
