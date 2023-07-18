@@ -9,6 +9,15 @@ import FavoriteScreen from '../screens/FavoriteScreen'
 import IngredientsScreen from '../screens/IngredientsScreen'
 import Setting from '../screens/Setting'
 import ShoppingListScreen from '../screens/ShoppingListScreen'
+import 'react-native-gesture-handler';
+import React from 'react';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import colors from '../config/colors';
+import {View, Dimensions} from 'react-native';
+import HomeScreen from '../screens/HomeScreen';
+import FavoriteScreen from '../screens/FavoriteScreen';
+import IngredientsScreen from '../screens/IngredientsScreen';
 
 const Tab = createBottomTabNavigator()
 
@@ -69,9 +78,9 @@ const AppNavigation = () => {
           headerShown: false,
         }}
       />
-      <Tab.Screen
+      {/* <Tab.Screen
         name="Setting"
-        component={Setting}
+        component={}
         options={{
           unmountOnBlur: true,
           tabBarIcon: ({ color }) => (
@@ -80,7 +89,7 @@ const AppNavigation = () => {
           tabBarStyle: { backgroundColor: colors.dark, borderTopWidth: 0 },
           headerShown: false,
         }}
-      />
+      /> */}
     </Tab.Navigator>
   )
 }
