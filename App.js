@@ -13,6 +13,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import Loader from './app/components/Loader'
 import { AuthProvider } from './app/context/AuthContext'
 import IngredientDetailScreen from './app/screens/IngredientDetailScreen'
+import EditProfile from './app/screens/EditProfile'
+import UserProfile from './app/screens/UserProfile'
 import ShoppingListScreen from './app/screens/ShoppingListScreen'
 import { SearchScreen } from './app/screens/SearchScreen'
 AsyncStorage.removeItem('userData')
@@ -72,6 +74,8 @@ const App = () => {
                 <Stack.Screen name="IngredientsScreen" component={AppNavigation} />
                 <Stack.Screen name="IngredientDetail" component={IngredientDetailScreen} />
                 <Stack.Screen name="Dashboard" component={DashboardNavigation} />
+                <Stack.Screen name="UserProfile" component={UserProfile} />
+                <Stack.Screen name="EditProfile" component={EditProfile} />
                 <Stack.Screen name="ShoppingList" component={ShoppingListScreen} />
               </Stack.Navigator>
             </>
