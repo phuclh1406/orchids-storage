@@ -5,6 +5,7 @@ import HomeScreen from './app/screens/HomeScreen'
 import { NavigationContainer } from '@react-navigation/native'
 import { createStackNavigator } from '@react-navigation/stack'
 import AppNavigation from './app/navigation/appNavigation'
+import DashboardNavigation from './app/navigation/dashboardNavigation'
 import OrchidDetailsScreen from './app/screens/OrchidDetailsScreen'
 import LoginScreen from './app/screens/LoginScreen'
 import RegistrationScreen from './app/screens/RegistrationScreen'
@@ -13,6 +14,10 @@ import Loader from './app/components/Loader'
 import { AuthProvider } from './app/context/AuthContext'
 import IngredientDetailScreen from './app/screens/IngredientDetailScreen'
 import CreateFood from './app/screens/CreateFood'
+import EditProfile from './app/screens/EditProfile'
+import UserProfile from './app/screens/UserProfile'
+import ShoppingListScreen from './app/screens/ShoppingListScreen'
+import { SearchScreen } from './app/screens/SearchScreen'
 AsyncStorage.removeItem('userData')
 
 const Stack = createStackNavigator()
@@ -28,9 +33,8 @@ const App = () => {
   const authUser = async () => {
     try {
       let userData = await AsyncStorage.getItem('userData')
-      console.log(userData)
-      userData = JSON.parse(userData)
-      if (userData) {
+      const parseUserData = JSON.parse(userData)
+      if (parseUserData) {
         setInitialRouteName('Home')
       } else {
         setInitialRouteName('LoginScreen')
@@ -66,7 +70,9 @@ const App = () => {
                   name="RegistrationScreen"
                   component={RegistrationScreen}
                 />
+                <Stack.Screen name="SearchHome" component={SearchScreen} />
                 <Stack.Screen name="LoginScreen" component={LoginScreen} />
+                <Stack.Screen name="CreateFoodScreen" component={CreateFood} />
                 <Stack.Screen
                   name="IngredientsScreen"
                   component={AppNavigation}
@@ -75,7 +81,16 @@ const App = () => {
                   name="IngredientDetail"
                   component={IngredientDetailScreen}
                 />
-                <Stack.Screen name="CreateFoodScreen" component={CreateFood} />
+                <Stack.Screen
+                  name="Dashboard"
+                  component={DashboardNavigation}
+                />
+                <Stack.Screen name="UserProfile" component={UserProfile} />
+                <Stack.Screen name="EditProfile" component={EditProfile} />
+                <Stack.Screen
+                  name="ShoppingList"
+                  component={ShoppingListScreen}
+                />
               </Stack.Navigator>
             </>
           )}

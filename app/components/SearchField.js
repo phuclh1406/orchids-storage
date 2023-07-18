@@ -1,17 +1,19 @@
-import { StyleSheet, Text, TextInput, View } from "react-native";
-import React from "react";
+import { StyleSheet, Text, TextInput, View, useWindowDimensions } from "react-native";
+import React, { useState } from "react";
 import { BlurView } from "expo-blur";
 import colors from "../config/colors";
 import SPACING from "../config/SPACING";
 
 import { Ionicons } from "@expo/vector-icons";
 
-const SearchField = () => {
+
+const SearchField = ({onChangeText}) => {
   return (
     <View
       style={{
         borderRadius: SPACING,
         overflow: "hidden",
+        width: 300
       }}
     >
       <BlurView
@@ -22,6 +24,8 @@ const SearchField = () => {
         }}
       >
         <TextInput
+          autoCapitalize="none"
+          autoCorrect={false}
           style={{
             width: "100%",
             color: colors.white,
@@ -29,9 +33,11 @@ const SearchField = () => {
             padding: SPACING,
             paddingLeft: SPACING * 3.5,
           }}
-          placeholder="Find Your Orchids..."
+          placeholder="Find Your Food..."
           placeholderTextColor={colors.light}
+          onChangeText={onChangeText}
         />
+
         <Ionicons
           style={{
             position: "absolute",

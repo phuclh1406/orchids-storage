@@ -1,6 +1,8 @@
 import { Picker } from '@react-native-picker/picker'
 import { useEffect, useState } from 'react'
 import axiosInstance from '../../util/axiosWrapper'
+import colors from '../config/colors'
+import { StyleSheet } from 'react-native'
 
 const CategorySelect = ({ values, handleChange, handleBlur }) => {
   const [category, setCategory] = useState([])
@@ -18,7 +20,7 @@ const CategorySelect = ({ values, handleChange, handleBlur }) => {
   }, [])
   return (
     <Picker
-      style={{ height: 50, width: 200, backgroundColor: 'white' }}
+      style={styles.input}
       selectedValue={values}
       onValueChange={handleChange}
       onBlur={handleBlur}
@@ -36,3 +38,21 @@ const CategorySelect = ({ values, handleChange, handleBlur }) => {
 }
 
 export default CategorySelect
+const styles = StyleSheet.create({
+  input: {
+    height: 43,
+    width: '90%',
+    borderColor: colors.grey,
+    borderWidth: 1,
+    borderRadius: 4,
+    marginVertical: 6,
+    justifyContent: 'center',
+    paddingLeft: 8,
+    border: 1,
+    borderStyle: 'solid',
+  },
+  errorType: {
+    fontStyle: 12,
+    colors: 'red',
+  },
+})

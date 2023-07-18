@@ -12,11 +12,13 @@ import colors from "../config/colors";
 import SPACING from "../config/SPACING";
 
 const Categories = ({ onChange, inputData }) => {
-  const [activeCategoryId, setActiveCategoryId] = useState(0);
+  const [activeCategoryId, setActiveCategoryId] = useState(null);
+  const [isCategoryActive, setIsCategoryActive] = useState(false);
 
-  const handlePress = (id) => {
-    setActiveCategoryId(id);
-    onChange(id);
+
+  const handlePress = (cate_detail_id) => {
+    setActiveCategoryId(cate_detail_id);
+    onChange(cate_detail_id);
   };
 
   return (

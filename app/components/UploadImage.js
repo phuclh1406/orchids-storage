@@ -1,8 +1,16 @@
 import { useState } from 'react'
-import { View, StyleSheet, Image, Button } from 'react-native'
+import {
+  View,
+  StyleSheet,
+  Image,
+  Button,
+  TouchableOpacity,
+  Text,
+} from 'react-native'
 import axiosInstance from '../../util/axiosWrapper'
 
 import * as ImagePicker from 'expo-image-picker'
+import colors from '../config/colors'
 // import axios from 'axios'
 // import { BASE_URL } from '../app/config'
 
@@ -82,13 +90,29 @@ function UploadImage() {
 
   return (
     <View>
-      <View style={styles.buttonContainer}>
-        <Button
-          style={styles.buttonContainer}
-          onPress={showImagePicker}
-          title="Select an image"
-        />
-      </View>
+      <TouchableOpacity
+        style={{
+          backgroundColor: colors.primary,
+          height: 44,
+          width: 130,
+          borderRadius: 6,
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginVertical: 20,
+          paddingLeft: 5,
+          paddingRight: 5,
+        }}
+        onPress={showImagePicker}
+      >
+        <Text
+          style={{
+            size: 24,
+            color: colors.white,
+          }}
+        >
+          Select image
+        </Text>
+      </TouchableOpacity>
 
       <View style={styles.imageContainer}>
         {pickedImagePath !== '' && (
@@ -106,8 +130,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     borderWidth: 1,
-    paddingVertical: 5,
-    paddingHorizontal: 15,
     backgroundColor: '#fa9737',
   },
   imageContainer: {

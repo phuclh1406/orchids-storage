@@ -51,90 +51,37 @@ const FavoriteScreen = ({ navigation  }) => {
     }, [])
   )
   const [activeCategoryId, setActiveCategoryId] = useState(null)
-  const [favoriteOrchidsList, setFavoriteOrchidsList] = useState([])
   const [foodData, setFoodData] = useState([])
-  // const [favoriteFoods, setFavoriteFoods] = useState([]);
-  const [favoriteFoodIds, setFavoriteFoodIds] = useState([]);
+  const [favoriteFoods, setFavoriteFoods] = useState([]);
+  // const [favoriteFoodIds, setFavoriteFoodIds] = useState([]);
   
   const isFocused = useIsFocused()
 
-  // const getFromStorage = async () => {
-  //   if (isFocused) {
-  //     const fetchData = async () => {
-  //       try {
-  //         const data = await AsyncStorage.getItem('favorite')
-  //         if (data != undefined) {
-  //           const parsedData = JSON.parse(data)
-  //           const filterFoods = foodData.filter((food) =>{
-  //             const check = parsedData.find((item) => item.food_id === food.food_id)
-  //             if (check) {
-  //               return food
-  //             }
-  //           })
-  //           setFavoriteFoods(filterFoods)
-  //         }
-  //       } catch (error) {
-  //         console.log(error)
-  //       }
-  //     }
-  //     fetchData()
-  //   }
-  // }
   const getFromStorage = async () => {
     if (isFocused) {
-      try {
-        const data = await AsyncStorage.getItem('favorite');
-        if (data !== undefined) {
-          const parsedData = JSON.parse(data);
-          const foodIds = parsedData.map((item) => item.food_id);
-          setFavoriteFoodIds(foodIds);
+      const fetchData = async () => {
+        try {
+          const data = await AsyncStorage.getItem('favorite')
+          const foodData = await AsyncStorage.getItem('foodData')
+          if (data != undefined) {
+            const parsedData = JSON.parse(data)
+            const parsedFoodData = JSON.parse(foodData)
+            setFoodData(parsedFoodData);
+            const filterFoods = parsedFoodData.filter((food) =>{
+              const check = parsedData.find((item) => item.food_id === food.food_id)
+              if (check) {
+                return food
+              }
+            })
+            setFavoriteFoods(filterFoods)
+          }
+        } catch (error) {
+          console.log(error)
         }
-      } catch (error) {
-        console.log(error);
       }
+      fetchData()
     }
-  };
-
-  // function handleDeleteItem(id) {
-  //   Alert.alert(
-  //     'Confirm removing this favorite orchid',
-  //     'You can not recover your favorite orchid after removing it!',
-  //     [
-  //       {
-  //         text: 'Cancel',
-  //         onPress: () => {},
-  //       },
-  //       {
-  //         text: 'Yes, I confirm',
-  //         onPress: async () => {
-  //           const list = favoriteOrchidsList.filter((item) => item.id !== id)
-  //           await AsyncStorage.setItem('favorite', JSON.stringify(list))
-  //           setFavoriteOrchidsList(list)
-  //         },
-  //       },
-  //     ]
-  //   )
-  // }
-  // function handleDeleteAllItem() {
-  //   Alert.alert(
-  //     'Confirm removing all of your favorite orchids',
-  //     'You can not recover your favorites orchid after removing them!',
-  //     [
-  //       {
-  //         text: 'Cancel',
-  //         onPress: () => {},
-  //       },
-  //       {
-  //         text: 'Yes, I confirm',
-  //         onPress: async () => {
-  //           const list = []
-  //           await AsyncStorage.setItem('favorite', JSON.stringify(list))
-  //           setFavoriteOrchidsList(list)
-  //         },
-  //       },
-  //     ]
-  //   )
-  // }
+  }
   function handleDeleteItem(id) {
     Alert.alert(
       'Confirm removing this favorite food',
@@ -148,10 +95,9 @@ const FavoriteScreen = ({ navigation  }) => {
           text: 'Yes, I confirm',
           onPress: async () => {
             try {
-              const updatedList = favoriteFoodIds.filter((foodId) => foodId !== id);
-              console.log(id);
+              const updatedList = favoriteFoods.filter((food) => food.food_id !== id);
               await AsyncStorage.setItem('favorite', JSON.stringify(updatedList));
-              setFavoriteFoodIds(updatedList);
+              setFavoriteFoods(updatedList);
             } catch (error) {
               console.log(error);
             }
@@ -175,7 +121,7 @@ const FavoriteScreen = ({ navigation  }) => {
           onPress: async () => {
             try {
               await AsyncStorage.removeItem('favorite');
-              setFavoriteFoodIds([]);
+              setFavoriteFoods([]);
             } catch (error) {
               console.log(error);
             }
@@ -186,25 +132,19 @@ const FavoriteScreen = ({ navigation  }) => {
   }
 
 
-  const getFoodData = async () => {
-    try {
-      const res = await axiosInstance.get(`/foods`)
-      setFoodData(res?.data?.foods)
-    } catch (error) {
-      console.log(error)
-    }
-  }
+  // const getFoodData = async () => {
+  //   try {
+  //     const res = await axiosInstance.get(`/foods`);
+  //     setFoodData(res?.data?.foods);
+  //     console.log(foodData);
+  //   } catch (error) {
+  //     console.log(error)
+  //   }
+  // }
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        await getFoodData();
-        await getFromStorage();
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    fetchData();
+      getFromStorage();
+      getFromStorage();
   }, [isFocused])
 
   return (
@@ -318,7 +258,7 @@ const FavoriteScreen = ({ navigation  }) => {
               marginLeft: SPACING * 4,
             }}
           >
-            Count items: {favoriteFoodIds?.length}
+            Count items: {favoriteFoods?.length}
           </Text>
         </View>
         <View
@@ -330,18 +270,16 @@ const FavoriteScreen = ({ navigation  }) => {
           }}
         >
           {/* {console.log(favoriteOrchidsList)} */}
-          {favoriteFoodIds.length !== 0 ? (
-            foodData
-              ?.filter((food) => {
+          {/* .filter((food) => {
                 if (activeCategoryId === null) {
                     return true;
                   } else if (activeCategoryId === 0) {
                       return food;
                   }
                     return food.categoryId === activeCategoryId;
-                  })
-                .filter((food) => favoriteFoodIds.includes(food.food_id))
-                .map((food) => (
+                  }) */}
+          {favoriteFoods.length !== 0 ? (
+            favoriteFoods.map((food) => (
                 <View
                   key={food.food_id}
                   style={{
@@ -415,7 +353,7 @@ const FavoriteScreen = ({ navigation  }) => {
                       </View>
                     </TouchableOpacity>
                     <Text
-                      numberOfLines={2}
+                      numberOfLines={1}
                       style={{
                         color: colors.white,
                         fontWeight: '600',
@@ -446,20 +384,20 @@ const FavoriteScreen = ({ navigation  }) => {
                       <View style={{ flexDirection: 'row' }}>
                         <Text
                           style={{
-                            color: colors.primary,
-                            marginRight: SPACING / 2,
-                            fontSize: SPACING * 1.6,
-                          }}
-                        >
-                          $
-                        </Text>
-                        <Text
-                          style={{
                             color: colors.white,
                             fontSize: SPACING * 1.6,
                           }}
                         >
                           {food.price}
+                        </Text>
+                        <Text
+                          style={{
+                            color: colors.primary,
+                            marginRight: SPACING / 2,
+                            fontSize: SPACING * 1.6,
+                          }}
+                        >
+                          vnđ
                         </Text>
                       </View>
                       <TouchableOpacity
