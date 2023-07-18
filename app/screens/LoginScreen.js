@@ -77,7 +77,7 @@ const LoginScreen = ({ navigation }) => {
 
   useEffect(() => {
     if (isNavigate) {
-      navigation.navigate('Dashboard')
+      navigation.navigate('Home')
     }
     console.log('Home')
   }, [isNavigate, navigation])

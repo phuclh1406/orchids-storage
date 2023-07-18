@@ -296,7 +296,12 @@ const FavoriteScreen = ({ navigation }) => {
           </BlurView>
         </View>
 
-        <Categories onChange={(id) => setActiveCategoryId(id)} />
+        <Categories
+          let
+          titleColor="light"
+          onChange={(id) => setActiveCategoryId(id)}
+          inputData={categoryData}
+        />
 
         <View
           style={{
@@ -362,142 +367,151 @@ const FavoriteScreen = ({ navigation }) => {
                     return food.categoryId === activeCategoryId;
                   }) */}
           {favoriteFoods.length !== 0 ? (
-            favoriteFoods.map((food) => (
-              <View
-                key={food.food_id}
-                style={{
-                  flexDirection: 'column',
-                  width: width / 2 - SPACING * 2,
-                  marginBottom: SPACING,
-                  borderRadius: SPACING * 2,
-                  overflow: 'hidden',
-                }}
-              >
-                <BlurView
-                  tint="dark"
-                  intensity={95}
+            favoriteFoods
+              .filter((food) => {
+                if (activeCategoryId === null) {
+                  return true
+                } else if (activeCategoryId === 0) {
+                  return food
+                }
+                return food.food_cate_detail.cate_detail_id === activeCategoryId
+              })
+              .map((food) => (
+                <View
+                  key={food.food_id}
                   style={{
-                    padding: SPACING,
+                    flexDirection: 'column',
+                    width: width / 2 - SPACING * 2,
+                    marginBottom: SPACING,
+                    borderRadius: SPACING * 2,
+                    overflow: 'hidden',
                   }}
                 >
-                  <TouchableOpacity
-                    onPress={() =>
-                      navigation.navigate('OrchidDetail', {
-                        foodId: food.food_id,
-                        categoryData: categoryData,
-                        foodData: foodData,
-                      })
-                    }
+                  <BlurView
+                    tint="dark"
+                    intensity={95}
                     style={{
-                      height: 150,
-                      width: '100%',
+                      padding: SPACING,
                     }}
                   >
-                    <Image
-                      source={{ uri: food.food_image[0].image }}
+                    <TouchableOpacity
+                      onPress={() =>
+                        navigation.navigate('OrchidDetail', {
+                          foodId: food.food_id,
+                          categoryData: categoryData,
+                          foodData: foodData,
+                        })
+                      }
                       style={{
+                        height: 150,
                         width: '100%',
-                        height: '100%',
-                        borderRadius: SPACING * 2,
-                      }}
-                    />
-                    <View
-                      style={{
-                        position: 'absolute',
-                        right: 0,
-                        borderBottomStartRadius: SPACING * 3,
-                        borderTopEndRadius: SPACING * 2,
-                        overflow: 'hidden',
                       }}
                     >
-                      <BlurView
-                        tint="dark"
-                        intensity={70}
+                      <Image
+                        source={{ uri: food.food_image[0].image }}
                         style={{
-                          flexDirection: 'row',
-                          padding: SPACING - 2,
+                          width: '100%',
+                          height: '100%',
+                          borderRadius: SPACING * 2,
+                        }}
+                      />
+                      <View
+                        style={{
+                          position: 'absolute',
+                          right: 0,
+                          borderBottomStartRadius: SPACING * 3,
+                          borderTopEndRadius: SPACING * 2,
+                          overflow: 'hidden',
                         }}
                       >
-                        <Ionicons
+                        <BlurView
+                          tint="dark"
+                          intensity={70}
                           style={{
-                            marginLeft: SPACING / 2,
+                            flexDirection: 'row',
+                            padding: SPACING - 2,
                           }}
-                          name="star"
-                          color={colors.primary}
-                          size={SPACING * 1.7}
-                        />
+                        >
+                          <Ionicons
+                            style={{
+                              marginLeft: SPACING / 2,
+                            }}
+                            name="star"
+                            color={colors.primary}
+                            size={SPACING * 1.7}
+                          />
+                          <Text
+                            style={{
+                              color: colors.white,
+                              marginLeft: SPACING / 2,
+                            }}
+                          >
+                            {food.rating}
+                          </Text>
+                        </BlurView>
+                      </View>
+                    </TouchableOpacity>
+                    <Text
+                      numberOfLines={1}
+                      style={{
+                        color: colors.white,
+                        fontWeight: '600',
+                        fontSize: SPACING * 1.7,
+                        marginTop: SPACING,
+                        marginBottom: SPACING / 2,
+                      }}
+                    >
+                      {food.food_name}
+                    </Text>
+                    <Text
+                      numberOfLines={1}
+                      style={{
+                        color: colors.secondary,
+                        fontSize: SPACING * 1.2,
+                      }}
+                    >
+                      {food.included}
+                    </Text>
+                    <View
+                      style={{
+                        marginVertical: SPACING / 2,
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <View style={{ flexDirection: 'row' }}>
                         <Text
                           style={{
                             color: colors.white,
-                            marginLeft: SPACING / 2,
+                            fontSize: SPACING * 1.6,
                           }}
                         >
-                          {food.rating}
+                          {food.price}
                         </Text>
-                      </BlurView>
-                    </View>
-                  </TouchableOpacity>
-                  <Text
-                    numberOfLines={1}
-                    style={{
-                      color: colors.white,
-                      fontWeight: '600',
-                      fontSize: SPACING * 1.7,
-                      marginTop: SPACING,
-                      marginBottom: SPACING / 2,
-                    }}
-                  >
-                    {food.food_name}
-                  </Text>
-                  <Text
-                    numberOfLines={1}
-                    style={{
-                      color: colors.secondary,
-                      fontSize: SPACING * 1.2,
-                    }}
-                  >
-                    {food.included}
-                  </Text>
-                  <View
-                    style={{
-                      marginVertical: SPACING / 2,
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                    }}
-                  >
-                    <View style={{ flexDirection: 'row' }}>
-                      <Text
-                        style={{
-                          color: colors.white,
-                          fontSize: SPACING * 1.6,
-                        }}
+                        <Text
+                          style={{
+                            color: colors.primary,
+                            marginRight: SPACING / 2,
+                            fontSize: SPACING * 1.6,
+                          }}
+                        >
+                          vnđ
+                        </Text>
+                      </View>
+                      <TouchableOpacity
+                        onPress={() => handleDeleteItem(food.food_id)}
                       >
-                        {food.price}
-                      </Text>
-                      <Text
-                        style={{
-                          color: colors.primary,
-                          marginRight: SPACING / 2,
-                          fontSize: SPACING * 1.6,
-                        }}
-                      >
-                        vnđ
-                      </Text>
+                        <Ionicons
+                          name="heart"
+                          size={SPACING * 3}
+                          color={colors.primary}
+                        />
+                      </TouchableOpacity>
                     </View>
-                    <TouchableOpacity
-                      onPress={() => handleDeleteItem(food.food_id)}
-                    >
-                      <Ionicons
-                        name="heart"
-                        size={SPACING * 3}
-                        color={colors.primary}
-                      />
-                    </TouchableOpacity>
-                  </View>
-                </BlurView>
-              </View>
-            ))
+                  </BlurView>
+                </View>
+              ))
           ) : (
             <View>
               <Text
