@@ -15,21 +15,19 @@ import SPACING from '../config/SPACING'
 import { Ionicons } from '@expo/vector-icons'
 
 
-export const SearchScreen = ({ navigation, route }) => {
+export const SearchIngredientsScreen = ({ navigation }) => {
     const [foodData, setFoodData] = useState([]);
-    const [inputs, setInputs] = useState({ food_name: '' });
+    const [inputs, setInputs] = useState({ ingredient_name: '' });
     const [filteredData, setFilteredData] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [errors, setErrors] = useState(null);
     const [categoryData, setCategoryData] = useState([]);
-    const { categoryDataList } = route.params;
     const getFoodData = async () => {
         try {
-            const res = await axiosInstance.get(`/foods`)
-            setFoodData(res?.data?.foods)
-            setFilteredData(res?.data?.foods);
+            const res = await axiosInstance.get(`/ingredients`)
+            setFoodData(res?.data?.ingredients)
+            setFilteredData(res?.data?.ingredients);
             setIsLoading(false);
-            setCategoryData(categoryDataList);
         } catch (error) {
             setErrors(error);
             console.log(error)
@@ -47,7 +45,7 @@ export const SearchScreen = ({ navigation, route }) => {
         if (text) {
             console.log(text);
             const newData = foodData.filter(item => {
-                const itemData = item.food_name ? item.food_name.toUpperCase() : ''.toUpperCase();
+                const itemData = item.ingredient_name ? item.ingredient_name.toUpperCase() : ''.toUpperCase();
                 const textData = text.toUpperCase();
                 return itemData.indexOf(textData) > -1;
             })
@@ -93,7 +91,7 @@ export const SearchScreen = ({ navigation, route }) => {
                 </TouchableOpacity>
                 <SearchField
                     onChangeText={(text) => searchFilterFunction(text)}
-                    searchTitle="Find Your Food..."
+                    searchTitle="Find your ingredients..."
                 />
             </View>
             {/* handleOnchange(text, 'food_name') */}
@@ -102,20 +100,18 @@ export const SearchScreen = ({ navigation, route }) => {
                     return (
                         <TouchableOpacity
                             onPress={() => 
-                                navigation.navigate('OrchidDetail', {
-                                foodId: item.food_id,
-                                categoryData: categoryData,
-                                foodData: foodData
+                                navigation.navigate('IngredientDetail', {
+                                ingredientId: item.ingredient_id
                             })}
                         >
                             <View key={index} style={styles.itemContainer}>
                                 <Image
-                                    source={{ uri: item.food_image[0].image }}
+                                    source={{ uri: item.ingredient_image[0].image }}
                                     style={styles.image}
                                 />
                                 <View>
-                                    <Text style={styles.textName}>{item.food_name}</Text>
-                                    <Text style={styles.textCalo}>Calories: {item.calories}cal</Text>
+                                    <Text style={styles.textName}>{item.ingredient_name}</Text>
+                                    <Text style={styles.textCalo}>Category: {item.ingredient_cate_detail.cate_detail_name}</Text>
                                 </View>
                             </View>
                         </TouchableOpacity>

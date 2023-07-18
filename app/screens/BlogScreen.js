@@ -14,9 +14,6 @@ import SPACING from '../config/SPACING'
 import { BlurView } from 'expo-blur'
 import { Ionicons } from '@expo/vector-icons'
 import colors from '../config/colors'
-import SearchField from '../components/SearchField'
-import Categories from '../components/Categories'
-import orchids from '../config/orchids'
 import { useNavigation, useFocusEffect } from '@react-navigation/native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import categories from '../config/categories'
@@ -28,7 +25,7 @@ const avatar = require('../../assets/avatar.jpg')
 
 const { width } = Dimensions.get('window')
 
-const IngredientsScreen = ({ navigation }) => {
+const BlogScreen = ({ navigation }) => {
   const [ingreData, setIngreData] = useState([])
   const [categoriesData, setCategoriesData] = useState([])
   const [userInfo, setUserInfo] = useState({})
@@ -39,7 +36,7 @@ const IngredientsScreen = ({ navigation }) => {
         // Reset the navigation state to the initial route of the stack
         navigation.reset({
           index: 0,
-          routes: [{ name: 'IngredientsScreen' }],
+          routes: [{ name: 'Blog' }],
         })
       })
 
@@ -54,14 +51,6 @@ const IngredientsScreen = ({ navigation }) => {
     getFromStorage()
   }, [])
 
-  const getUserFromStorage = async () => {
-    try {
-      const user = await AsyncStorage.getItem('userData')
-      setUserInfo(JSON.parse(user))
-    } catch (error) {
-      console.error('Error getting user data from storage:', error)
-    }
-  }
   // // Get data from storage
   const getFromStorage = async () => {
     try {
@@ -85,6 +74,15 @@ const IngredientsScreen = ({ navigation }) => {
     }
   }
 
+  const getUserFromStorage = async () => {
+    try {
+      const user = await AsyncStorage.getItem('userData')
+      setUserInfo(JSON.parse(user))
+    } catch (error) {
+      console.error('Error getting user data from storage:', error)
+    }
+  }
+
   // Remove data from storage
   const removeDataFromStorage = async (itemId) => {
     try {
@@ -104,9 +102,9 @@ const IngredientsScreen = ({ navigation }) => {
 
   const getIngreData = async () => {
     try {
-      const res = await axiosInstance.get(`/ingredients`)
+      const res = await axiosInstance.get(`/blogs`)
       console.log(res?.data)
-      setIngreData(res?.data?.ingredients)
+      setIngreData(res?.data?.blogs)
     } catch (error) {
       console.log(error)
     }
@@ -128,8 +126,8 @@ const IngredientsScreen = ({ navigation }) => {
   console.log(categoriesData)
 
   const handleTextInputFocus = () => {
-    navigation.navigate('SearchIngredients');
-  };
+    navigation.navigate('SearchBlogs')
+  }
   return (
     <SafeAreaView style={{ backgroundColor: colors.dark, flex: 1 }}>
       <StatusBar backgroundColor={colors.primary} />
@@ -177,11 +175,7 @@ const IngredientsScreen = ({ navigation }) => {
               borderRadius: SPACING,
               marginLeft: SPACING * 5,
             }}
-          >
-            <Text style={{ color: colors.white, fontSize: SPACING * 2 }}>
-              Ingredient
-            </Text>
-          </View>
+          ></View>
           <View
             style={{
               width: SPACING * 4,
@@ -213,31 +207,31 @@ const IngredientsScreen = ({ navigation }) => {
         <View
           style={{
             borderRadius: SPACING,
-            overflow: "hidden",
+            overflow: 'hidden',
           }}
         >
           <BlurView
             intensity={30}
             style={{
-              alignItems: "center",
-              justifyContent: "center",
+              alignItems: 'center',
+              justifyContent: 'center',
             }}
           >
             <TextInput
               style={{
-                width: "100%",
+                width: '100%',
                 color: colors.white,
                 fontSize: SPACING * 1.7,
                 padding: SPACING,
                 paddingLeft: SPACING * 3.5,
               }}
-              placeholder="Find your ingredients..."
+              placeholder="Find your blog..."
               placeholderTextColor={colors.light}
               onFocus={handleTextInputFocus}
             />
             <Ionicons
               style={{
-                position: "absolute",
+                position: 'absolute',
                 left: SPACING,
               }}
               name="search"
@@ -246,143 +240,113 @@ const IngredientsScreen = ({ navigation }) => {
             />
           </BlurView>
         </View>
-        <Categories
-          let
-          titleColor="light"
-          onChange={(id) => setActiveCategoryId(id)}
-          inputData={categoriesData}
-        />
         <View
           style={{
             flexDirection: 'row',
             flexWrap: 'wrap',
             justifyContent: 'space-between',
             paddingBottom: SPACING * 4,
+            marginTop: SPACING * 2,
           }}
         >
-          {ingreData
-
-            ?.filter((orchid) => {
-              if (activeCategoryId === null) {
-                return true
-              } else if (activeCategoryId === "55f00386-b8f0-497f-9ed3-a41bae525de1") {
-                return true
-              }
-              return (
-                orchid.ingredient_cate_detail.cate_detail_id ===
-                activeCategoryId
-              )
-            })
-            .map((orchid) => (
-              <View
-                key={orchid.ingredient_id}
+          {ingreData.map((orchid) => (
+            <View
+              key={orchid.blog_id}
+              style={{
+                width: width - SPACING * 2,
+                marginBottom: SPACING,
+                borderRadius: SPACING,
+                justifyContent: 'center',
+                overflow: 'hidden',
+              }}
+            >
+              <BlurView
+                tint="dark"
+                intensity={95}
                 style={{
-                  width: width / 2 - SPACING * 2,
-                  marginBottom: SPACING,
-                  borderRadius: SPACING * 2,
-                  overflow: 'hidden',
+                  padding: SPACING,
                 }}
               >
-                <BlurView
-                  tint="dark"
-                  intensity={95}
+                <TouchableOpacity
+                  onPress={() =>
+                    navigation.navigate('BlogDetail', {
+                      ingredientId: orchid.blog_id,
+                    })
+                  }
                   style={{
-                    padding: SPACING,
+                    height: 150,
+                    width: '100%',
                   }}
                 >
-                  <TouchableOpacity
-                    onPress={() =>
-                      navigation.navigate('IngredientDetail', {
-                        ingredientId: orchid.ingredient_id,
-                      })
-                    }
+                  <Image
+                    source={{ uri: orchid.image }}
                     style={{
-                      height: 150,
                       width: '100%',
+                      height: '100%',
+                      borderRadius: SPACING,
                     }}
-                  >
-                    <Image
-                      source={{ uri: orchid.ingredient_image[0].image }}
+                  />
+                </TouchableOpacity>
+                <Text
+                  numberOfLines={2}
+                  style={{
+                    color: colors.white,
+                    fontWeight: '600',
+                    fontSize: SPACING * 1.7,
+                    marginTop: SPACING,
+                    marginBottom: SPACING / 2,
+                  }}
+                >
+                  {orchid.title}
+                </Text>
+                <View style={{flexDirection: 'row'}}>
+                <Text
+                      numberOfLines={1}
+                      style={{ color: colors.white, fontSize: SPACING * 1.5, marginRight: SPACING / 2}}
+                    >
+                      Create at: 
+                    </Text>
+                    <Text
+                      numberOfLines={1}
+                      style={{ color: colors.secondary, fontSize: SPACING * 1.2, marginTop: SPACING / 2.7 }}
+                    >
+                      {orchid.createdAt.substring(0, 10)}
+                    </Text>
+                </View>
+                <View
+                  style={{
+                    marginVertical: SPACING / 1.5,
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                  }}
+                >
+                  <View style={{ flexDirection: 'row' }}>
+                    <Text
                       style={{
-                        width: '100%',
-                        height: '100%',
-                        borderRadius: SPACING * 2,
-                      }}
-                    />
-                  </TouchableOpacity>
-                  <Text
-                    numberOfLines={2}
-                    style={{
-                      color: colors.white,
-                      fontWeight: '600',
-                      fontSize: SPACING * 1.7,
-                      marginTop: SPACING,
-                      marginBottom: SPACING / 2,
-                    }}
-                  >
-                    {orchid.ingredient_name}
-                  </Text>
-                  <Text
-                    numberOfLines={1}
-                    style={{ color: colors.secondary, fontSize: SPACING * 1.2 }}
-                  >
-                    {orchid.ingredient_cate_detail.cate_detail_name}
-                  </Text>
-                  <View
-                    style={{
-                      marginVertical: SPACING / 2,
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                    }}
-                  >
-                    <View style={{ flexDirection: 'row' }}>
-                      <Text
-                        style={{ color: colors.white, fontSize: SPACING * 1.6 }}
-                      >
-                        {orchid.price}
-                      </Text>
-                      <Text
-                        style={{
-                          color: colors.primary,
-                          marginRight: SPACING / 2,
-                          fontSize: SPACING * 1.6,
-                          marginLeft: SPACING / 2,
-                        }}
-                      >
-                        vnđ
-                      </Text>
-                    </View>
-                    <TouchableOpacity
-                      onPress={() => {
-                        const check = dataFav.find(
-                          (item) => item.ingredient_id === orchid.ingredient_id
-                        )
-                        console.log(orchid.ingredient_id)
-                        console.log('Check:', check)
-                        if (check) {
-                          removeDataFromStorage(orchid.ingredient_id)
-                        } else {
-                          setDataToStorage(orchid)
-                        }
+                        color: colors.primary,
+                        fontSize: SPACING * 1.6,
+
                       }}
                     >
-                      <Ionicons
-                        name="add-circle"
-                        size={SPACING * 3}
-                        color={colors.white}
-                      />
-                    </TouchableOpacity>
+                      Author:
+                    </Text>
+                    <Text
+                      style={{ color: colors.white, fontSize: SPACING * 1.6 }}
+                    >
+                      {orchid.blog_user.user_name}
+                    </Text>
                   </View>
-                </BlurView>
-              </View>
-            ))}
+                </View>
+              </BlurView>
+            </View>
+          ))}
         </View>
       </ScrollView>
     </SafeAreaView>
   )
 }
 
-export default IngredientsScreen
+export default BlogScreen
 
 // const styles = StyleSheet.create({})

@@ -11,12 +11,13 @@ import {
   View,
 } from 'react-native'
 import React, { useState, useEffect } from 'react'
-import { useNavigation } from '@react-navigation/native'
+import { useNavigation, useFocusEffect, useIsFocused } from '@react-navigation/native'
 import { Ionicons } from '@expo/vector-icons'
 import colors from '../config/colors'
 import SPACING from '../config/SPACING'
 import { BlurView } from 'expo-blur'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import axiosInstance from '../../util/axiosWrapper'
 const { height, width } = Dimensions.get('window')
 
 const sizes = ['S', 'M', 'L']
@@ -25,16 +26,18 @@ const OrchidDetailsScreen = ({ route }) => {
   const navigation = useNavigation()
   const { foodData, categoryData, foodId } = route.params
   const food = foodData.find((food) => food.food_id === foodId)
+  const [sameCateData, setSameCateData] = useState([])
   const [activeSize, setActiveSize] = useState(null)
+  const [fData, setFoodData] = useState()
   const [dataFav, setDataFav] = useState([])
-  useEffect(() => {
-    getFromStorage()
-  }, [])
+  const sameCateId = food?.food_cate_detail.cate_detail_id
+  
   //Get data from storage
   const getFromStorage = async () => {
     const data = await AsyncStorage.getItem('favorite')
     setDataFav(data != null ? JSON.parse(data) : [])
   }
+
   //Set data from storage
   const setDataToStorage = async () => {
     let list
@@ -54,11 +57,45 @@ const OrchidDetailsScreen = ({ route }) => {
     setDataFav(list)
   }
 
+  const getFoodData = async (foodId) => {
+    try {
+      const res = await axiosInstance.get(`/foods/${foodId}`)
+      console.log(res?.data)
+      console.log(1)
+      setFoodData(res.data.food)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const getSameCategoryFoods = async (sameCateId) => {
+    try {
+      const res = await axiosInstance.get(
+        `/foods?cate_detail_id=${sameCateId}`
+      )
+      console.log('123123123123123123123213123' ,res?.data.foods)
+      setSameCateData(
+        res?.data?.foods?.filter(
+          (item) => item?.food_id !== foodId
+        )
+      )
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   const getCategoryName = (categoryId) => {
     const category = categoryData.find((category) => category.cate_detail_id === categoryId)
     return category ? category.cate_detail_name : ''
   }
 
+  useEffect(() => {
+    if(foodId) {
+      getSameCategoryFoods(sameCateId)
+      getFromStorage()
+    }
+    
+  }, [foodId, sameCateId])
   return (
     <>
       <ScrollView>
@@ -163,21 +200,6 @@ const OrchidDetailsScreen = ({ route }) => {
                     {food.food_name}
                   </Text>
                 </View>
-                <View style={{ flexDirection: 'row', marginTop: SPACING }}>
-                  <Ionicons
-                    name="star"
-                    size={SPACING * 1.5}
-                    color={colors.primary}
-                  />
-                  <Text
-                    style={{
-                      color: colors.white,
-                      marginLeft: SPACING,
-                    }}
-                  >
-                    {/* {orchid.rating} */}
-                  </Text>
-                </View>
               </View>
             </View>
             <Text
@@ -242,7 +264,96 @@ const OrchidDetailsScreen = ({ route }) => {
                 </View>
               ))}
             </View>
+            {sameCateData.length !== 0 ? (
+              <View style={{ flexDirection: 'row', marginTop: SPACING }}>
+                <Text
+                  style={{
+                    color: colors['white-smoke'],
+                    fontSize: SPACING * 1.7,
+                    marginBottom: SPACING,
+                  }}
+                >
+                  Related foods
+                </Text>
+                <Ionicons
+                  style={{
+                    marginLeft: SPACING / 2,
+                  }}
+                  name="star"
+                  color={colors.primary}
+                  size={SPACING * 1.7}
+                />
+              </View>
+            ) : (
+              <Text>''</Text>
+            )}
 
+            <ScrollView horizontal>
+              {sameCateData.map((orchid) => (
+                <View
+                  key={orchid.food_id}
+                  style={{
+                    width: width / 2 - SPACING * 2,
+                    marginBottom: SPACING,
+                    borderRadius: SPACING * 2,
+                    overflow: 'hidden',
+                    marginRight: SPACING,
+                  }}
+                >
+                  <BlurView
+                    tint="dark"
+                    intensity={95}
+                    style={{
+                      padding: SPACING,
+                    }}
+                  >
+                    <TouchableOpacity
+                      onPress={() =>
+                        navigation.navigate('OrchidDetail', {
+                          foodId: orchid.food_id,
+                          categoryData: categoryData,
+                          foodData: foodData
+                        })
+                      }
+                      style={{
+                        height: 150,
+                        width: '100%',
+                      }}
+                    >
+                      <Image
+                        source={{ uri: orchid.food_image[0].image }}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          borderRadius: SPACING * 2,
+                        }}
+                      />
+                    </TouchableOpacity>
+                    <Text
+                      numberOfLines={1}
+                      style={{
+                        color: colors.white,
+                        fontWeight: '600',
+                        fontSize: SPACING * 1.7,
+                        marginTop: SPACING,
+                        marginBottom: SPACING / 2,
+                      }}
+                    >
+                      {orchid.food_name}
+                    </Text>
+                    <Text
+                      numberOfLines={1}
+                      style={{
+                        color: colors.secondary,
+                        fontSize: SPACING * 1.2,
+                      }}
+                    >
+                      {orchid.food_cate_detail.cate_detail_name}
+                    </Text>
+                  </BlurView>
+                </View>
+              ))}
+            </ScrollView>              
           </View>
         </SafeAreaView>
       </ScrollView>

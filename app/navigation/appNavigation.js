@@ -9,6 +9,7 @@ import FavoriteScreen from '../screens/FavoriteScreen'
 import IngredientsScreen from '../screens/IngredientsScreen'
 import Setting from '../screens/Setting'
 import ShoppingListScreen from '../screens/ShoppingListScreen'
+import BlogScreen from '../screens/BlogScreen'
 
 const Tab = createBottomTabNavigator()
 
@@ -33,8 +34,8 @@ const AppNavigation = () => {
         }}
       />
       <Tab.Screen
-        name="IngredientsScreen"
-        component={IngredientsScreen}
+        name="Blogs"
+        component={BlogScreen}
         options={{
           unmountOnBlur: true,
           tabBarIcon: ({ color }) => (
