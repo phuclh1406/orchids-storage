@@ -16,9 +16,9 @@ const Categories = ({ onChange, inputData }) => {
   const [isCategoryActive, setIsCategoryActive] = useState(false);
 
 
-  const handlePress = (id) => {
-    setActiveCategoryId(id);
-    onChange(id);
+  const handlePress = (cate_detail_id) => {
+    setActiveCategoryId(cate_detail_id);
+    onChange(cate_detail_id);
   };
 
   return (

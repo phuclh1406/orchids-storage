@@ -28,7 +28,7 @@ axiosInstance.interceptors.response.use(
     console.log('axiosInstance.interceptors.response.use', {
       error: JSON.stringify(error),
     })
-    if (error.response.status === 401) {
+    if (error?.response?.status === 401) {
       console.log('error')
     } else {
       return Promise.reject(error)

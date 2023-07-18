@@ -13,8 +13,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import Loader from './app/components/Loader'
 import { AuthProvider } from './app/context/AuthContext'
 import IngredientDetailScreen from './app/screens/IngredientDetailScreen'
+<<<<<<< HEAD
 import ShoppingListScreen from './app/screens/ShoppingListScreen'
 // AsyncStorage.removeItem('userData')
+=======
+import { SearchScreen } from './app/screens/SearchScreen'
+AsyncStorage.removeItem('userData')
+>>>>>>> 944d51a47399dbb4006ed474b0243463f6bf5798
 
 const Stack = createStackNavigator()
 const App = () => {
@@ -29,9 +34,8 @@ const App = () => {
   const authUser = async () => {
     try {
       let userData = await AsyncStorage.getItem('userData')
-      console.log(userData)
-      userData = JSON.parse(userData)
-      if (userData) {
+      parseUserData = JSON.parse(userData)
+      if (parseUserData) {
         setInitialRouteName('Home')
       } else {
         setInitialRouteName('LoginScreen')
@@ -67,6 +71,7 @@ const App = () => {
                   name="RegistrationScreen"
                   component={RegistrationScreen}
                 />
+                <Stack.Screen name="SearchHome" component={SearchScreen} />
                 <Stack.Screen name="LoginScreen" component={LoginScreen} />
                 <Stack.Screen name="IngredientsScreen" component={AppNavigation} />
                 <Stack.Screen name="IngredientDetail" component={IngredientDetailScreen} />

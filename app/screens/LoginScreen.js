@@ -20,7 +20,11 @@ const LoginScreen = ({ navigation }) => {
     if (!inputs.email) {
       handleError('Please input email', 'email')
       isValid = false
+    } else if (!inputs.email.match(/\S+@\S+\.\S+/)) {
+      handleError('Please input a valid email', 'email')
+      isValid = false
     }
+    
     if (!inputs.password) {
       handleError('Please input password', 'password')
       isValid = false
@@ -75,6 +79,7 @@ const LoginScreen = ({ navigation }) => {
     if (isNavigate) {
       navigation.navigate('Home')
     }
+    console.log('Home');
   }, [isNavigate, navigation])
 
   return (

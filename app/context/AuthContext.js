@@ -13,7 +13,7 @@ export const AuthProvider = ({ children }) => {
   const [isNavigate, setIsNavigate] = useState(false)
   //   const [splashLoading, setSplashLoading] = useState(false);
 
-  const register = (email, password, confirm_pass) => {
+  const register = (email, password, confirm_pass, role_id) => {
     setIsLoading(true)
 
     axios
@@ -21,14 +21,19 @@ export const AuthProvider = ({ children }) => {
         email,
         password,
         confirm_pass,
+        role_id
       })
       .then((res) => {
         let userInfo = res.data
-        setUserInfo(userInfo)
-        // AsyncStorage.setItem('userInfo', JSON.stringify(userInfo));
-        setIsLoading(false)
-        setIsNavigate(true)
-        console.log(userInfo)
+        if (userInfo.mes == 'Email has already used') {
+          Alert.alert('Error', 'Email has already used')
+          setIsLoading(false)
+          setIsNavigate(false)
+        } else {
+          setUserInfo(userInfo)
+          setIsLoading(false)
+          setIsNavigate(true)
+        }
       })
       .catch((e) => {
         console.log(`Register error ${e}`)
@@ -48,7 +53,6 @@ export const AuthProvider = ({ children }) => {
       .then((res) => {
         if (res.data) {
           let userInfo = res.data
-          console.log(userInfo)
           setUserInfo(userInfo)
           setIsNavigate(true)
           AsyncStorage.setItem('userData', JSON.stringify(userInfo))

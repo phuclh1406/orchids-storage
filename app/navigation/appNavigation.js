@@ -55,9 +55,15 @@ const AppNavigation = () => {
           headerShown: false
         }}
       />
+<<<<<<< HEAD
       <Tab.Screen
         name="ShoppingList"
         component={ShoppingListScreen}
+=======
+      {/* <Tab.Screen
+        name="Setting"
+        component={}
+>>>>>>> 944d51a47399dbb4006ed474b0243463f6bf5798
         options={{
           unmountOnBlur: true,
           tabBarIcon: ({color}) => (
@@ -66,7 +72,7 @@ const AppNavigation = () => {
           tabBarStyle: {backgroundColor: colors.dark, borderTopWidth: 0},
           headerShown: false
         }}
-      />
+      /> */}
     </Tab.Navigator>
   );
 };
