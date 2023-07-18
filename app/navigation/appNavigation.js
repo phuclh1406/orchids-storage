@@ -9,16 +9,6 @@ import FavoriteScreen from '../screens/FavoriteScreen'
 import IngredientsScreen from '../screens/IngredientsScreen'
 import Setting from '../screens/Setting'
 import ShoppingListScreen from '../screens/ShoppingListScreen'
-import 'react-native-gesture-handler';
-import React from 'react';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import Icon from 'react-native-vector-icons/MaterialIcons';
-import colors from '../config/colors';
-import {View, Dimensions} from 'react-native';
-import HomeScreen from '../screens/HomeScreen';
-import FavoriteScreen from '../screens/FavoriteScreen';
-import IngredientsScreen from '../screens/IngredientsScreen';
-import Setting from '../screens/Setting';
 
 const Tab = createBottomTabNavigator()
 
