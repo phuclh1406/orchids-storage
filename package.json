@@ -12,7 +12,6 @@
   "lint:fix": "eslint './src/**/*.{js,jsx}' --fix",
   "dependencies": {
     "@react-native-async-storage/async-storage": "~1.17.3",
-    "@react-native-community/checkbox": "^0.5.16",
     "@react-navigation/bottom-tabs": "^6.5.8",
     "@react-navigation/native": "^6.1.7",
     "@react-navigation/native-stack": "^6.9.13",
@@ -27,11 +26,7 @@
     "react-native-heroicons": "^3.2.0",
     "react-native-safe-area-context": "4.4.1",
     "react-native-screens": "~3.18.0",
-<<<<<<< HEAD
-    "expo-checkbox": "~2.2.2"
-=======
     "react-native-snap-carousel": "^4.0.0-beta.6"
->>>>>>> 944d51a47399dbb4006ed474b0243463f6bf5798
   },
   "devDependencies": {
     "@babel/core": "^7.19.3",
