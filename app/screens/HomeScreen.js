@@ -106,7 +106,7 @@ const HomeScreen = ({ navigation }) => {
   const getFoodData = async () => {
     setIsLoading(true);
     try {
-      const res = await axiosInstance.get(`/foods`)
+      const res = await axiosInstance.get("/foods")
       // console.log(res?.data)
       setFoodData(res?.data?.foods)
       await AsyncStorage.setItem('foodData', JSON.stringify(res?.data?.foods))
@@ -120,7 +120,7 @@ const HomeScreen = ({ navigation }) => {
 
   const getCategoryData = async () => {
     try {
-      const res = await axiosInstance.get(`/categories_detail?cate_id=6e3f5b3b-df19-4776-a7cc-92b0a0a3ce1d`)
+      const res = await axiosInstance.get("/categories_detail?cate_id=6e3f5b3b-df19-4776-a7cc-92b0a0a3ce1d")
       setCategoryData(res?.data?.categories_detail?.rows)
     } catch (error) {
       console.log(error)

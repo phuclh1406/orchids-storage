@@ -15,7 +15,7 @@ import { AuthProvider } from './app/context/AuthContext'
 import IngredientDetailScreen from './app/screens/IngredientDetailScreen'
 import ShoppingListScreen from './app/screens/ShoppingListScreen'
 import { SearchScreen } from './app/screens/SearchScreen'
-// AsyncStorage.removeItem('userData')
+AsyncStorage.removeItem('userData')
 
 const Stack = createStackNavigator()
 const App = () => {
