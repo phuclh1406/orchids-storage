@@ -9,6 +9,7 @@ import {
   Dimensions,
   Alert,
   ActivityIndicator,
+  TextInput,
 } from 'react-native'
 import React, { useState, useEffect, useContext } from 'react'
 import SPACING from '../config/SPACING'
@@ -224,7 +225,9 @@ const ShoppingListScreen = ({ navigation }) => {
       <ScrollView
         style={{
           paddingHorizontal: SPACING,
-          overflow: 'visible'
+          overflow: 'visible',
+          padding: SPACING,
+          paddingTop: SPACING * 4,
         }}
       >
         <View
@@ -298,7 +301,41 @@ const ShoppingListScreen = ({ navigation }) => {
           </View>
         </View>
         {/* <View style={{ width: "80%", marginVertical: SPACING }}></View> */}
-        <SearchField />
+        <View
+          style={{
+            borderRadius: SPACING,
+            overflow: "hidden",
+          }}
+        >
+          <BlurView
+            intensity={30}
+            style={{
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <TextInput
+              style={{
+                width: "100%",
+                color: colors.white,
+                fontSize: SPACING * 1.7,
+                padding: SPACING,
+                paddingLeft: SPACING * 3.5,
+              }}
+              placeholder="Find Your Ingredient..."
+              placeholderTextColor={colors.light}
+            />
+            <Ionicons
+              style={{
+                position: "absolute",
+                left: SPACING,
+              }}
+              name="search"
+              color={colors.light}
+              size={SPACING * 2}
+            />
+          </BlurView>
+        </View>
         <Categories
           let
           titleColor="light"

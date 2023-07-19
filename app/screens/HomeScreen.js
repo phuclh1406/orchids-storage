@@ -176,19 +176,7 @@ const HomeScreen = ({ navigation }) => {
               />
             </BlurView>
           </TouchableOpacity>
-          <View
-            style={{
-              width: SPACING * 15,
-              height: SPACING * 4,
-              overflow: 'hidden',
-              marginTop: SPACING / 2,
-              borderRadius: SPACING,
-            }}
-          >
-            <Text style={{ color: colors.white, fontSize: SPACING * 2 }}>
-              Home Screen
-            </Text>
-          </View>
+          
           <View
             style={{
               width: SPACING * 4,

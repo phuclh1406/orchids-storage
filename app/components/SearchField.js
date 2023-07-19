@@ -13,7 +13,7 @@ const SearchField = ({onChangeText}) => {
       style={{
         borderRadius: SPACING,
         overflow: "hidden",
-        width: 300
+        width: 350
       }}
     >
       <BlurView

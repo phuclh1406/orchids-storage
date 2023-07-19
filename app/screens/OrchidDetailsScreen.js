@@ -1,8 +1,12 @@
 import {
+  Alert,
+  Button,
   Dimensions,
   FlatList,
   Image,
   ImageBackground,
+  Modal,
+  Platform,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -17,7 +21,9 @@ import colors from '../config/colors'
 import SPACING from '../config/SPACING'
 import { BlurView } from 'expo-blur'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import moment from 'moment'
 const { height, width } = Dimensions.get('window')
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 const sizes = ['S', 'M', 'L']
 
@@ -25,8 +31,19 @@ const OrchidDetailsScreen = ({ route }) => {
   const navigation = useNavigation()
   const { foodData, categoryData, foodId } = route.params
   const food = foodData.find((food) => food.food_id === foodId)
-  const [activeSize, setActiveSize] = useState(null)
   const [dataFav, setDataFav] = useState([])
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [scheduleSangData, setScheduleSangData] = useState([]);
+  const [scheduleTruaData, setScheduleTruaData] = useState([]);
+  const [scheduleToiData, setScheduleToiData] = useState([]);
+  const [date, setDate] = useState(new Date());
+  const [dateSchedule, setDateSchedule] = useState(moment().startOf('day'));
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
+  const toggleModal = () => {
+    setModalVisible(!isModalVisible);
+  };
+
   useEffect(() => {
     getFromStorage()
   }, [])
@@ -47,6 +64,67 @@ const OrchidDetailsScreen = ({ route }) => {
     }
     setDataFav(list)
   }
+
+  //Set data from schedule
+  const setDataToSchedule = async (timetable) => {
+    let list;
+    if (timetable == 'sang') {
+      console.log(timetable);
+      const check = scheduleSangData.find((item) => item.food_id === food.food_id);
+      if (check) {
+        Alert.alert('Food Already Added', 'This food is already added to the schedule.');
+        return;
+      } else {
+        if (scheduleSangData == []) {
+          list = [food]
+          await AsyncStorage.setItem(`schedule_${dateSchedule}_${timetable}`, JSON.stringify(list))
+          console.log('siuu', `schedule_${dateSchedule}_${timetable}`);
+        } else {
+          list = [...scheduleSangData, food]
+          await AsyncStorage.setItem(`schedule_${dateSchedule}_${timetable}`, JSON.stringify(list))
+          console.log('siuu', `schedule_${dateSchedule}_${timetable}`);
+        }
+        setScheduleSangData(list)
+      }
+    } else if (timetable == 'trua') {
+      console.log(timetable);
+      const check = scheduleTruaData.find((item) => item.food_id === food.food_id);
+      if (check) {
+        Alert.alert('Food Already Added', 'This food is already added to the schedule.');
+        return;
+      } else {
+        if (scheduleTruaData == []) {
+          list = [food]
+          await AsyncStorage.setItem(`schedule_${dateSchedule}_${timetable}`, JSON.stringify(list))
+          console.log('siuu', `schedule_${dateSchedule}_${timetable}`);
+        } else {
+          list = [...scheduleTruaData, food]
+          await AsyncStorage.setItem(`schedule_${dateSchedule}_${timetable}`, JSON.stringify(list))
+          console.log('siuu', `schedule_${dateSchedule}_${timetable}`);
+        }
+        setScheduleTruaData(list)
+      }
+    } else {
+      console.log(timetable);
+      const check = scheduleToiData.find((item) => item.food_id === food.food_id);
+      if (check) {
+        Alert.alert('Food Already Added', 'This food is already added to the schedule.');
+        return;
+      } else {
+        if (scheduleToiData == []) {
+          list = [food]
+          await AsyncStorage.setItem(`schedule_${dateSchedule}_${timetable}`, JSON.stringify(list))
+          console.log('siuu', `schedule_${dateSchedule}_${timetable}`);
+        } else {
+          list = [...scheduleToiData, food]
+          await AsyncStorage.setItem(`schedule_${dateSchedule}_${timetable}`, JSON.stringify(list))
+          console.log('siuu', `schedule_${dateSchedule}_${timetable}`);
+        }
+        setScheduleToiData(list)
+      }
+    }
+  }
+
   //Remove data from storage
   const removeDataFromStorage = async () => {
     const list = dataFav.filter((item) => item.food_id !== food.food_id)
@@ -59,8 +137,84 @@ const OrchidDetailsScreen = ({ route }) => {
     return category ? category.cate_detail_name : ''
   }
 
+  const showDatepicker = () => {
+    setShowDatePicker(true);
+  };
+
+  const handleDateChange = (event, selectedDate) => {
+    const currentDate = selectedDate || date;
+    const realDate = new Date(currentDate).toLocaleDateString()
+    setShowDatePicker(Platform.OS === 'ios');
+    setDate(currentDate);
+    setDateSchedule(realDate);
+  };
+
+  const minimumDate = moment().subtract(2, 'months').toDate();
+  const maximumDate = moment().add(2, 'months').toDate();
+
   return (
     <>
+      <Modal visible={isModalVisible} transparent={true}>
+        <View style={styles.modalBackGround}>
+          <View style={styles.modalContainer}>
+            <View style={{
+              width: '100%',
+              backgroundColor: 'white',
+              paddingHorizontal: 20,
+              paddingVertical: 10,
+              borderRadius: 20,
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginTop: 10
+            }}>
+              <Button onPress={showDatepicker} title="Select Date" />
+              {showDatePicker && (
+                <DateTimePicker
+                  value={date}
+                  mode="date" // Use 'calendar' mode for Android
+                  display="default" // Use 'spinner' display for Android
+                  onChange={handleDateChange}
+                  minimumDate={minimumDate}
+                  maximumDate={maximumDate}
+                />
+              )}
+            </View>
+            <View style={styles.modalClick}>
+              <TouchableOpacity onPress={() => {
+                const timetable = 'sang';
+                setDataToSchedule(timetable);
+                toggleModal();
+              }}>
+                <Text style={{ fontWeight: 'bold' }}>Chọn cho bữa sáng</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.modalClick}>
+              <TouchableOpacity onPress={() => {
+                const timetable = 'trua';
+                setDataToSchedule(timetable);
+                toggleModal();
+              }}>
+                <Text style={{ fontWeight: 'bold' }}>Chọn cho bữa trưa</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.modalClick}>
+              <TouchableOpacity onPress={() => {
+                const timetable = 'toi';
+                setDataToSchedule(timetable);
+                toggleModal();
+              }}>
+                <Text style={{ fontWeight: 'bold' }}>Chọn cho bữa tối</Text>
+              </TouchableOpacity>
+            </View>
+            <TouchableOpacity style={styles.header} onPress={toggleModal}>
+              <Ionicons
+                name="close-outline"
+                size={SPACING * 3}
+              />
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
       <ScrollView>
         <SafeAreaView>
           <ImageBackground
@@ -275,26 +429,29 @@ const OrchidDetailsScreen = ({ route }) => {
             </Text>
           </View>
         </View>
-        <View
-          style={{
-            marginRight: SPACING,
-            backgroundColor: colors.primary,
-            width: width / 2 + SPACING * 3,
-            justifyContent: 'center',
-            alignItems: 'center',
-            borderRadius: SPACING * 2,
-          }}
-        >
-          <Text
+        <TouchableOpacity onPress={toggleModal}>
+          <View
             style={{
-              color: colors.white,
-              fontSize: SPACING * 2,
-              fontWeight: '700',
+              marginRight: SPACING,
+              backgroundColor: colors.primary,
+              width: width / 2 + SPACING * 3,
+              justifyContent: 'center',
+              alignItems: 'center',
+              borderRadius: SPACING * 2,
+              padding: 20
             }}
           >
-            {getCategoryName(food.food_cate_detail.cate_detail_id)}
-          </Text>
-        </View>
+            <Text
+              style={{
+                color: colors.white,
+                fontSize: SPACING * 2,
+                fontWeight: '700',
+              }}
+            >
+              Chọn cho thực đơn
+            </Text>
+          </View>
+        </TouchableOpacity>
       </SafeAreaView>
     </>
   )
@@ -302,4 +459,37 @@ const OrchidDetailsScreen = ({ route }) => {
 
 export default OrchidDetailsScreen
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+  modalBackGround: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContainer: {
+    width: '80%',
+    backgroundColor: 'white',
+    paddingHorizontal: 20,
+    paddingVertical: 30,
+    borderRadius: 20,
+    elevation: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  header: {
+    position: 'absolute',
+    top: 5,
+    right: 10
+  },
+  modalClick: {
+    width: '100%',
+    backgroundColor: 'white',
+    paddingHorizontal: 20,
+    paddingVertical: 30,
+    borderRadius: 20,
+    elevation: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 10
+  }
+
+});

@@ -8,6 +8,7 @@ import HomeScreen from '../screens/HomeScreen'
 import FavoriteScreen from '../screens/FavoriteScreen'
 import IngredientsScreen from '../screens/IngredientsScreen'
 import Setting from '../screens/Setting'
+import  ScheduleScreen  from '../screens/ScheduleScreen'
 import ShoppingListScreen from '../screens/ShoppingListScreen'
 
 const Tab = createBottomTabNavigator()
@@ -46,6 +47,19 @@ const AppNavigation = () => {
       />
 
       <Tab.Screen
+        name="Schedule"
+        component={ScheduleScreen}
+        options={{
+          unmountOnBlur: true,
+          tabBarIcon: ({ color }) => (
+            <Icon name="schedule" color={color} size={28} />
+          ),
+          tabBarStyle: { backgroundColor: colors.dark, borderTopWidth: 0 },
+          headerShown: false,
+        }}
+      />
+
+      <Tab.Screen
         name="FavoriteScreen"
         component={FavoriteScreen}
         options={{
@@ -63,19 +77,7 @@ const AppNavigation = () => {
         options={{
           unmountOnBlur: true,
           tabBarIcon: ({ color }) => (
-            <Icon name="settings" color={color} size={28} />
-          ),
-          tabBarStyle: { backgroundColor: colors.dark, borderTopWidth: 0 },
-          headerShown: false,
-        }}
-      />
-      <Tab.Screen
-        name="Setting"
-        component={Setting}
-        options={{
-          unmountOnBlur: true,
-          tabBarIcon: ({ color }) => (
-            <Icon name="settings" color={color} size={28} />
+            <Icon name="shopping-cart" color={color} size={28} />
           ),
           tabBarStyle: { backgroundColor: colors.dark, borderTopWidth: 0 },
           headerShown: false,

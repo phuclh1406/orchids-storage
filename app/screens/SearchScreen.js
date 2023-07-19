@@ -76,7 +76,7 @@ export const SearchScreen = ({ navigation, route }) => {
     return (
         <SafeAreaView style={{ backgroundColor: colors.dark, flex: 1, marginTop: 50 }}>
             <StatusBar backgroundColor={colors.primary} />
-            <View style={{ marginHorizontal: 10, flexDirection: 'row' }}>
+            <View style={{ marginTop: 10, flexDirection: 'row', marginBottom: 15}}>
                 <TouchableOpacity
                     onPress={() => navigation.goBack()}
                     style={{
@@ -107,16 +107,18 @@ export const SearchScreen = ({ navigation, route }) => {
                                 foodData: foodData
                             })}
                         >
-                            <View key={index} style={styles.itemContainer}>
+                            <View style={styles.line}></View>
+                            <View key={item.food_id} style={styles.itemContainer}>
                                 <Image
                                     source={{ uri: item.food_image[0].image }}
                                     style={styles.image}
                                 />
                                 <View>
-                                    <Text style={styles.textName}>{item.food_name}</Text>
+                                    <Text style={styles.textName} numberOfLines={1} >{item.food_name}</Text>
                                     <Text style={styles.textCalo}>Calories: {item.calories}cal</Text>
                                 </View>
                             </View>
+                            
                         </TouchableOpacity>
 
                     )
@@ -140,7 +142,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         marginLeft: 10,
-        marginTop: 10
+        marginVertical: 15
     },
     image: {
         width: 50,
@@ -151,11 +153,17 @@ const styles = StyleSheet.create({
         fontSize: 17,
         marginLeft: 10,
         fontWeight: '600',
-        color: 'white'
+        color: 'white',
+        width: 320
     },
     textCalo: {
         fontSize: 12,
         marginLeft: 10,
         color: 'grey'
+    },
+    line: {
+        height: 1,
+        width: '100%',
+        backgroundColor: 'white'
     }
 })
