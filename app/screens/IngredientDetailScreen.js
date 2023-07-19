@@ -241,7 +241,7 @@ const IngredientDetailScreen = ({ route }) => {
                     marginBottom: SPACING,
                   }}
                 >
-                  Recommend
+                  Related ingredients
                 </Text>
                 <Ionicons
                   style={{

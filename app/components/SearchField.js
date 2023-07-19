@@ -7,7 +7,7 @@ import SPACING from "../config/SPACING";
 import { Ionicons } from "@expo/vector-icons";
 
 
-const SearchField = ({onChangeText}) => {
+const SearchField = ({onChangeText, searchTitle}) => {
   return (
     <View
       style={{
@@ -33,7 +33,7 @@ const SearchField = ({onChangeText}) => {
             padding: SPACING,
             paddingLeft: SPACING * 3.5,
           }}
-          placeholder="Find Your Food..."
+          placeholder={searchTitle}
           placeholderTextColor={colors.light}
           onChangeText={onChangeText}
         />

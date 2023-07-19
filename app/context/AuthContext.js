@@ -13,15 +13,15 @@ export const AuthProvider = ({ children }) => {
   const [isNavigate, setIsNavigate] = useState(false)
   //   const [splashLoading, setSplashLoading] = useState(false);
 
-  const register = (email, password, confirm_pass, role_id) => {
+  const register = async (email, password, confirm_pass, role_id) => {
     setIsLoading(true)
 
-    axios
+    await axios
       .post(`${BASE_URL}/auth/register`, {
         email,
         password,
         confirm_pass,
-        role_id
+        role_id,
       })
       .then((res) => {
         let userInfo = res.data

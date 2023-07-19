@@ -66,6 +66,7 @@ const ShoppingListScreen = ({ navigation }) => {
   const [dataBuy, setDataBuy] = useState([])
   const [dataWaiting, setDataWaiting] = useState([])
   const [isLoading, setIsLoading] = useState(true)
+  const [userInfo, setUserInfo] = useState({})
 
   const getFromStorage = async () => {
     if (isFocused) {
@@ -92,6 +93,15 @@ const ShoppingListScreen = ({ navigation }) => {
       } finally {
         setIsLoading(false)
       }
+    }
+  }
+
+  const getUserFromStorage = async () => {
+    try {
+      const user = await AsyncStorage.getItem('userData')
+      setUserInfo(JSON.parse(user))
+    } catch (error) {
+      console.error('Error getting user data from storage:', error)
     }
   }
 
@@ -133,8 +143,14 @@ const ShoppingListScreen = ({ navigation }) => {
             const list = favoriteOrchidsList.filter(
               (item) => item.ingredient_id !== id
             )
+            const list1 = dataBuy.filter(
+              (item) => item.ingredient_id !== id
+            )
             await AsyncStorage.setItem('shoppingList', JSON.stringify(list))
+            await AsyncStorage.setItem('buyList', JSON.stringify(list1))
+            setDataBuy(list1)
             setFavoriteOrchidsList(list)
+            
           },
         },
       ]
@@ -143,8 +159,8 @@ const ShoppingListScreen = ({ navigation }) => {
 
   function handleDeleteAllItem() {
     Alert.alert(
-      'Confirm removing all of your favorite orchids',
-      'You can not recover your favorites orchid after removing them!',
+      'Confirm removing all of your shopping list',
+      'You can not recover your shopping list after removing it!',
       [
         {
           text: 'Cancel',
@@ -172,30 +188,6 @@ const ShoppingListScreen = ({ navigation }) => {
       console.log(error)
     }
   }
-
-  function handleDeleteBuyItemFromStorage(id) {
-    Alert.alert(
-      'Confirm removing this item?',
-      'You can not recover your item after removing it!',
-      [
-        {
-          text: 'Cancel',
-          onPress: () => {},
-        },
-        {
-          text: 'Yes, I confirm',
-          onPress: async () => {
-            const list = dataBuy.filter(
-              (item) => item.ingredient_id !== id
-            )
-            await AsyncStorage.setItem('buyList', JSON.stringify(list))
-            setDataBuy(list)
-          },
-        },
-      ]
-    )
-  }
-
   const removeBuyDataFromStorage = async (itemId) => {
     try {
       const list = dataBuy.filter((item) => item.ingredient_id !== itemId)
@@ -210,6 +202,7 @@ const ShoppingListScreen = ({ navigation }) => {
     getFromStorage()
     getBuyFromStorage()
     getCategoriesData()
+    getUserFromStorage()
   }, [isFocused])
   console.log(categoriesData)
 
@@ -220,7 +213,7 @@ const ShoppingListScreen = ({ navigation }) => {
       )
   )
   return (
-    <SafeAreaView style={{ backgroundColor: colors.dark, flex: 1}}>
+    <SafeAreaView style={{ backgroundColor: colors.dark, flex: 1 }}>
       <StatusBar backgroundColor={colors.primary} />
       <ScrollView
         style={{
@@ -234,7 +227,7 @@ const ShoppingListScreen = ({ navigation }) => {
           style={{
             flexDirection: 'row',
             justifyContent: 'space-between',
-            paddingBottom: SPACING * 2,                   
+            paddingBottom: SPACING * 2,
           }}
         >
           <TouchableOpacity
@@ -294,7 +287,7 @@ const ShoppingListScreen = ({ navigation }) => {
                     width: '100%',
                     borderRadius: SPACING,
                   }}
-                  source={avatar}
+                  source={{ uri: userInfo?.user?.avatar }}
                 />
               </TouchableOpacity>
             </BlurView>
@@ -343,32 +336,34 @@ const ShoppingListScreen = ({ navigation }) => {
           inputData={categoriesData}
         />
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          
-          {favoriteOrchidsList.length > 1 ? (<TouchableOpacity
-            onPress={() => handleDeleteAllItem()}
-            style={{
-              marginRight: SPACING * 5,
-              backgroundColor: colors.primary,
-              width: width / 2 - SPACING * 2.5,
-              height: SPACING * 5,
-              justifyContent: 'center',
-              alignItems: 'center',
-              borderRadius: SPACING / 2,
-              marginTop: SPACING,
-            }}
-          >
-         
-            <Text
+          {favoriteOrchidsList.length > 1 ? (
+            <TouchableOpacity
+              onPress={() => handleDeleteAllItem()}
               style={{
-                color: colors.white,
-                fontSize: SPACING * 2,
-                fontWeight: '500',
+                marginRight: SPACING * 5,
+                backgroundColor: colors.primary,
+                width: width / 2 - SPACING * 2.5,
+                height: SPACING * 5,
+                justifyContent: 'center',
+                alignItems: 'center',
+                borderRadius: SPACING / 2,
+                marginTop: SPACING,
               }}
             >
-              Clear all
-            </Text>
-          </TouchableOpacity>) : (<Text>''</Text>)}
-          
+              <Text
+                style={{
+                  color: colors.white,
+                  fontSize: SPACING * 2,
+                  fontWeight: '500',
+                }}
+              >
+                Clear all
+              </Text>
+            </TouchableOpacity>
+          ) : (
+            <Text>''</Text>
+          )}
+
           <Text
             style={{
               color: colors['white-smoke'],
@@ -593,6 +588,8 @@ const ShoppingListScreen = ({ navigation }) => {
               .filter((orchid) => {
                 if (activeCategoryId === null) {
                   return true
+                } else if (activeCategoryId === '55f00386-b8f0-497f-9ed3-a41bae525de1') {
+                  return true
                 }
                 return (
                   orchid.ingredient_cate_detail.cate_detail_id ===
@@ -737,7 +734,7 @@ const ShoppingListScreen = ({ navigation }) => {
                       <TouchableOpacity
                         onPress={() => {
                           handleDeleteItem(orchid.ingredient_id);
-                          handleDeleteBuyItemFromStorage(orchid.ingredient_id);
+                          
                         }}
                         style={{
                           position: 'absolute',
@@ -904,7 +901,6 @@ const ShoppingListScreen = ({ navigation }) => {
                       </TouchableOpacity>
                       <TouchableOpacity
                         onPress={() => {
-                          removeBuyDataFromStorage(orchid.ingredient_id)
                           handleDeleteItem(orchid.ingredient_id)
                         }}
                         style={{
@@ -1089,7 +1085,6 @@ const ShoppingListScreen = ({ navigation }) => {
                     </View>
                   </BlurView>
                 </View>
-                
               ))
           ) : (
             <Text style={{ color: colors.green }}>Not Found</Text>

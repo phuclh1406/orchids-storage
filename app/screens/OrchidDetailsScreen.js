@@ -15,13 +15,18 @@ import {
   View,
 } from 'react-native'
 import React, { useState, useEffect } from 'react'
-import { useNavigation } from '@react-navigation/native'
+import {
+  useNavigation,
+  useFocusEffect,
+  useIsFocused,
+} from '@react-navigation/native'
 import { Ionicons } from '@expo/vector-icons'
 import colors from '../config/colors'
 import SPACING from '../config/SPACING'
 import { BlurView } from 'expo-blur'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import moment from 'moment'
+import axiosInstance from '../../util/axiosWrapper'
 const { height, width } = Dimensions.get('window')
 import DateTimePicker from '@react-native-community/datetimepicker';
 
@@ -52,6 +57,7 @@ const OrchidDetailsScreen = ({ route }) => {
     const data = await AsyncStorage.getItem('favorite')
     setDataFav(data != null ? JSON.parse(data) : [])
   }
+
   //Set data from storage
   const setDataToStorage = async () => {
     let list
@@ -132,8 +138,33 @@ const OrchidDetailsScreen = ({ route }) => {
     setDataFav(list)
   }
 
+  const getFoodData = async (foodId) => {
+    try {
+      const res = await axiosInstance.get(`/foods/${foodId}`)
+      console.log(res?.data)
+      console.log(1)
+      setFoodData(res.data.food)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const getSameCategoryFoods = async (sameCateId) => {
+    try {
+      const res = await axiosInstance.get(`/foods?cate_detail_id=${sameCateId}`)
+      console.log('123123123123123123123213123', res?.data.foods)
+      setSameCateData(
+        res?.data?.foods?.filter((item) => item?.food_id !== foodId)
+      )
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   const getCategoryName = (categoryId) => {
-    const category = categoryData.find((category) => category.cate_detail_id === categoryId)
+    const category = categoryData?.find(
+      (category) => category.cate_detail_id === categoryId
+    )
     return category ? category.cate_detail_name : ''
   }
 
@@ -152,6 +183,12 @@ const OrchidDetailsScreen = ({ route }) => {
   const minimumDate = moment().subtract(2, 'months').toDate();
   const maximumDate = moment().add(2, 'months').toDate();
 
+  useEffect(() => {
+    if (foodId) {
+      getSameCategoryFoods(sameCateId)
+      getFromStorage()
+    }
+  }, [foodId, sameCateId])
   return (
     <>
       <Modal visible={isModalVisible} transparent={true}>
@@ -218,7 +255,7 @@ const OrchidDetailsScreen = ({ route }) => {
       <ScrollView>
         <SafeAreaView>
           <ImageBackground
-            source={{ uri: food.food_image[0].image }}
+            source={{ uri: food?.food_image[0]?.image }}
             style={{
               height: height / 2 + SPACING * 2,
 
@@ -252,7 +289,9 @@ const OrchidDetailsScreen = ({ route }) => {
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => {
-                  const check = dataFav.find((item) => item.food_id === food.food_id)
+                  const check = dataFav.find(
+                    (item) => item?.food_id === food?.food_id
+                  )
                   console.log('Check:', check)
                   if (check) {
                     removeDataFromStorage()
@@ -266,7 +305,7 @@ const OrchidDetailsScreen = ({ route }) => {
                   borderRadius: SPACING * 1.5,
                 }}
               >
-                {dataFav.find((item) => item.food_id === food.food_id) ? (
+                {dataFav.find((item) => item?.food_id === food?.food_id) ? (
                   <Ionicons
                     name="heart"
                     size={SPACING * 2.5}
@@ -314,22 +353,7 @@ const OrchidDetailsScreen = ({ route }) => {
                       marginBottom: SPACING,
                     }}
                   >
-                    {food.food_name}
-                  </Text>
-                </View>
-                <View style={{ flexDirection: 'row', marginTop: SPACING }}>
-                  <Ionicons
-                    name="star"
-                    size={SPACING * 1.5}
-                    color={colors.primary}
-                  />
-                  <Text
-                    style={{
-                      color: colors.white,
-                      marginLeft: SPACING,
-                    }}
-                  >
-                    {/* {orchid.rating} */}
+                    {food?.food_name}
                   </Text>
                 </View>
               </View>
@@ -344,7 +368,7 @@ const OrchidDetailsScreen = ({ route }) => {
               Description
             </Text>
             <Text numberOfLines={10} style={{ color: colors.white }}>
-              {food.description}
+              {food?.description}
             </Text>
             <Text
               style={{
@@ -356,7 +380,7 @@ const OrchidDetailsScreen = ({ route }) => {
               Ingredients
             </Text>
             <Text numberOfLines={10} style={{ color: colors.white }}>
-              {food.ingredient_description}
+              {food?.ingredient_description}
             </Text>
 
             <Text
@@ -369,12 +393,16 @@ const OrchidDetailsScreen = ({ route }) => {
               Steps
             </Text>
             <View style={{ color: colors.white }}>
-              {food.food_step.map((step, index) => (
+              {food?.food_step?.map((step, index) => (
                 <View key={step.step_id}>
-                  <Text style={{ color: 'white', fontWeight: 'bold' }}>Step {index + 1}:</Text>
-                  <Text style={{ color: 'white' }}>{step.implementation_guide}</Text>
+                  <Text style={{ color: 'white', fontWeight: 'bold' }}>
+                    Step {index + 1}:
+                  </Text>
+                  <Text style={{ color: 'white' }}>
+                    {step?.implementation_guide}
+                  </Text>
                   <FlatList
-                    data={step.step_image}
+                    data={step?.step_image}
                     keyExtractor={(item) => item.image_id}
                     horizontal
                     renderItem={({ item }) => (
@@ -386,17 +414,105 @@ const OrchidDetailsScreen = ({ route }) => {
                             height: 80,
                             borderRadius: SPACING * 2,
                             marginRight: SPACING,
-                            marginVertical: SPACING
+                            marginVertical: SPACING,
                           }}
                         />
                       </View>
                     )}
                   />
-
                 </View>
               ))}
             </View>
+            {sameCateData.length !== 0 ? (
+              <View style={{ flexDirection: 'row', marginTop: SPACING }}>
+                <Text
+                  style={{
+                    color: colors['white-smoke'],
+                    fontSize: SPACING * 1.7,
+                    marginBottom: SPACING,
+                  }}
+                >
+                  Related foods
+                </Text>
+                <Ionicons
+                  style={{
+                    marginLeft: SPACING / 2,
+                  }}
+                  name="star"
+                  color={colors.primary}
+                  size={SPACING * 1.7}
+                />
+              </View>
+            ) : (
+              <Text>''</Text>
+            )}
 
+            <ScrollView horizontal>
+              {sameCateData.map((orchid) => (
+                <View
+                  key={orchid.food_id}
+                  style={{
+                    width: width / 2 - SPACING * 2,
+                    marginBottom: SPACING,
+                    borderRadius: SPACING * 2,
+                    overflow: 'hidden',
+                    marginRight: SPACING,
+                  }}
+                >
+                  <BlurView
+                    tint="dark"
+                    intensity={95}
+                    style={{
+                      padding: SPACING,
+                    }}
+                  >
+                    <TouchableOpacity
+                      onPress={() =>
+                        navigation.navigate('OrchidDetail', {
+                          foodId: orchid.food_id,
+                          categoryData: categoryData,
+                          foodData: foodData,
+                        })
+                      }
+                      style={{
+                        height: 150,
+                        width: '100%',
+                      }}
+                    >
+                      <Image
+                        source={{ uri: orchid.food_image[0].image }}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          borderRadius: SPACING * 2,
+                        }}
+                      />
+                    </TouchableOpacity>
+                    <Text
+                      numberOfLines={1}
+                      style={{
+                        color: colors.white,
+                        fontWeight: '600',
+                        fontSize: SPACING * 1.7,
+                        marginTop: SPACING,
+                        marginBottom: SPACING / 2,
+                      }}
+                    >
+                      {orchid.food_name}
+                    </Text>
+                    <Text
+                      numberOfLines={1}
+                      style={{
+                        color: colors.secondary,
+                        fontSize: SPACING * 1.2,
+                      }}
+                    >
+                      {orchid.food_cate_detail.cate_detail_name}
+                    </Text>
+                  </BlurView>
+                </View>
+              ))}
+            </ScrollView>
           </View>
         </SafeAreaView>
       </ScrollView>
@@ -422,9 +538,15 @@ const OrchidDetailsScreen = ({ route }) => {
                 marginLeft: SPACING / 2,
               }}
             >
-              {food.calories}
+              {food?.calories}
             </Text>
-            <Text style={{ color: colors.primary, fontSize: SPACING * 2, marginLeft: 2 }}>
+            <Text
+              style={{
+                color: colors.primary,
+                fontSize: SPACING * 2,
+                marginLeft: 2,
+              }}
+            >
               cal
             </Text>
           </View>
