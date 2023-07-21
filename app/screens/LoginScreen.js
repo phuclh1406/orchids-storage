@@ -12,7 +12,7 @@ const LoginScreen = ({ navigation }) => {
   const [errors, setErrors] = React.useState({})
   // const [loading, setLoading] = React.useState(false);
   // const [userInfo, setUserInfo] = React.useState(null);
-  const { isLoading, isNavigate, login } = useContext(AuthContext)
+  const { isLoading, isNavigate, isLogin, login } = useContext(AuthContext)
 
   const validate = async () => {
     Keyboard.dismiss()
@@ -79,7 +79,7 @@ const LoginScreen = ({ navigation }) => {
     if (isNavigate) {
       navigation.navigate('Home')
     }
-  }, [isNavigate, navigation])
+  }, [isNavigate, navigation, isLogin])
 
   return (
     <SafeAreaView style={{ backgroundColor: COLORS.white, flex: 1 }}>

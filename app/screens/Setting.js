@@ -1,10 +1,13 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { View, Text, SafeAreaView, TouchableOpacity } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import SPACING from '../config/SPACING'
 import colors from '../config/colors'
+import { AuthContext } from '../context/AuthContext'
 
 const Setting = ({ navigation }) => {
+  const { logout } = useContext(AuthContext);
+
   const navigateToUserProfile = () => {
     navigation.navigate('UserProfile')
   }
@@ -14,6 +17,11 @@ const Setting = ({ navigation }) => {
   }
   const navigateToCreateFood = () => {
     navigation.navigate('CreateFoodScreen')
+  }
+
+  const navigateToLogin = () => {
+    logout()
+    navigation.navigate('LoginScreen')
   }
 
   const accountItems = [
@@ -31,6 +39,11 @@ const Setting = ({ navigation }) => {
       icon: 'md-pencil',
       text: 'Create Food',
       action: () => navigateToCreateFood(),
+    },
+    {
+      icon: 'log-out-outline',
+      text: 'Logout',
+      action: () => navigateToLogin(),
     },
   ]
 
@@ -65,6 +78,7 @@ const Setting = ({ navigation }) => {
       style={{
         flex: 1,
         backgroundColor: colors.dark,
+        marginTop: 20
       }}
     >
       <View

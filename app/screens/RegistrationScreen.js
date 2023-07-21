@@ -32,7 +32,7 @@ const RegistrationScreen = ({ navigation }) => {
   const [errors, setErrors] = React.useState({})
   // const [loading, setLoading] = React.useState(false);
   // const [userInfo, setUserInfo] = React.useState(null);
-  const { isLoading, isNavigate, register } = useContext(AuthContext)
+  const { isLoading, isNavigate, isRegister, register } = useContext(AuthContext)
 
   const validate = () => {
     Keyboard.dismiss()

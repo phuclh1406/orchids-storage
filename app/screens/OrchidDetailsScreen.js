@@ -42,8 +42,15 @@ const OrchidDetailsScreen = ({ route }) => {
   const [scheduleTruaData, setScheduleTruaData] = useState([]);
   const [scheduleToiData, setScheduleToiData] = useState([]);
   const [date, setDate] = useState(new Date());
-  const [dateSchedule, setDateSchedule] = useState(moment().startOf('day'));
+  const [dateSchedule, setDateSchedule] = useState(moment());
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [sameCateData, setSameCateData] = useState([]);
+  const sameCateId = food?.food_cate_detail.cate_detail_id;
+
+  const validateDateFormat = (date) => {
+    const pattern = /^(0[1-9]|1[0-2])\/(0[1-9]|[1-2][0-9]|3[0-1])\/\d{2}$/;
+    return pattern.test(date);
+  };
 
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
@@ -56,6 +63,15 @@ const OrchidDetailsScreen = ({ route }) => {
   const getFromStorage = async () => {
     const data = await AsyncStorage.getItem('favorite')
     setDataFav(data != null ? JSON.parse(data) : [])
+  }
+
+  const getScheduleFromStorage = async () => {
+    const scheduleSang = await AsyncStorage.getItem(`schedule_${dateSchedule}_sang`)
+    setScheduleSangData(scheduleSang != null ? JSON.parse(scheduleSang) : [])
+    const scheduleTrua = await AsyncStorage.getItem(`schedule_${dateSchedule}_trua`)
+    setScheduleTruaData(scheduleTrua != null ? JSON.parse(scheduleTrua) : [])
+    const scheduleToi = await AsyncStorage.getItem(`schedule_${dateSchedule}_toi`)
+    setScheduleToiData(scheduleToi != null ? JSON.parse(scheduleToi) : [])
   }
 
   //Set data from storage
@@ -73,59 +89,56 @@ const OrchidDetailsScreen = ({ route }) => {
 
   //Set data from schedule
   const setDataToSchedule = async (timetable) => {
+    console.log(dateSchedule);
+    const isValidDate = validateDateFormat(dateSchedule);
+    if (!isValidDate) {
+      Alert.alert('Warning', 'Please choose date');
+      return;
+    }
     let list;
     if (timetable == 'sang') {
-      console.log(timetable);
-      const check = scheduleSangData.find((item) => item.food_id === food.food_id);
-      if (check) {
-        Alert.alert('Food Already Added', 'This food is already added to the schedule.');
-        return;
+      // const check = scheduleSangData.find((item) => item.food_id === food.food_id);
+      // if (check) {
+      //   Alert.alert('Food Already Added', 'This food is already added to the schedule.');
+      //   return;
+      // } else {
+      console.log(dateSchedule);
+      if (scheduleSangData.length === 0) {
+        list = [food];
       } else {
-        if (scheduleSangData == []) {
-          list = [food]
-          await AsyncStorage.setItem(`schedule_${dateSchedule}_${timetable}`, JSON.stringify(list))
-          console.log('siuu', `schedule_${dateSchedule}_${timetable}`);
-        } else {
-          list = [...scheduleSangData, food]
-          await AsyncStorage.setItem(`schedule_${dateSchedule}_${timetable}`, JSON.stringify(list))
-          console.log('siuu', `schedule_${dateSchedule}_${timetable}`);
-        }
-        setScheduleSangData(list)
+        list = [...scheduleSangData, food];
       }
+      await AsyncStorage.setItem(`schedule_${dateSchedule}_${timetable}`, JSON.stringify(list));
+      setScheduleSangData(list);
     } else if (timetable == 'trua') {
-      console.log(timetable);
-      const check = scheduleTruaData.find((item) => item.food_id === food.food_id);
-      if (check) {
-        Alert.alert('Food Already Added', 'This food is already added to the schedule.');
-        return;
+      // const check = scheduleTruaData.find((item) => item.food_id === food.food_id);
+      // if (check) {
+      //   Alert.alert('Food Already Added', 'This food is already added to the schedule.');
+      //   return;
+      // } else {
+      if (scheduleTruaData == []) {
+        list = [food]
+        await AsyncStorage.setItem(`schedule_${dateSchedule}_${timetable}`, JSON.stringify(list))
       } else {
-        if (scheduleTruaData == []) {
-          list = [food]
-          await AsyncStorage.setItem(`schedule_${dateSchedule}_${timetable}`, JSON.stringify(list))
-          console.log('siuu', `schedule_${dateSchedule}_${timetable}`);
-        } else {
-          list = [...scheduleTruaData, food]
-          await AsyncStorage.setItem(`schedule_${dateSchedule}_${timetable}`, JSON.stringify(list))
-          console.log('siuu', `schedule_${dateSchedule}_${timetable}`);
-        }
-        setScheduleTruaData(list)
+        list = [...scheduleTruaData, food]
+        await AsyncStorage.setItem(`schedule_${dateSchedule}_${timetable}`, JSON.stringify(list))
       }
+      setScheduleTruaData(list)
+
     } else {
-      console.log(timetable);
-      const check = scheduleToiData.find((item) => item.food_id === food.food_id);
-      if (check) {
-        Alert.alert('Food Already Added', 'This food is already added to the schedule.');
-        return;
+      // const check = scheduleToiData.find((item) => item.food_id === food.food_id);
+      // if (check) {
+      //   Alert.alert('Food Already Added', 'This food is already added to the schedule.');
+      //   return;
+      // } else {
+      console.log(dateSchedule);
+      if (scheduleToiData == []) {
+        list = [food]
+        await AsyncStorage.setItem(`schedule_${dateSchedule}_${timetable}`, JSON.stringify(list))
       } else {
-        if (scheduleToiData == []) {
-          list = [food]
-          await AsyncStorage.setItem(`schedule_${dateSchedule}_${timetable}`, JSON.stringify(list))
-          console.log('siuu', `schedule_${dateSchedule}_${timetable}`);
-        } else {
-          list = [...scheduleToiData, food]
-          await AsyncStorage.setItem(`schedule_${dateSchedule}_${timetable}`, JSON.stringify(list))
-          console.log('siuu', `schedule_${dateSchedule}_${timetable}`);
-        }
+        list = [...scheduleToiData, food]
+        await AsyncStorage.setItem(`schedule_${dateSchedule}_${timetable}`, JSON.stringify(list))
+
         setScheduleToiData(list)
       }
     }
@@ -138,21 +151,9 @@ const OrchidDetailsScreen = ({ route }) => {
     setDataFav(list)
   }
 
-  const getFoodData = async (foodId) => {
-    try {
-      const res = await axiosInstance.get(`/foods/${foodId}`)
-      console.log(res?.data)
-      console.log(1)
-      setFoodData(res.data.food)
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
   const getSameCategoryFoods = async (sameCateId) => {
     try {
       const res = await axiosInstance.get(`/foods?cate_detail_id=${sameCateId}`)
-      console.log('123123123123123123123213123', res?.data.foods)
       setSameCateData(
         res?.data?.foods?.filter((item) => item?.food_id !== foodId)
       )
@@ -178,6 +179,7 @@ const OrchidDetailsScreen = ({ route }) => {
     setShowDatePicker(Platform.OS === 'ios');
     setDate(currentDate);
     setDateSchedule(realDate);
+    console.log('aa', realDate);
   };
 
   const minimumDate = moment().subtract(2, 'months').toDate();
@@ -189,6 +191,11 @@ const OrchidDetailsScreen = ({ route }) => {
       getFromStorage()
     }
   }, [foodId, sameCateId])
+
+  useEffect(() => {
+    getScheduleFromStorage();
+  }, [dateSchedule])
+
   return (
     <>
       <Modal visible={isModalVisible} transparent={true}>
@@ -216,33 +223,34 @@ const OrchidDetailsScreen = ({ route }) => {
                 />
               )}
             </View>
-            <View style={styles.modalClick}>
-              <TouchableOpacity onPress={() => {
-                const timetable = 'sang';
-                setDataToSchedule(timetable);
-                toggleModal();
-              }}>
-                <Text style={{ fontWeight: 'bold' }}>Chọn cho bữa sáng</Text>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.modalClick}>
-              <TouchableOpacity onPress={() => {
-                const timetable = 'trua';
-                setDataToSchedule(timetable);
-                toggleModal();
-              }}>
-                <Text style={{ fontWeight: 'bold' }}>Chọn cho bữa trưa</Text>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.modalClick}>
-              <TouchableOpacity onPress={() => {
-                const timetable = 'toi';
-                setDataToSchedule(timetable);
-                toggleModal();
-              }}>
-                <Text style={{ fontWeight: 'bold' }}>Chọn cho bữa tối</Text>
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity style={styles.modalClick} onPress={() => {
+              const timetable = 'sang';
+              setDataToSchedule(timetable);
+              toggleModal();
+            }}>
+              <View>
+                <Text style={{ fontWeight: 'bold' }}>Choose for breakfast</Text>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.modalClick} onPress={() => {
+              const timetable = 'trua';
+              setDataToSchedule(timetable);
+              toggleModal();
+            }}>
+              <View>
+                <Text style={{ fontWeight: 'bold' }}>Choose for lunch</Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.modalClick} onPress={() => {
+              const timetable = 'toi';
+              setDataToSchedule(timetable);
+              toggleModal();
+            }}>
+              <View>
+                <Text style={{ fontWeight: 'bold' }}>Choose for dinner</Text>
+              </View>
+            </TouchableOpacity>
             <TouchableOpacity style={styles.header} onPress={toggleModal}>
               <Ionicons
                 name="close-outline"
@@ -566,11 +574,11 @@ const OrchidDetailsScreen = ({ route }) => {
             <Text
               style={{
                 color: colors.white,
-                fontSize: SPACING * 2,
+                fontSize: 15,
                 fontWeight: '700',
               }}
             >
-              Chọn cho thực đơn
+              Choose for schedule
             </Text>
           </View>
         </TouchableOpacity>
@@ -588,7 +596,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalContainer: {
-    width: '80%',
+    width: '60%',
+    height: '50%',
     backgroundColor: 'white',
     paddingHorizontal: 20,
     paddingVertical: 30,

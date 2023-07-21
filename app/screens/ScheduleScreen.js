@@ -19,8 +19,6 @@ import { Ionicons } from '@expo/vector-icons'
 import SPACING from '../config/SPACING'
 import colors from '../config/colors'
 
-const { width } = Dimensions.get('window')
-
 const ScheduleScreen = ({ navigation }) => {
     const [foodSangData, setFoodSangData] = useState([]);
     const [foodTruaData, setFoodTruaData] = useState([]);
@@ -30,47 +28,46 @@ const ScheduleScreen = ({ navigation }) => {
     const [totalCalo, setTotalCalo] = useState(0);
     const [categoryData, setCategoryData] = useState([]);
     const [foodData, setFoodData] = useState([]);
-    let countCalo;
-    const today = moment().startOf('day');
+    const [date, setDate] = useState(moment());
 
     //Get data from storage
-    const getFromStorage = async () => {
-        const sangData = await AsyncStorage.getItem(`schedule_${today}_sang`);
-        console.log(`schedule_${today}_sang`);
-        const truaData = await AsyncStorage.getItem(`schedule_${today}_trua`);
-        const toiData = await AsyncStorage.getItem(`schedule_${today}_toi`);
-        setFoodSangData(sangData != null ? JSON.parse(sangData) : []);
-        setFoodTruaData(truaData != null ? JSON.parse(truaData) : []);
-        setFoodToiData(toiData != null ? JSON.parse(toiData) : []);
-        setIsLoading(false);
+    const getFromStorage = async (date) => {
+        setIsLoading(true);
+        try {
+            const realDate = new Date(date).toLocaleDateString()
+            const sangData = await AsyncStorage.getItem(`schedule_${realDate}_sang`);
+            console.log(`schedule_${realDate}_sang`);
+            const truaData = await AsyncStorage.getItem(`schedule_${realDate}_trua`);
+            const toiData = await AsyncStorage.getItem(`schedule_${realDate}_toi`);
+            console.log('kkaa', `schedule_${realDate}_sang`);
+            setFoodSangData(sangData != null ? JSON.parse(sangData) : []);
+            setFoodTruaData(truaData != null ? JSON.parse(truaData) : []);
+            setFoodToiData(toiData != null ? JSON.parse(toiData) : []);
+            setIsLoading(false);
+        } catch (error) {
+            setIsLoading(false);
+        }
     }
 
-    const countAllCalo = async () => {
-        countCalo = 0;
-        if (foodSangData != null) {
-            foodSangData.map((item) => {
-                countCalo += parseInt(item.calories, 10);
-            });
-        }
-        if (foodTruaData != null) {
-            foodTruaData.map((item) => {
-                countCalo += parseInt(item.calories, 10);
-            });
-        }
-        if (foodToiData != null) {
-            foodToiData.map((item) => {
-                countCalo += parseInt(item.calories, 10);
-            });
-        }
-        setTotal(countCalo / 1000);
-        setTotalCalo(countCalo);
-    };
+    useEffect(() => {
+        const caloSang = foodSangData.reduce((prev, cur) => {
+            return prev + parseInt(cur.calories, 10)
+        }, 0)
+        const caloTrua = foodTruaData.reduce((prev, cur) => {
+            return prev + parseInt(cur.calories, 10)
+        }, 0)
+        const caloToi = foodToiData.reduce((prev, cur) => {
+            return prev + parseInt(cur.calories, 10)
+        }, 0)
+        setTotal((caloSang + caloTrua + caloToi) / 2000)
+        setTotalCalo(caloSang + caloTrua + caloToi)
+    }, [foodSangData, foodTruaData, foodToiData])
 
     const startDate = moment().subtract(2, 'months').toDate();
     const endDate = moment().add(2, 'months').toDate();
 
     const datesWhitelist = [
-        // single date (today)
+        // single date (date)
         moment(),
         // date range
         {
@@ -80,11 +77,14 @@ const ScheduleScreen = ({ navigation }) => {
     ];
 
     const handleDateSelected = (date) => {
-        console.log('Selected date:', date.format('YYYY-MM-DD'));
+        setDate(date)
+        // console.log('Selected date:', moment(date).startOf('day'));
+        // getFromStorage(date)
         // You can perform any further actions with the selected date here
+
     };
 
-    function handleDeleteSangItem(id) {
+    function handleDeleteSangItem(food_id) {
         Alert.alert(
             'Confirm removing this favorite food',
             'You cannot recover your favorite food after removing it!',
@@ -96,10 +96,29 @@ const ScheduleScreen = ({ navigation }) => {
                 {
                     text: 'Yes, I confirm',
                     onPress: async () => {
+                        const realDate = new Date(date).toLocaleDateString();
+                        // try {
+                        //     const updatedSangList = foodSangData.filter((food) => food.food_id !== id);
+                        //     await AsyncStorage.setItem(`schedule_${realDate}_sang`, JSON.stringify(updatedSangList));
+                        //     setFoodSangData(updatedSangList);
+                        // } catch (error) {
+                        //     console.log(error);
+                        // }
                         try {
-                            const updatedSangList = foodSangData.filter((food) => food.food_id !== id);
-                            await AsyncStorage.setItem(`schedule_${today}_sang`, JSON.stringify(updatedSangList));
-                            setFoodSangData(updatedSangList);
+                            // Find the index of the first occurrence of the item with matching food_id
+                            const indexToDelete = foodSangData.findIndex((food) => food.food_id === food_id);
+
+                            if (indexToDelete !== -1) {
+                                // Create a new array by excluding the item at indexToDelete
+                                const updatedSangList = [...foodSangData];
+                                updatedSangList.splice(indexToDelete, 1);
+
+                                await AsyncStorage.setItem(
+                                    `schedule_${realDate}_sang`,
+                                    JSON.stringify(updatedSangList)
+                                );
+                                setFoodSangData(updatedSangList);
+                            }
                         } catch (error) {
                             console.log(error);
                         }
@@ -109,7 +128,7 @@ const ScheduleScreen = ({ navigation }) => {
         );
     };
 
-    function handleDeleteTruaItem(id) {
+    function handleDeleteTruaItem(food_id) {
         Alert.alert(
             'Confirm removing this favorite food',
             'You cannot recover your favorite food after removing it!',
@@ -121,10 +140,29 @@ const ScheduleScreen = ({ navigation }) => {
                 {
                     text: 'Yes, I confirm',
                     onPress: async () => {
+                        const realDate = new Date(date).toLocaleDateString();
+                        // try {
+                        //     // const updatedTruaList = foodTruaData.filter((food) => food.food_id !== id);
+                        //     // await AsyncStorage.setItem(`schedule_${realDate}_trua`, JSON.stringify(updatedTruaList));
+                        //     // setFoodTruaData(updatedTruaList);
+                        // } catch (error) {
+                        //     console.log(error);
+                        // }
                         try {
-                            const updatedTruaList = foodTruaData.filter((food) => food.food_id !== id);
-                            await AsyncStorage.setItem(`schedule_${today}_trua`, JSON.stringify(updatedTruaList));
-                            setFoodTruaData(updatedTruaList);
+                            // Find the index of the first occurrence of the item with matching food_id
+                            const indexToDelete = foodTruaData.findIndex((food) => food.food_id === food_id);
+
+                            if (indexToDelete !== -1) {
+                                // Create a new array by excluding the item at indexToDelete
+                                const updatedTruaList = [...foodTruaData];
+                                updatedTruaList.splice(indexToDelete, 1);
+
+                                await AsyncStorage.setItem(
+                                    `schedule_${realDate}_trua`,
+                                    JSON.stringify(updatedTruaList)
+                                );
+                                setFoodTruaData(updatedTruaList);
+                            }
                         } catch (error) {
                             console.log(error);
                         }
@@ -134,7 +172,7 @@ const ScheduleScreen = ({ navigation }) => {
         );
     };
 
-    function handleDeleteToiItem(id) {
+    function handleDeleteToiItem(food_id) {
         Alert.alert(
             'Confirm removing this favorite food',
             'You cannot recover your favorite food after removing it!',
@@ -146,13 +184,33 @@ const ScheduleScreen = ({ navigation }) => {
                 {
                     text: 'Yes, I confirm',
                     onPress: async () => {
+                        const realDate = new Date(date).toLocaleDateString();
+                        // try {
+                        //     const updatedToiList = foodToiData.filter((food) => food.food_id !== id);
+                        //     await AsyncStorage.setItem(`schedule_${realDate}_toi`, JSON.stringify(updatedToiList));
+                        //     setFoodToiData(updatedToiList);
+                        // } catch (error) {
+                        //     console.log(error);
+                        // }
                         try {
-                            const updatedToiList = foodToiData.filter((food) => food.food_id !== id);
-                            await AsyncStorage.setItem(`schedule_${today}_toi`, JSON.stringify(updatedToiList));
-                            setFoodToiData(updatedToiList);
+                            // Find the index of the first occurrence of the item with matching food_id
+                            const indexToDelete = foodToiData.findIndex((food) => food.food_id === food_id);
+
+                            if (indexToDelete !== -1) {
+                                // Create a new array by excluding the item at indexToDelete
+                                const updatedToiList = [...foodToiData];
+                                updatedToiList.splice(indexToDelete, 1);
+
+                                await AsyncStorage.setItem(
+                                    `schedule_${realDate}_toi`,
+                                    JSON.stringify(updatedToiList)
+                                );
+                                setFoodToiData(updatedToiList);
+                            }
                         } catch (error) {
                             console.log(error);
                         }
+                        
                     },
                 },
             ]
@@ -169,30 +227,37 @@ const ScheduleScreen = ({ navigation }) => {
     }
 
     const getFoodData = async () => {
-        setIsLoading(true);
+        // setIsLoading(true);
         try {
-          const res = await axiosInstance.get("/foods")
-          // console.log(res?.data)
-          setFoodData(res?.data?.foods)
-          await AsyncStorage.setItem('foodData', JSON.stringify(res?.data?.foods))
-          setIsLoading(false);
+            const res = await axiosInstance.get("/foods")
+            // console.log(res?.data)
+            setFoodData(res?.data?.foods)
+            await AsyncStorage.setItem('foodData', JSON.stringify(res?.data?.foods))
+            setIsLoading(false);
         } catch (error) {
-          console.log(error)
+            console.log(error)
         } finally {
-          setIsLoading(false);
+            //   setIsLoading(false);
         }
-      }
+    }
+
+    console.log(total);
+    console.log(totalCalo);
 
     useEffect(() => {
-        setIsLoading(true);
-        getFromStorage();
-        countAllCalo();
-        getCategoryData(),
+        // setIsLoading(true);
+        getCategoryData()
         getFoodData()
     }, []);
 
+    useEffect(() => {
+        console.log(123456)
+        getFromStorage(date)
+
+    }, [date])
+
     return (
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 1, backgroundColor: colors.dark }}>
             <CalendarStrip
                 calendarAnimation={{ type: 'sequence', duration: 30 }}
                 daySelectionAnimation={{
@@ -201,7 +266,10 @@ const ScheduleScreen = ({ navigation }) => {
                     borderWidth: 1,
                     borderHighlightColor: 'white',
                 }}
-                selectedDate={moment()}
+                selectedDate={date}
+                setSelectedDate={(moment) => {
+                    setDate(moment)
+                }}
                 style={{ height: 100, paddingTop: 20, paddingBottom: 10 }}
                 calendarHeaderStyle={{ color: 'white' }}
                 calendarColor={'#FC6847'}
@@ -227,25 +295,44 @@ const ScheduleScreen = ({ navigation }) => {
             ) : (
                 <View style={{ flex: 1 }}>
 
-                    <Text style={{ marginTop: 20, marginHorizontal: 20 }}>Recommend calories: 2000</Text>
-                    <ProgressBarAndroid
-                        style={{ marginHorizontal: 20 }}
-                        styleAttr="Horizontal"
-                        indeterminate={false}
-                        progress={total}
-                        color={'#FC6847'}
-                    />
-                    <Text style={{ marginHorizontal: 20 }}>Current calories: {totalCalo}</Text>
-                    <ScrollView showsVerticalScrollIndicator={false}>
+                    <Text style={{ marginTop: 20, marginHorizontal: 20, color: 'white' }}>Recommend calories: 2000</Text>
+                    <View>
+                        {totalCalo > 2000 ?
+                            <View>
+                                <ProgressBarAndroid
+                                    style={{ marginHorizontal: 20 }}
+                                    styleAttr="Horizontal"
+                                    indeterminate={false}
+                                    progress={total}
+                                    color={'red'}
+                                />
+                                <Text style={{ marginHorizontal: 20, color: 'white' }}>Current calories: {totalCalo}</Text>
+                                <Text style={{ marginHorizontal: 20, color: 'red' }}>Exceeded the recommended calories for the day!</Text>
+                            </View>
+                            :
+                            <View>
+                                <ProgressBarAndroid
+                                    style={{ marginHorizontal: 20 }}
+                                    styleAttr="Horizontal"
+                                    indeterminate={false}
+                                    progress={total}
+                                    color={'#FC6847'}
+                                />
+                                <Text style={{ marginHorizontal: 20, color: 'white' }}>Current calories: {totalCalo}</Text>
+                            </View>
+                        }
+                    </View>
+
+
+                    <ScrollView style={{ marginBottom: 10 }} showsVerticalScrollIndicator={false}>
                         <View style={styles.tab}>
                             <Text style={styles.text}>Bữa sáng</Text>
                         </View>
                         <View style={styles.list}>
                             {foodSangData.map((item, index) => {
                                 return (
-                                    <View>
+                                    <View key={index}>
                                         <TouchableOpacity
-                                            key={index}
                                             onPress={() =>
                                                 navigation.navigate('OrchidDetail', {
                                                     foodId: item.food_id,
@@ -293,9 +380,8 @@ const ScheduleScreen = ({ navigation }) => {
                         <View style={styles.list}>
                             {foodTruaData.map((item, index) => {
                                 return (
-                                    <View>
+                                    <View key={index}>
                                         <TouchableOpacity
-                                            key={item.food_id}
                                             onPress={() =>
                                                 navigation.navigate('OrchidDetail', {
                                                     foodId: item.food_id,
@@ -343,9 +429,8 @@ const ScheduleScreen = ({ navigation }) => {
                         <View style={styles.list}>
                             {foodToiData.map((item, index) => {
                                 return (
-                                    <View>
+                                    <View key={index}>
                                         <TouchableOpacity
-                                            key={item.food_id}
                                             onPress={() =>
                                                 navigation.navigate('OrchidDetail', {
                                                     foodId: item.food_id,
@@ -426,7 +511,8 @@ const styles = StyleSheet.create({
         marginLeft: 10,
         fontWeight: '600',
         color: 'black',
-        width: 320
+        width: 250,
+        color: 'white'
     },
     textCalo: {
         fontSize: 12,
@@ -439,10 +525,11 @@ const styles = StyleSheet.create({
         backgroundColor: 'white'
     },
     list: {
-        marginHorizontal: 20,
+        marginHorizontal: 21,
         borderColor: 'grey',
         borderWidth: 2,
         marginTop: -20,
-        paddingTop: 15
+        paddingTop: 15,
+        borderColor: 'white'
     }
 })

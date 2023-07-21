@@ -11,8 +11,27 @@ import Setting from '../screens/Setting'
 import  ScheduleScreen  from '../screens/ScheduleScreen'
 import ShoppingListScreen from '../screens/ShoppingListScreen'
 import BlogScreen from '../screens/BlogScreen'
+import { createNativeStackNavigator } from '@react-navigation/native-stack'
 
 const Tab = createBottomTabNavigator()
+const Stack = createNativeStackNavigator();
+
+function ShoppingStack() {
+  return (
+    <Stack.Navigator
+      screenOptions={{ headerShown: false }}
+    >
+      <Stack.Screen
+        name="ShoppingList1"
+        component={ShoppingListScreen}
+      />
+      <Stack.Screen
+        name="IngredientsScreen"
+        component={IngredientsScreen}
+      />
+    </Stack.Navigator>
+  );
+};
 
 const AppNavigation = () => {
   return (
@@ -74,7 +93,7 @@ const AppNavigation = () => {
       />
       <Tab.Screen
         name="ShoppingList"
-        component={ShoppingListScreen}
+        component={ShoppingStack}
         options={{
           unmountOnBlur: true,
           tabBarIcon: ({ color }) => (

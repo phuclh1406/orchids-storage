@@ -22,7 +22,7 @@ import BlogDetailScreen from './app/screens/BlogDetailScreen'
 import { SearchIngredientsScreen } from './app/screens/SearchIngredientsScreen'
 import { SearchBlogsScreen } from './app/screens/SearchBlogsScreen'
 import Setting from './app/screens/Setting'
-
+import IngredientsScreen from './app/screens/IngredientsScreen'
 AsyncStorage.removeItem('userData')
 
 const Stack = createStackNavigator()
@@ -81,10 +81,10 @@ const App = () => {
                 <Stack.Screen name="SearchBlogs" component={SearchBlogsScreen} />
                 <Stack.Screen name="LoginScreen" component={LoginScreen} />
                 <Stack.Screen name="CreateFoodScreen" component={CreateFood} />
-                <Stack.Screen
+                {/* <Stack.Screen
                   name="IngredientsScreen"
                   component={AppNavigation}
-                />
+                /> */}
                 <Stack.Screen
                   name="IngredientDetail"
                   component={IngredientDetailScreen}

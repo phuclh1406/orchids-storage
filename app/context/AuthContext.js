@@ -11,6 +11,7 @@ export const AuthProvider = ({ children }) => {
   const [foodData, setFoodData] = useState([])
   const [isLoading, setIsLoading] = useState(false)
   const [isNavigate, setIsNavigate] = useState(false)
+  const [isLogin, setIsLogin] = useState(false)
   //   const [splashLoading, setSplashLoading] = useState(false);
 
   const register = async (email, password, confirm_pass, role_id) => {
@@ -57,6 +58,7 @@ export const AuthProvider = ({ children }) => {
           setIsNavigate(true)
           AsyncStorage.setItem('userData', JSON.stringify(userInfo))
           setIsLoading(false)
+          setIsLogin(!isLogin);
         }
       })
       .catch((e) => {
@@ -67,28 +69,30 @@ export const AuthProvider = ({ children }) => {
       })
   }
 
-  // const logout = () => {
-  //     setIsLoading(true);
+  const logout = () => {
+      setIsLoading(true);
+      AsyncStorage.removeItem('userData');
+      setIsLoading(false)
+      // axios
+      //     .post(
+      //         `${BASE_URL}/logout`,
+      //         {},
+      //         {
+      //             headers: { Authorization: `Bearer ${userInfo.access_token}` },
+      //         },
+      //     )
+      //     .then(res => {
+      //         console.log(res.data);
+      //         AsyncStorage.removeItem('userData');
+      //         setUserInfo({});
+      //         setIsLoading(false);
+      //     })
+      //     .catch(e => {
+      //         console.log(`logout error ${e}`);
+      //         setIsLoading(false);
+      //     });
 
-  //     axios
-  //         .post(
-  //             `${BASE_URL}/logout`,
-  //             {},
-  //             {
-  //                 headers: { Authorization: `Bearer ${userInfo.access_token}` },
-  //             },
-  //         )
-  //         .then(res => {
-  //             console.log(res.data);
-  //             AsyncStorage.removeItem('userInfo');
-  //             setUserInfo({});
-  //             setIsLoading(false);
-  //         })
-  //         .catch(e => {
-  //             console.log(`logout error ${e}`);
-  //             setIsLoading(false);
-  //         });
-  // };
+  };
 
   //   const isLoggedIn = async () => {
   //     try {
@@ -142,8 +146,10 @@ export const AuthProvider = ({ children }) => {
         userInfo,
         isNavigate,
         foodData,
+        isLogin,
         register,
         login,
+        logout,
         getFood,
       }}
     >

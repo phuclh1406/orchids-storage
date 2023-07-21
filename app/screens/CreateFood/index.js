@@ -85,12 +85,13 @@ const CreateFood = ({ navigation }) => {
   }
 
   return (
-    <SafeAreaView style={{ backgroundColor: colors.white, flex: 1 }}>
+    <SafeAreaView style={{ backgroundColor: colors.white, flex: 1, marginTop: 20 }}>
       <View
         style={{
           marginHorizontal: 12,
           flexDirection: 'row',
           justifyContent: 'center',
+          marginBottom: 10
         }}
       >
         <TouchableOpacity
@@ -103,7 +104,7 @@ const CreateFood = ({ navigation }) => {
           <Ionicons name="arrow-back" size={24} color={colors.dark} />
         </TouchableOpacity>
         <Text style={{ fontSize: SPACING * 2, color: colors.dark }}>
-          Create Foods
+          Create Food
         </Text>
       </View>
       <View
@@ -160,28 +161,13 @@ const CreateFood = ({ navigation }) => {
               <TextInput
                 onChangeText={handleChange('description')}
                 onBlur={handleBlur('description')}
-                value={values.price}
+                value={values.description}
                 style={styles.input}
                 placeholder="Mô tả chi tiết"
               />
 
               {/* <UploadImage /> */}
 
-              <Picker
-                style={styles.input}
-                selectedValue={values?.quantitative}
-                onValueChange={handleChange('quantitative')}
-                onBlur={handleBlur('quantitative')}
-              >
-                {QUANTITATIVE_OPTIONS?.map((value) => (
-                  <Picker.Item label={value} value={value} />
-                ))}
-              </Picker>
-              <CategorySelect
-                values={values?.cate_detail_id}
-                handleChange={handleChange('cate_detail_id')}
-                handleBlur={handleBlur('cate_detail_id')}
-              />
               <TextInput
                 onChangeText={handleChange('price')}
                 onBlur={handleBlur('price')}
@@ -189,6 +175,26 @@ const CreateFood = ({ navigation }) => {
                 style={styles.input}
                 placeholder="Giá"
               />
+
+              <View style={{ borderWidth: 1, borderColor: 'grey', borderRadius: 4, marginBottom: 10 }}>
+                <Picker
+                  style={{ height: 50, width: 360, color: 'black' }}
+                  itemStyle={{ backgroundColor: "black", color: "black", fontFamily: "Ebrima", fontSize: 17 }}
+                  selectedValue={values?.quantitative}
+                  onValueChange={handleChange('quantitative')}
+                  onBlur={handleBlur('quantitative')}
+                >
+                  {QUANTITATIVE_OPTIONS?.map((value) => (
+                    <Picker.Item label={value} value={value} />
+                  ))}
+                </Picker>
+              </View>
+              <CategorySelect
+                values={values?.cate_detail_id}
+                handleChange={handleChange('cate_detail_id')}
+                handleBlur={handleBlur('cate_detail_id')}
+              />
+
               {ingredientDescription?.map((item, index) => (
                 <View
                   style={{
@@ -345,7 +351,23 @@ const CreateFood = ({ navigation }) => {
                 </Text>
               </TouchableOpacity>
 
-              <Button onPress={handleSubmit} title="Submit" />
+                {/* <Button onPress={handleSubmit} title="Hoàn tất" /> */}
+
+                <TouchableOpacity
+                style={styles.button}
+                onPress={handleSubmit}
+              >
+                <Text
+                  style={{
+                    fontSize: 20,
+                    fontWeight: 'bold',
+                    color: colors.white,
+                  }}
+                >
+                  Hoàn tất
+                </Text>
+              </TouchableOpacity>
+
             </View>
           </ScrollView>
         )}

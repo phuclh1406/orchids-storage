@@ -49,6 +49,7 @@ const EditProfile = ({ navigation }) => {
       style={{
         flex: 1,
         backgroundColor: colors.white,
+        marginTop: 20
       }}
     >
       <View

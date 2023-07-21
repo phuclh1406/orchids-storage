@@ -218,15 +218,16 @@ const FavoriteScreen = ({ navigation }) => {
           </TouchableOpacity>
           <View
             style={{
-              width: SPACING * 16,
+              width: SPACING * 15,
               height: SPACING * 4,
               overflow: 'hidden',
               marginTop: SPACING / 2,
               borderRadius: SPACING,
+              marginLeft: SPACING * 5,
             }}
           >
             <Text style={{ color: colors.white, fontSize: SPACING * 2 }}>
-              Favorite Screen
+              Favorite
             </Text>
           </View>
           <View
@@ -244,57 +245,19 @@ const FavoriteScreen = ({ navigation }) => {
               }}
             >
               <TouchableOpacity onPress={navigationToSetting}>
-                <Image
-                  style={{
-                    height: '100%',
-                    width: '100%',
-                    borderRadius: SPACING,
-                  }}
-                  source={{ uri: userInfo?.user?.avatar }}
-                />
-              </TouchableOpacity>
+                  <Image
+                    style={{
+                      height: '100%',
+                      width: '100%',
+                      borderRadius: SPACING,
+                    }}
+                    source={{ uri: userInfo?.user?.avatar }}
+                  />
+                </TouchableOpacity>
             </BlurView>
           </View>
         </View>
         <View style={{ width: '80%', marginVertical: SPACING }}></View>
-
-        {/* Search input */}
-        <View
-          style={{
-            borderRadius: SPACING,
-            overflow: 'hidden',
-          }}
-        >
-          <BlurView
-            intensity={30}
-            style={{
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <TextInput
-              style={{
-                width: '100%',
-                color: colors.white,
-                fontSize: SPACING * 1.7,
-                padding: SPACING,
-                paddingLeft: SPACING * 3.5,
-              }}
-              placeholder="Find Your Food..."
-              placeholderTextColor={colors.light}
-              onFocus={handleTextInputFocus}
-            />
-            <Ionicons
-              style={{
-                position: 'absolute',
-                left: SPACING,
-              }}
-              name="search"
-              color={colors.light}
-              size={SPACING * 2}
-            />
-          </BlurView>
-        </View>
 
         <Categories
           let
@@ -371,8 +334,8 @@ const FavoriteScreen = ({ navigation }) => {
               .filter((food) => {
                 if (activeCategoryId === null) {
                   return true
-                } else if (activeCategoryId === 0) {
-                  return food
+                } else if (activeCategoryId === "8b113e48-d1d6-4397-a0aa-743be2df2ad1") {
+                  return true
                 }
                 return food.food_cate_detail.cate_detail_id === activeCategoryId
               })

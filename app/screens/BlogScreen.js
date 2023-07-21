@@ -128,6 +128,11 @@ const BlogScreen = ({ navigation }) => {
   const handleTextInputFocus = () => {
     navigation.navigate('SearchBlogs')
   }
+
+  const navigationToSetting = () => {
+    navigation.navigate('Setting')
+  }
+  
   return (
     <SafeAreaView style={{ backgroundColor: colors.dark, flex: 1 }}>
       <StatusBar backgroundColor={colors.primary} />
@@ -190,16 +195,16 @@ const BlogScreen = ({ navigation }) => {
                 padding: SPACING / 2,
               }}
             >
-              <TouchableOpacity>
-                <Image
-                  style={{
-                    height: '100%',
-                    width: '100%',
-                    borderRadius: SPACING,
-                  }}
-                  source={{ uri: userInfo?.user?.avatar }}
-                />
-              </TouchableOpacity>
+              <TouchableOpacity onPress={navigationToSetting}>
+                  <Image
+                    style={{
+                      height: '100%',
+                      width: '100%',
+                      borderRadius: SPACING,
+                    }}
+                    source={{ uri: userInfo?.user?.avatar }}
+                  />
+                </TouchableOpacity>
             </BlurView>
           </View>
         </View>
@@ -218,6 +223,7 @@ const BlogScreen = ({ navigation }) => {
             }}
           >
             <TextInput
+              showSoftInputOnFocus={false}
               style={{
                 width: '100%',
                 color: colors.white,

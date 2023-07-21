@@ -109,7 +109,7 @@ const BlogDetailScreen = ({ route }) => {
                 flexDirection: 'row',
                 justifyContent: 'space-between',
                 padding: SPACING * 2,
-                paddingTop: SPACING * 3,
+                paddingTop: SPACING * 4,
               }}
             >
               <TouchableOpacity

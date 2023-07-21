@@ -9,6 +9,7 @@ import {
   Dimensions,
   ActivityIndicator,
   TextInput,
+  Modal,
 } from 'react-native'
 import React, { useState, useEffect, useContext } from 'react'
 import SPACING from '../config/SPACING'
@@ -37,6 +38,7 @@ const HomeScreen = ({ navigation }) => {
   const [categoryData, setCategoryData] = useState([])
   const [isLoading, setIsLoading] = useState(false)
   const [userInfo, setUserInfo] = useState({})
+  const [isModalVisible, setModalVisible] = useState(false);
   const isFocused = useIsFocused()
 
   useFocusEffect(
@@ -148,234 +150,319 @@ const HomeScreen = ({ navigation }) => {
     navigation.navigate('Setting')
   }
 
-  return (
-    <SafeAreaView style={{ backgroundColor: colors.dark, flex: 1 }}>
-      <StatusBar backgroundColor={colors.primary} />
-      <ScrollView
-        style={{
-          padding: SPACING,
-          paddingTop: SPACING * 4,
-        }}
-      >
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            paddingBottom: SPACING * 2,
-          }}
-        >
-          <TouchableOpacity
-            style={{
-              borderRadius: SPACING,
-              overflow: 'hidden',
-              width: SPACING * 4,
-              height: SPACING * 4,
-            }}
-          >
-            <BlurView
-              style={{
-                height: '100%',
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}
-            >
-              <Ionicons
-                name="menu"
-                size={SPACING * 2.5}
-                color={colors.secondary}
-              />
-            </BlurView>
-          </TouchableOpacity>
-          
-          <View
-            style={{
-              width: SPACING * 4,
-              height: SPACING * 4,
-              overflow: 'hidden',
-              borderRadius: SPACING,
-            }}
-          >
-            <BlurView
-              style={{
-                height: '100%',
-                padding: SPACING / 2,
-              }}
-            >
-              <TouchableOpacity onPress={navigationToSetting}>
-                <Image
-                  style={{
-                    height: '100%',
-                    width: '100%',
-                    borderRadius: SPACING,
-                  }}
-                  source={{ uri: userInfo?.user?.avatar }}
-                />
-              </TouchableOpacity>
-            </BlurView>
-          </View>
-        </View>
-        {/* <View style={{ width: "80%", marginVertical: SPACING }}></View> */}
+  const toggleModal = () => {
+    setModalVisible(!isModalVisible);
+  };
 
-        {/* Search input */}
-        <View
-          style={{
-            borderRadius: SPACING,
-            overflow: "hidden",
-            marginBottom: SPACING * 2
-          }}
-        >
-          <BlurView
-            intensity={30}
-            style={{
+  return (
+    <>
+      <Modal visible={isModalVisible} transparent={true}>
+        <View style={styles.modalBackGround}>
+          <View style={styles.modalContainer}>
+            <View style={{
+              width: '100%',
+              backgroundColor: 'white',
+              paddingHorizontal: 20,
+              borderRadius: 20,
               alignItems: 'center',
               justifyContent: 'center',
+            }}>
+            </View>
+            <TouchableOpacity style={styles.modalClick} onPress={() => {
+              let tempList = foodData.sort((a, b) => a.food_name > b.food_name ? 1: -1)
+              setFoodData(tempList);
+              toggleModal();
+            }}>
+              <View>
+                <Text style={{ fontWeight: 'bold' }}>Sort by Name</Text>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.modalClick} onPress={() => {
+              setFoodData(foodData.sort((a, b) => a.calories - b.calories));
+              toggleModal();
+            }}>
+              <View>
+                <Text style={{ fontWeight: 'bold' }}>Low to High Calories</Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.modalClick} onPress={() => {
+              setFoodData(foodData.sort((a, b) => b.calories - a.calories));
+              toggleModal();
+            }}>
+              <View>
+                <Text style={{ fontWeight: 'bold' }}>High to Low Calories</Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.header} onPress={toggleModal}>
+              <Ionicons
+                name="close-outline"
+                size={SPACING * 3}
+              />
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      <SafeAreaView style={{ backgroundColor: colors.dark, flex: 1 }}>
+        <StatusBar backgroundColor={colors.primary} />
+
+        <View style={{
+          paddingHorizontal: SPACING,
+          paddingTop: SPACING * 4,
+        }}>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              paddingBottom: SPACING * 2,
             }}
           >
-            <TextInput
+            <TouchableOpacity
               style={{
-                width: '100%',
-                color: colors.white,
-                fontSize: SPACING * 1.7,
-                padding: SPACING,
-                paddingLeft: SPACING * 3.5,
-              }}
-              placeholder="Find Your Food..."
-              placeholderTextColor={colors.light}
-              onFocus={handleTextInputFocus}
-            />
-            <Ionicons
-              style={{
-                position: 'absolute',
-                left: SPACING,
-              }}
-              name="search"
-              color={colors.light}
-              size={SPACING * 2}
-            />
-          </BlurView>
-        </View>
-
-        <Carousels />
-
-        <Categories
-          let
-          titleColor="light"
-          onChange={(id) => setActiveCategoryId(id)}
-          inputData={categoryData}
-        />
-
-        
-
-        <View
-          style={{
-            flexDirection: 'row',
-            flexWrap: 'wrap',
-            justifyContent: 'space-between',
-            paddingBottom: SPACING * 4,
-          }}
-        >
-          {isLoading ? (
-            <View
-              style={{
-                flex: 1,
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginTop: 20,
+                borderRadius: SPACING,
+                overflow: 'hidden',
+                width: SPACING * 4,
+                height: SPACING * 4,
               }}
             >
-              <ActivityIndicator size="large" color="#FC6847" />
-            </View>
-          ) : (
-            foodData
-              ?.filter((food) => {
-                if (activeCategoryId === null) {
-                  return true
-                } else if (activeCategoryId === "8b113e48-d1d6-4397-a0aa-743be2df2ad1") {
-                  return true
-                }
-                return food.food_cate_detail.cate_detail_id === activeCategoryId
-              })
-              .map((food) => (
-                <View
-                  key={food.food_id}
-                  style={{
-                    width: width / 2 - SPACING * 2,
-                    marginBottom: SPACING,
-                    borderRadius: SPACING * 2,
-                    overflow: 'hidden',
-                  }}
-                >
-                  <BlurView
-                    tint="dark"
-                    intensity={95}
+              <BlurView
+                style={{
+                  height: '100%',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
+              >
+                <Ionicons
+                  name="menu"
+                  size={SPACING * 2.5}
+                  color={colors.secondary}
+                />
+              </BlurView>
+            </TouchableOpacity>
+
+            <View
+              style={{
+                width: SPACING * 4,
+                height: SPACING * 4,
+                overflow: 'hidden',
+                borderRadius: SPACING,
+              }}
+            >
+              <BlurView
+                style={{
+                  height: '100%',
+                  padding: SPACING / 2,
+                }}
+              >
+                <TouchableOpacity onPress={navigationToSetting}>
+                  <Image
                     style={{
-                      padding: SPACING,
+                      height: '100%',
+                      width: '100%',
+                      borderRadius: SPACING,
+                    }}
+                    source={{ uri: userInfo?.user?.avatar }}
+                  />
+                </TouchableOpacity>
+              </BlurView>
+            </View>
+          </View>
+          {/* <View style={{ width: "80%", marginVertical: SPACING }}></View> */}
+
+          {/* Search input */}
+          <View
+            style={{
+              flexDirection: 'row',
+              borderRadius: SPACING,
+              overflow: "hidden",
+              marginBottom: SPACING * 2
+            }}
+          >
+            <BlurView
+              intensity={30}
+              style={{
+                borderRadius: SPACING,
+                width: '85%',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <TextInput
+                showSoftInputOnFocus={false}
+                style={{
+                  width: '100%',
+                  color: colors.white,
+                  fontSize: SPACING * 1.7,
+                  padding: SPACING,
+                  paddingLeft: SPACING * 3.5,
+                }}
+                placeholder="Find Your Food..."
+                placeholderTextColor={colors.light}
+                onFocus={handleTextInputFocus}
+              />
+              <Ionicons
+                style={{
+                  position: 'absolute',
+                  left: SPACING,
+                }}
+                name="search"
+                color={colors.light}
+                size={SPACING * 2}
+              />
+            </BlurView>
+
+            <TouchableOpacity
+              onPress={toggleModal}
+              style={{
+                borderRadius: SPACING,
+                overflow: 'hidden',
+                width: SPACING * 4,
+                height: 45,
+                marginLeft: SPACING * 2
+              }}
+            >
+              <BlurView
+                style={{
+                  height: '100%',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
+              >
+                <Ionicons
+                  name="funnel"
+                  size={SPACING * 2.5}
+                  color={colors.secondary}
+                />
+              </BlurView>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <ScrollView
+          style={{
+            padding: SPACING,
+          }}
+        >
+          <Carousels />
+
+          <Categories
+            let
+            titleColor="light"
+            onChange={(id) => setActiveCategoryId(id)}
+            inputData={categoryData}
+          />
+
+          <View
+            style={{
+              flexDirection: 'row',
+              flexWrap: 'wrap',
+              justifyContent: 'space-between',
+              paddingBottom: SPACING * 4,
+            }}
+          >
+            {isLoading ? (
+              <View
+                style={{
+                  flex: 1,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginTop: 20,
+                }}
+              >
+                <ActivityIndicator size="large" color="#FC6847" />
+              </View>
+            ) : (
+              foodData
+                ?.filter((food) => {
+                  if (activeCategoryId === null) {
+                    return true
+                  } else if (activeCategoryId === "8b113e48-d1d6-4397-a0aa-743be2df2ad1") {
+                    return true
+                  }
+                  return food.food_cate_detail.cate_detail_id === activeCategoryId
+                })
+                .map((food) => (
+                  <View
+                    key={food.food_id}
+                    style={{
+                      width: width / 2 - SPACING * 2,
+                      marginBottom: SPACING,
+                      borderRadius: SPACING * 2,
+                      overflow: 'hidden',
                     }}
                   >
-                    <TouchableOpacity
-                      onPress={() =>
-                        navigation.navigate('OrchidDetail', {
-                          foodId: food.food_id,
-                          categoryData: categoryData,
-                          foodData: foodData,
-                        })
-                      }
+                    <BlurView
+                      tint="dark"
+                      intensity={95}
                       style={{
-                        height: 150,
-                        width: '100%',
+                        padding: SPACING,
                       }}
                     >
-                      <Image
-                        source={{ uri: food.food_image[0].image }}
+                      <TouchableOpacity
+                        onPress={() =>
+                          navigation.navigate('OrchidDetail', {
+                            foodId: food.food_id,
+                            categoryData: categoryData,
+                            foodData: foodData,
+                          })
+                        }
                         style={{
+                          height: 150,
                           width: '100%',
-                          height: '100%',
-                          borderRadius: SPACING * 2,
                         }}
-                      />
-                      
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      onPress={() =>
-                        navigation.navigate('OrchidDetail', {
-                          foodId: food.food_id,
-                          categoryData: categoryData,
-                          foodData: foodData
-                        })
-                      }
-                    >
+                      >
+                        <Image
+                          source={{ uri: food.food_image[0].image }}
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                            borderRadius: SPACING * 2,
+                          }}
+                        />
+
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        onPress={() =>
+                          navigation.navigate('OrchidDetail', {
+                            foodId: food.food_id,
+                            categoryData: categoryData,
+                            foodData: foodData
+                          })
+                        }
+                      >
+                        <Text
+                          numberOfLines={1}
+                          style={{
+                            color: colors.white,
+                            fontWeight: '600',
+                            fontSize: SPACING * 1.7,
+                            marginTop: SPACING,
+                            marginBottom: SPACING / 2,
+                          }}
+                        >
+                          {food.food_name}
+                        </Text>
+                      </TouchableOpacity>
                       <Text
                         numberOfLines={1}
                         style={{
-                          color: colors.white,
-                          fontWeight: '600',
-                          fontSize: SPACING * 1.7,
-                          marginTop: SPACING,
-                          marginBottom: SPACING / 2,
+                          color: colors.secondary,
+                          fontSize: SPACING * 1.2,
                         }}
                       >
-                        {food.food_name}
+                        {food.food_cate_detail.cate_detail_name}
                       </Text>
-                    </TouchableOpacity>
-                    <Text
-                      numberOfLines={1}
-                      style={{
-                        color: colors.secondary,
-                        fontSize: SPACING * 1.2,
-                      }}
-                    >
-                      {food.food_cate_detail.cate_detail_name}
-                    </Text>
-                    <View
-                      style={{
-                        marginVertical: SPACING / 2,
-                        flexDirection: 'row',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                      }}
-                    >
-                      <View style={{ flexDirection: 'row' }}>
-                        {/* <Text
+                      <View
+                        style={{
+                          marginVertical: SPACING / 2,
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                        }}
+                      >
+                        <View style={{ flexDirection: 'row' }}>
+                          {/* <Text
                       style={{
                         color: colors.primary,
                         marginRight: SPACING / 2,
@@ -383,61 +470,61 @@ const HomeScreen = ({ navigation }) => {
                       }}
                     >
                     </Text> */}
-                        <Text
-                          style={{
-                            color: colors.white,
-                            fontSize: SPACING * 1.6,
+                          <Text
+                            style={{
+                              color: colors.white,
+                              fontSize: SPACING * 1.6,
+                            }}
+                          >
+                            {food.calories}
+                          </Text>
+                          <Text
+                            style={{
+                              color: colors.primary,
+                              marginRight: SPACING / 2,
+                              fontSize: SPACING * 1.6,
+                              marginLeft: 5,
+                            }}
+                          >
+                            cal
+                          </Text>
+                        </View>
+                        <TouchableOpacity
+                          onPress={() => {
+                            const check = dataFav.find(
+                              (item) => item.food_id === food.food_id
+                            )
+                            console.log(food.food_id)
+                            console.log('Check:', check)
+                            if (check) {
+                              removeDataFromStorage(food.food_id)
+                            } else {
+                              setDataToStorage(food)
+                            }
                           }}
                         >
-                          {food.price}
-                        </Text>
-                        <Text
-                          style={{
-                            color: colors.primary,
-                            marginRight: SPACING / 2,
-                            fontSize: SPACING * 1.6,
-                            marginLeft: SPACING / 2,
-                          }}
-                        >
-                          vnđ
-                        </Text>
-                      </View>
-                      <TouchableOpacity
-                        onPress={() => {
-                          const check = dataFav.find(
+                          {dataFav.find(
                             (item) => item.food_id === food.food_id
-                          )
-                          console.log(food.food_id)
-                          console.log('Check:', check)
-                          if (check) {
-                            removeDataFromStorage(food.food_id)
-                          } else {
-                            setDataToStorage(food)
-                          }
-                        }}
-                      >
-                        {dataFav.find(
-                          (item) => item.food_id === food.food_id
-                        ) ? (
-                          <Ionicons
-                            name="heart"
-                            size={SPACING * 3}
-                            color={colors.primary}
-                          />
-                        ) : (
-                          <Ionicons
-                            name="heart"
-                            size={SPACING * 3}
-                            color={colors.white}
-                          />
-                        )}
-                      </TouchableOpacity>
-                    </View>
-                  </BlurView>
-                </View>
-              ))
-          )}
-          {/* <Text
+                          ) ? (
+                            <Ionicons
+                              name="heart"
+                              size={SPACING * 3}
+                              color={colors.primary}
+                            />
+                          ) : (
+                            <Ionicons
+                              name="heart"
+                              size={SPACING * 3}
+                              color={colors.white}
+                            />
+                          )}
+                        </TouchableOpacity>
+                      </View>
+                    </BlurView>
+                  </View>
+                ))
+            )}
+            {/* <Text
                         style={{ color: colors.white, fontSize: SPACING * 1.6 }}
                       >
                         {food.price}
@@ -475,12 +562,47 @@ const HomeScreen = ({ navigation }) => {
                 </BlurView>
               </View>
             ))} */}
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    </>
   )
 }
 
 export default HomeScreen
 
-// const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+  modalBackGround: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContainer: {
+    width: '60%',
+    height: '40%',
+    backgroundColor: 'white',
+    paddingHorizontal: 20,
+    paddingVertical: 30,
+    borderRadius: 20,
+    elevation: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  header: {
+    position: 'absolute',
+    top: 5,
+    right: 10
+  },
+  modalClick: {
+    width: '100%',
+    backgroundColor: 'white',
+    paddingHorizontal: 20,
+    paddingVertical: 30,
+    borderRadius: 20,
+    elevation: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 10
+  }
+
+});
